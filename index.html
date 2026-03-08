@@ -1015,5 +1015,22 @@ const ms = [50,60,90,100,180,365];
 const nxt = ms.find(m => m > days);
 if (nxt) document.getElementById('next-milestone').textContent = (nxt-days) + ' days until ' + nxt;
 </script>
-</body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL  = "https://qyuuszruiudrwwlenbvi.supabase.co";
+const SUPABASE_ANON = "sb_publishable_sFLzRw-TN2GfFhbFHidBig_kRo1rfsG";
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+async function initApp() {
+  const { data: { user } } = await db.auth.getUser();
+  if (user) {
+    console.log("✅ Clarity loaded for user:", user.id);
+  } else {
+    console.log("Running in demo mode — no user logged in");
+  }
+}
+document.addEventListener("DOMContentLoaded", initApp);
+</script>/body>
 </html>
