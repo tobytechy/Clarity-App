@@ -382,6 +382,7 @@ textarea::placeholder { color: var(--muted); }
     <button class="nav-tab" onclick="showPage('meetings')">📍 Meetings</button>
     <button class="nav-tab" onclick="showPage('counsellors')">💬 Support</button>
     <button class="nav-tab" onclick="showPage('journal')">✍️ Journal</button>
+    <button class="nav-tab" onclick="showPage('pricing')">⭐ Plans</button>  
   </div>
   <button class="nav-sos" onclick="showSOS()">🆘 Help</button>
 </nav>
@@ -1131,5 +1132,79 @@ async function initApp() {
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
-</script>/body>
+// ---- STRIPE PRICE IDs ----
+const STRIPE_PRICES = {
+  basic: { monthly: 'price_1T9u16GvXoVeIJVGxzkIqMrj', quarterly: 'price_1T9uIxGvXoVeIJVGh6cFSS3u' },
+  pro:   { monthly: 'price_1T9uB7GvXoVeIJVGysmMzCgV', quarterly: 'price_1T9uOyGvXoVeIJVGKCxR8MQb' },
+  team:  { monthly: 'price_1T9uFZGvXoVeIJVGP1BZZpkp', quarterly: 'price_1T9uQlGvXoVeIJVGQd0icwS2' },
+};
+
+const STRIPE_PK = 'pk_test_51T9titGvXoVeIJVGqYDwkJKIvnBkqcKJvrAa1IoaoGgLQ1z1DbWWLBeMjt9AiG6vYYdHKCDUHJrpl93hUTqpuYTR00wQOF6m88';
+
+const MONTHLY_PRICES   = { basic: '$7.99',  pro: '$14.99', team: '$24.99' };
+const QUARTERLY_PRICES = { basic: '$19.99', pro: '$37.99', team: '$59.99' };
+const QUARTERLY_MONTHLY = { basic: '$6.66', pro: '$12.66', team: '$19.99' };
+
+let currentBilling = 'monthly';
+
+function setBilling(type) {
+  currentBilling = type;
+  document.getElementById('toggle-monthly').style.background   = type === 'monthly'   ? '#2a3048' : 'transparent';
+  document.getElementById('toggle-monthly').style.color        = type === 'monthly'   ? '#e8eaf2' : '#6b7394';
+  document.getElementById('toggle-quarterly').style.background = type === 'quarterly' ? '#2a3048' : 'transparent';
+  document.getElementById('toggle-quarterly').style.color      = type === 'quarterly' ? '#e8eaf2' : '#6b7394';
+  ['basic','pro','team'].forEach(plan => {
+    const priceEl  = document.getElementById(plan + '-price');
+    const periodEl = document.getElementById(plan + '-period');
+    const saveEl   = document.getElementById(plan + '-save');
+    if (type === 'monthly') {
+      priceEl.textContent  = MONTHLY_PRICES[plan];
+      periodEl.textContent = '/mo';
+      saveEl.textContent   = '';
+    } else {
+      priceEl.textContent  = QUARTERLY_PRICES[plan];
+      periodEl.textContent = '/quarter';
+      saveEl.textContent   = QUARTERLY_MONTHLY[plan] + '/mo — save 25%';
+    }
+  });
+}
+
+async function startCheckout(plan) {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) {
+    showToast('Please sign in first to subscribe');
+    document.getElementById('auth-screen').style.display = 'flex';
+    return;
+  }
+  const btn = document.getElementById(plan + '-btn');
+  const originalText = btn.textContent;
+  btn.textContent = 'Loading...';
+  btn.disabled = true;
+  try {
+    const { data, error } = await db.functions.invoke('create-checkout', {
+      body: {
+        price_id:    STRIPE_PRICES[plan][currentBilling],
+        user_id:     user.id,
+        user_email:  user.email,
+        success_url: window.location.href + '?subscribed=true',
+        cancel_url:  window.location.href,
+      }
+    });
+    if (error) throw error;
+    if (data.url) window.location.href = data.url;
+  } catch (err) {
+    showToast('Checkout coming soon — Stripe setup in progress');
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+}
+
+window.addEventListener('load', () => {
+  if (window.location.search.includes('subscribed=true')) {
+    showToast('🎉 Welcome to Clarity Pro! Your subscription is active.');
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+});
+  </script>/body>
 </html>
