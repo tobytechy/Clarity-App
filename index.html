@@ -832,7 +832,106 @@ textarea::placeholder { color: var(--muted); }
 </div>
 
 <!-- ===== SOS MODAL ===== -->
-<div class="sos-modal" id="sos-modal">
+<!-- ===== PRICING PAGE ===== -->
+<div class="page" id="page-pricing">
+  <div style="max-width:680px;margin:0 auto;padding:32px 20px 80px;">
+    <div style="text-align:center;margin-bottom:32px;">
+      <h1 style="font-family:'Fraunces',serif;font-size:32px;font-weight:300;color:#e8eaf2;margin-bottom:8px;">Choose your <span style="font-style:italic;color:#f0a868;">plan</span></h1>
+      <p style="font-size:14px;color:#6b7394;line-height:1.6;">Start free. Upgrade when you're ready. Cancel anytime.</p>
+    </div>
+    <div style="display:flex;justify-content:center;margin-bottom:32px;">
+      <div style="display:flex;background:#181c27;border:1px solid #2a3048;border-radius:10px;padding:4px;">
+        <button id="toggle-monthly" onclick="setBilling('monthly')" style="padding:10px 24px;border-radius:7px;border:none;background:#2a3048;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Monthly</button>
+        <button id="toggle-quarterly" onclick="setBilling('quarterly')" style="padding:10px 24px;border-radius:7px;border:none;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;">Quarterly <span style="background:linear-gradient(135deg,#7ec8a4,#68b4f0);color:#0f1117;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;">Save 25%</span></button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;">
+
+      <!-- BASIC -->
+      <div style="background:#181c27;border:1px solid #2a3048;border-radius:16px;padding:24px 20px;display:flex;flex-direction:column;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7394;margin-bottom:10px;">Basic</div>
+        <div style="margin-bottom:16px;">
+          <div style="display:flex;align-items:baseline;gap:4px;">
+            <span id="basic-price" style="font-family:'Fraunces',serif;font-size:36px;font-weight:300;color:#e8eaf2;">$7.99</span>
+            <span id="basic-period" style="font-size:12px;color:#6b7394;">/mo</span>
+          </div>
+          <div id="basic-save" style="font-size:11px;color:#7ec8a4;margin-top:3px;min-height:16px;"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9098b8;"><span style="color:#7ec8a4;">✓</span> 5 Village members</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9098b8;"><span style="color:#7ec8a4;">✓</span> Unlimited journal</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9098b8;"><span style="color:#7ec8a4;">✓</span> Wins board</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9098b8;"><span style="color:#7ec8a4;">✓</span> Email alerts</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#3a4060;"><span>✗</span> SMS alerts</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#3a4060;"><span>✗</span> Team coordination</div>
+        </div>
+        <button id="basic-btn" onclick="startCheckout('basic')" style="width:100%;padding:12px;background:transparent;border:1px solid #2a3048;border-radius:9px;color:#9098b8;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Get Basic</button>
+      </div>
+
+      <!-- PRO -->
+      <div style="background:linear-gradient(135deg,#1e2540,#181c27);border:1px solid #f0a868;border-radius:16px;padding:24px 20px;display:flex;flex-direction:column;position:relative;box-shadow:0 0 40px rgba(240,168,104,0.12);">
+        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#f0a868,#f0c060);color:#0f1117;font-size:10px;font-weight:700;padding:4px 14px;border-radius:99px;white-space:nowrap;">⭐ MOST POPULAR</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f0a868;margin-bottom:10px;">Pro</div>
+        <div style="margin-bottom:16px;">
+          <div style="display:flex;align-items:baseline;gap:4px;">
+            <span id="pro-price" style="font-family:'Fraunces',serif;font-size:36px;font-weight:300;color:#e8eaf2;">$14.99</span>
+            <span id="pro-period" style="font-size:12px;color:#6b7394;">/mo</span>
+          </div>
+          <div id="pro-save" style="font-size:11px;color:#7ec8a4;margin-top:3px;min-height:16px;"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9098b8;"><span style="color:#f0a868;">✓</span> 10 Village members</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9098b8;"><span style="color:#f0a868;">✓</span> Unlimited everything</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9098b8;"><span style="color:#f0a868;">✓</span> Email + SMS alerts</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9098b8;"><span style="color:#f0a868;">✓</span> Village SOS broadcast</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9098b8;"><span style="color:#f0a868;">✓</span> Comfort notes unlimited</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#3a4060;"><span>✗</span> Team coordination</div>
+        </div>
+        <button id="pro-btn" onclick="startCheckout('pro')" style="width:100%;padding:12px;background:linear-gradient(135deg,#f0a868,#f0c060);border:none;border-radius:9px;color:#0f1117;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Get Pro</button>
+      </div>
+
+      <!-- TEAM -->
+      <div style="background:#181c27;border:1px solid #2a3048;border-radius:16px;padding:24px 20px;display:flex;flex-direction:column;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#a890e8;margin-bottom:10px;">Team</div>
+        <div style="margin-bottom:16px;">
+          <div style="display:flex;align-items:baseline;gap:4px;">
+            <span id="team-price" style="font-family:'Fraunces',serif;font-size:36px;font-weight:300;color:#e8eaf2;">$24.99</span>
+            <span id="team-period" style="font-size:12px;color:#6b7394;">/mo</span>
+          </div>
+          <div id="team-save" style="font-size:11px;color:#7ec8a4;margin-top:3px;min-height:16px;"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9098b8;"><span style="color:#a890e8;">✓</span> 20 Village members</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9098b8;"><span style="color:#a890e8;">✓</span> Everything in Pro</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9098b8;"><span style="color:#a890e8;">✓</span> Team coordination</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9098b8;"><span style="color:#a890e8;">✓</span> Village members connect</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9098b8;"><span style="color:#a890e8;">✓</span> Family dashboard</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9098b8;"><span style="color:#a890e8;">✓</span> Priority support</div>
+        </div>
+        <button id="team-btn" onclick="startCheckout('team')" style="width:100%;padding:12px;background:transparent;border:1px solid #a890e8;border-radius:9px;color:#a890e8;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Get Team</button>
+      </div>
+
+    </div>
+
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:13px;color:#3a4060;">Already on free? You keep 2 Village members, 10 wins, and 30 days of journal forever.</div>
+    </div>
+    <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:28px;">
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#4a5070;"><span>🔒</span> Secure payments via Stripe</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#4a5070;"><span>↩️</span> Cancel anytime</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#4a5070;"><span>🌙</span> 7-day free trial on Pro</div>
+    </div>
+    <div style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:22px;">
+      <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:300;color:#e8eaf2;margin-bottom:16px;">Common questions</div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div><div style="font-size:13px;font-weight:600;color:#e8eaf2;margin-bottom:4px;">Can I switch plans?</div><div style="font-size:13px;color:#6b7394;line-height:1.6;">Yes, upgrade or downgrade anytime. Changes take effect immediately.</div></div>
+        <div style="border-top:1px solid #2a3048;padding-top:14px;"><div style="font-size:13px;font-weight:600;color:#e8eaf2;margin-bottom:4px;">What happens if I cancel?</div><div style="font-size:13px;color:#6b7394;line-height:1.6;">You keep access until the end of your billing period, then move to the free plan. Your data is never deleted.</div></div>
+        <div style="border-top:1px solid #2a3048;padding-top:14px;"><div style="font-size:13px;font-weight:600;color:#e8eaf2;margin-bottom:4px;">Is my payment information safe?</div><div style="font-size:13px;color:#6b7394;line-height:1.6;">Yes. Payments are processed by Stripe — we never see or store your card details.</div></div>
+        <div style="border-top:1px solid #2a3048;padding-top:14px;"><div style="font-size:13px;font-weight:600;color:#e8eaf2;margin-bottom:4px;">Do Village members need an account?</div><div style="font-size:13px;color:#6b7394;line-height:1.6;">They get an invite link and can join without paying anything. Only the person in recovery needs a subscription.</div></div>
+      </div>
+    </div>
+  </div>
+</div>div class="sos-modal" id="sos-modal">
   <div class="sos-inner">
     <div class="sos-emoji">🫂</div>
     <div class="sos-title">You're <span>not alone.</span></div>
