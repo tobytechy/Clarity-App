@@ -1300,7 +1300,7 @@ async function signUp() {
     errEl.textContent = 'Please select at least one journey.'; return;
   }
   errEl.textContent = 'Creating your account...';
-  const { data, error } = await db.auth.signUp({
+  console.log('Selected journeys:', selectedJourneys);  const { data, error } = await db.auth.signUp({
     email, password,
     options: { data: { display_name: name, sobriety_start: date } }
   });
@@ -1310,7 +1310,7 @@ async function signUp() {
       id: data.user.id,
       display_name: name,
       sobriety_start: date,
-      journey: selectedJourneys.length > 0 ? selectedJourneys : ['sobriety']
+      journey: selectedJourneys.length > 0 ? selectedJourneys : ['sobriety'],
     });
   }
   document.getElementById('auth-screen').style.display = 'none';
@@ -1600,10 +1600,12 @@ let selectedJourneys = [];
 function toggleJourney(journey, el) {
   if (journey === 'all') {
     selectedJourneys = ['sobriety', 'depression', 'anxiety', 'wellness'];
-    ['sobriety','depression','anxiety','wellness','all'].forEach(j => {
+    ['sobriety','depression','anxiety','wellness'].forEach(j => {
       const btn = document.getElementById('journey-' + j);
       if (btn) { btn.style.borderColor = '#f0a868'; btn.style.background = 'rgba(240,168,104,0.15)'; }
     });
+    el.style.borderColor = '#f0a868';
+    el.style.background = 'rgba(240,168,104,0.15)';
     return;
   }
   const index = selectedJourneys.indexOf(journey);
@@ -1616,11 +1618,11 @@ function toggleJourney(journey, el) {
     el.style.borderColor = '#f0a868';
     el.style.background = 'rgba(240,168,104,0.15)';
   }
-  // Deselect "all" if individual items are being toggled
   const allBtn = document.getElementById('journey-all');
-  if (allBtn) { allBtn.style.borderColor = '#2a3048'; allBtn.style.background = '#1e2333'; }
   if (selectedJourneys.length === 4) {
     if (allBtn) { allBtn.style.borderColor = '#f0a868'; allBtn.style.background = 'rgba(240,168,104,0.15)'; }
+  } else {
+    if (allBtn) { allBtn.style.borderColor = '#2a3048'; allBtn.style.background = '#1e2333'; }
   }
 }
     </script>
