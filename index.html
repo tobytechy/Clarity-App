@@ -355,6 +355,36 @@ textarea::placeholder { color: var(--muted); }
       <input id="su-email" type="email" placeholder="Email address" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px;box-sizing:border-box;">
       <input id="su-password" type="password" placeholder="Password (min 6 characters)" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px;box-sizing:border-box;">
       <input id="su-date" type="date" placeholder="Sobriety start date" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:16px;box-sizing:border-box;">
+      <div style="margin-bottom:20px;">
+  <div style="font-size:13px;font-weight:600;color:#e8eaf2;margin-bottom:12px;">What brings you to Clarity? <span style="color:#e8728a;">*</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <div onclick="toggleJourney('sobriety', this)" id="journey-sobriety" style="padding:14px 12px;background:#1e2333;border:2px solid #2a3048;border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;">
+      <div style="font-size:22px;margin-bottom:6px;">🌙</div>
+      <div style="font-size:12px;font-weight:600;color:#e8eaf2;">Sobriety</div>
+      <div style="font-size:10px;color:#6b7394;margin-top:3px;">Recovery support</div>
+    </div>
+    <div onclick="toggleJourney('depression', this)" id="journey-depression" style="padding:14px 12px;background:#1e2333;border:2px solid #2a3048;border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;">
+      <div style="font-size:22px;margin-bottom:6px;">🌤️</div>
+      <div style="font-size:12px;font-weight:600;color:#e8eaf2;">Depression</div>
+      <div style="font-size:10px;color:#6b7394;margin-top:3px;">Low mood support</div>
+    </div>
+    <div onclick="toggleJourney('anxiety', this)" id="journey-anxiety" style="padding:14px 12px;background:#1e2333;border:2px solid #2a3048;border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;">
+      <div style="font-size:22px;margin-bottom:6px;">😰</div>
+      <div style="font-size:12px;font-weight:600;color:#e8eaf2;">Anxiety</div>
+      <div style="font-size:10px;color:#6b7394;margin-top:3px;">Stress & worry</div>
+    </div>
+    <div onclick="toggleJourney('wellness', this)" id="journey-wellness" style="padding:14px 12px;background:#1e2333;border:2px solid #2a3048;border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;">
+      <div style="font-size:22px;margin-bottom:6px;">💚</div>
+      <div style="font-size:12px;font-weight:600;color:#e8eaf2;">General Wellness</div>
+      <div style="font-size:10px;color:#6b7394;margin-top:3px;">Everyday wellbeing</div>
+    </div>
+  </div>
+  <div onclick="toggleJourney('all', this)" id="journey-all" style="margin-top:10px;padding:14px 12px;background:#1e2333;border:2px solid #2a3048;border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;">
+    <div style="font-size:22px;margin-bottom:4px;">✨</div>
+    <div style="font-size:12px;font-weight:600;color:#e8eaf2;">All of the above</div>
+    <div style="font-size:10px;color:#6b7394;margin-top:3px;">Full Clarity experience</div>
+  </div>
+</div>      
       <button onclick="signUp()" style="width:100%;padding:14px;background:linear-gradient(135deg,#7ec8a4,#68b4f0);border:none;border-radius:10px;color:#0f1117;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;">Create My Account</button>
       <div id="su-error" style="font-size:12px;color:#e8728a;margin-top:6px;min-height:16px;"></div>
     </div>
@@ -1260,26 +1290,34 @@ async function signUp() {
   const password = document.getElementById('su-password').value;
   const date     = document.getElementById('su-date').value;
   const errEl    = document.getElementById('su-error');
-
   if (!name || !email || !password || !date) {
     errEl.textContent = 'Please fill in all fields.'; return;
   }
   if (password.length < 6) {
     errEl.textContent = 'Password must be at least 6 characters.'; return;
   }
-
+  if (selectedJourneys.length === 0) {
+    errEl.textContent = 'Please select at least one journey.'; return;
+  }
   errEl.textContent = 'Creating your account...';
-  const { error } = await db.auth.signUp({
+  const { data, error } = await db.auth.signUp({
     email, password,
     options: { data: { display_name: name, sobriety_start: date } }
   });
-
   if (error) { errEl.textContent = error.message; return; }
-
+  if (data?.user) {
+    await db.from('profiles').upsert({
+      id: data.user.id,
+      display_name: name,
+      sobriety_start: date,
+      journey: selectedJourneys.length > 0 ? selectedJourneys : ['sobriety']
+    });
+  }
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('confirm-screen').style.display = 'flex';
 }
-
+}
+  
 async function initApp() {
   db.auth.onAuthStateChange((event, session) => {
     if (session && session.user) {
@@ -1557,6 +1595,34 @@ document.addEventListener('DOMContentLoaded', () => {
     if (oc.includes('lessons')) tab.addEventListener('click', loadLessons);
   });
 });
+let selectedJourneys = [];
+
+function toggleJourney(journey, el) {
+  if (journey === 'all') {
+    selectedJourneys = ['sobriety', 'depression', 'anxiety', 'wellness'];
+    ['sobriety','depression','anxiety','wellness','all'].forEach(j => {
+      const btn = document.getElementById('journey-' + j);
+      if (btn) { btn.style.borderColor = '#f0a868'; btn.style.background = 'rgba(240,168,104,0.15)'; }
+    });
+    return;
+  }
+  const index = selectedJourneys.indexOf(journey);
+  if (index > -1) {
+    selectedJourneys.splice(index, 1);
+    el.style.borderColor = '#2a3048';
+    el.style.background = '#1e2333';
+  } else {
+    selectedJourneys.push(journey);
+    el.style.borderColor = '#f0a868';
+    el.style.background = 'rgba(240,168,104,0.15)';
+  }
+  // Deselect "all" if individual items are being toggled
+  const allBtn = document.getElementById('journey-all');
+  if (allBtn) { allBtn.style.borderColor = '#2a3048'; allBtn.style.background = '#1e2333'; }
+  if (selectedJourneys.length === 4) {
+    if (allBtn) { allBtn.style.borderColor = '#f0a868'; allBtn.style.background = 'rgba(240,168,104,0.15)'; }
+  }
+}
     </script>
   </body>
 </html>
