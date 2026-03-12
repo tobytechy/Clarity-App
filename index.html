@@ -1300,19 +1300,17 @@ async function signUp() {
     errEl.textContent = 'Please select at least one journey.'; return;
   }
   errEl.textContent = 'Creating your account...';
-  console.log('Selected journeys:', selectedJourneys);  const { data, error } = await db.auth.signUp({
+  const { error } = await db.auth.signUp({
     email, password,
-    options: { data: { display_name: name, sobriety_start: date } }
+    options: {
+      data: {
+        display_name: name,
+        sobriety_start: date,
+        journey: selectedJourneys.length > 0 ? selectedJourneys : ['sobriety']
+      }
+    }
   });
   if (error) { errEl.textContent = error.message; return; }
-  if (data?.user) {
-    await db.from('profiles').upsert({
-      id: data.user.id,
-      display_name: name,
-      sobriety_start: date,
-      journey: selectedJourneys.length > 0 ? selectedJourneys : ['sobriety'],
-    });
-  }
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('confirm-screen').style.display = 'flex';
 }
