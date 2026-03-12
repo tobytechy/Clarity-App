@@ -1508,16 +1508,40 @@ async function loadLessons() {
     const { data: lessons } = await db.from('daily_lessons').select('*').order('day_number');
     if (!lessons) return;
     allLessons = lessons;
+
     const { data: { user } } = await db.auth.getUser();
+    let userJourneys = ['sobriety'];
     if (user) {
+      const { data: profile } = await db.from('profiles').select('journey,sobriety_start').eq('id', user.id).single();
+      if (profile?.journey) userJourneys = profile.journey;
+      if (profile?.sobriety_start) {
+        currentUserDays = Math.floor((new Date() - new Date(profile.sobriety_start)) / 86400000);
+      }
       const { data: progress } = await db.from('lesson_progress').select('lesson_id').eq('user_id', user.id);
       if (progress) readLessons = new Set(progress.map(p => p.lesson_id));
     }
+
+    // Filter lessons to only show ones matching user's journeys
+    allLessons = lessons.filter(l => {
+      if (!l.journeys) return true;
+      return l.journeys.some(j => userJourneys.includes(j));
+    });
+
+    // Update category filter buttons based on available lessons
+    updateCategoryFilters();
     updateLessonsProgress();
     renderLessons();
   } catch(err) {
     list.innerHTML = '<div style="text-align:center;padding:40px;color:#e8728a;font-size:13px;">Could not load lessons.</div>';
   }
+}
+
+function updateCategoryFilters() {
+  const available = new Set(allLessons.map(l => l.category));
+  ['science','cravings','health','mindset','relationships','milestones'].forEach(cat => {
+    const btn = document.getElementById('lesson-filter-' + cat);
+    if (btn) btn.style.display = available.has(cat) ? 'block' : 'none';
+  });
 }
 
 function updateLessonsProgress() {
