@@ -382,7 +382,9 @@ textarea::placeholder { color: var(--muted); }
     <button class="nav-tab" onclick="showPage('meetings')">📍 Meetings</button>
     <button class="nav-tab" onclick="showPage('counsellors')">💬 Support</button>
     <button class="nav-tab" onclick="showPage('journal')">✍️ Journal</button>
-    <button class="nav-tab" onclick="showPage('pricing')">⭐ Plans</button>  
+    <button class="nav-tab" onclick="showPage('pricing')">⭐ Plans</button>
+    <button class="nav-tab" onclick="showPage('community')">🌍 Community</button>
+<button class="nav-tab" onclick="showPage('lessons')">📖 Learn</button>
   </div>
   <button class="nav-sos" onclick="showSOS()">🆘 Help</button>
 </nav>
@@ -830,29 +832,77 @@ textarea::placeholder { color: var(--muted); }
     </div>
   </div>
 </div>
-Anonymous stories from people on the same journey as you.
-Share something with the community
+<div class="page" id="page-community">
+  <div style="max-width:600px;margin:0 auto;padding:24px 20px 80px;">
+    <div style="margin-bottom:24px;">
+      <h1 style="font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:#e8eaf2;margin-bottom:6px;">Community 🌍</h1>
+      <p style="font-size:13px;color:#6b7394;">Anonymous stories from people on the same journey as you.</p>
+    </div>
+    <div style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:20px;margin-bottom:24px;">
+      <div style="font-size:13px;font-weight:600;color:#e8eaf2;margin-bottom:12px;">Share something with the community</div>
+      <textarea id="community-post-text" placeholder="How are you feeling today? Share a win, a struggle, or some encouragement..." style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;resize:none;height:90px;box-sizing:border-box;line-height:1.6;"></textarea>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="post-anonymous" checked style="accent-color:#f0a868;">
+          <label for="post-anonymous" style="font-size:12px;color:#6b7394;cursor:pointer;">Post anonymously</label>
+        </div>
+        <button onclick="submitCommunityPost()" style="padding:10px 20px;background:linear-gradient(135deg,#f0a868,#f0c060);border:none;border-radius:8px;color:#0f1117;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Share</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;">
+      <button onclick="filterCommunity('all')" id="filter-all" style="padding:7px 16px;border-radius:99px;border:1px solid #f0a868;background:rgba(240,168,104,0.15);color:#f0a868;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">All Posts</button>
+      <button onclick="filterCommunity('sameday')" id="filter-sameday" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Same Day as Me</button>
+      <button onclick="filterCommunity('wins')" id="filter-wins" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Wins</button>
+      <button onclick="filterCommunity('struggling')" id="filter-struggling" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Need Support</button>
+    </div>
+    <div id="community-feed"><div style="text-align:center;padding:40px;color:#3a4060;font-size:14px;">Loading community posts...</div></div>
+  </div>
+</div>
 
-Post anonymously
-Share
-All Posts
-Same Day as Me
-Wins
-Need Support
-Loading community posts...
-Daily Lessons ðŸ“–
-Evidence-based insights for your recovery journey.
-Your Progress
-0 / 30 lessons
+<div class="page" id="page-lessons">
+  <div style="max-width:600px;margin:0 auto;padding:24px 20px 80px;">
+    <div style="margin-bottom:24px;">
+      <h1 style="font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:#e8eaf2;margin-bottom:6px;">Daily Lessons 📖</h1>
+      <p style="font-size:13px;color:#6b7394;">Evidence-based insights for your recovery journey.</p>
+    </div>
+    <div style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:20px;margin-bottom:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:13px;font-weight:600;color:#e8eaf2;">Your Progress</div>
+        <div id="lessons-progress-text" style="font-size:13px;color:#f0a868;font-weight:600;">0 / 30 lessons</div>
+      </div>
+      <div style="background:#1e2333;border-radius:99px;height:6px;overflow:hidden;">
+        <div id="lessons-progress-bar" style="height:100%;background:linear-gradient(135deg,#f0a868,#f0c060);border-radius:99px;width:0%;transition:width 0.5s ease;"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;">
+      <button onclick="filterLessons('all')" id="lesson-filter-all" style="padding:7px 16px;border-radius:99px;border:1px solid #f0a868;background:rgba(240,168,104,0.15);color:#f0a868;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">All</button>
+      <button onclick="filterLessons('science')" id="lesson-filter-science" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">🔬 Science</button>
+      <button onclick="filterLessons('cravings')" id="lesson-filter-cravings" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">🌊 Cravings</button>
+      <button onclick="filterLessons('health')" id="lesson-filter-health" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">💚 Health</button>
+      <button onclick="filterLessons('mindset')" id="lesson-filter-mindset" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">🧠 Mindset</button>
+      <button onclick="filterLessons('relationships')" id="lesson-filter-relationships" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">💙 Relationships</button>
+    </div>
+    <div id="lessons-list"><div style="text-align:center;padding:40px;color:#3a4060;font-size:14px;">Loading lessons...</div></div>
+  </div>
+</div>
 
-All
-ðŸ”¬ Science
-ðŸŒŠ Cravings
-ðŸ’š Health
-ðŸ§  Mindset
-ðŸ’™ Relationships
-Loading lessons...
-<!-- ===== SOS MODAL ===== -->
+<div id="lesson-modal" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#181c27;border:1px solid #2a3048;border-radius:20px;max-width:560px;width:100%;max-height:85vh;overflow-y:auto;">
+    <div style="padding:24px 28px;border-bottom:1px solid #2a3048;display:flex;justify-content:space-between;align-items:center;">
+      <div id="lesson-modal-category" style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#f0a868;"></div>
+      <button onclick="closeLessonModal()" style="background:none;border:none;color:#6b7394;font-size:20px;cursor:pointer;padding:0;">✕</button>
+    </div>
+    <div style="padding:28px;">
+      <h2 id="lesson-modal-title" style="font-family:'Fraunces',serif;font-size:24px;font-weight:300;color:#e8eaf2;margin-bottom:16px;line-height:1.4;"></h2>
+      <div id="lesson-modal-content" style="font-size:14px;color:#9098b8;line-height:1.8;"></div>
+      <div style="margin-top:24px;display:flex;align-items:center;justify-content:space-between;">
+        <div id="lesson-modal-readtime" style="font-size:12px;color:#3a4060;"></div>
+        <button id="lesson-modal-btn" onclick="markLessonRead()" style="padding:12px 24px;background:linear-gradient(135deg,#f0a868,#f0c060);border:none;border-radius:9px;color:#0f1117;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Mark as Read ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+  <!-- ===== SOS MODAL ===== -->
 <!-- ===== PRICING PAGE ===== -->
 <div class="page" id="page-pricing">
   <div style="max-width:680px;margin:0 auto;padding:32px 20px 80px;">
@@ -1327,6 +1377,186 @@ window.addEventListener('load', () => {
     window.history.replaceState({}, '', window.location.pathname);
   }
 });
-  </script>
+  let communityFilter = 'all';
+let currentUserDays = 0;
+
+async function loadCommunityFeed() {
+  const feed = document.getElementById('community-feed');
+  if (!feed) return;
+  try {
+    const { data: posts, error } = await db.from('community_posts').select('*').order('created_at', { ascending: false }).limit(50);
+    if (error) throw error;
+    if (!posts || posts.length === 0) {
+      feed.innerHTML = '<div style="text-align:center;padding:48px 20px;"><div style="font-size:40px;margin-bottom:14px;">🌱</div><div style="font-family:\'Fraunces\',serif;font-size:18px;font-weight:300;color:#e8eaf2;margin-bottom:8px;">Be the first to share</div><div style="font-size:13px;color:#6b7394;line-height:1.6;">Your story could be exactly what someone else needs to hear today.</div></div>';
+      return;
+    }
+    const { data: { user } } = await db.auth.getUser();
+    if (user) {
+      const { data: profile } = await db.from('profiles').select('sobriety_start').eq('id', user.id).single();
+      if (profile) currentUserDays = Math.floor((new Date() - new Date(profile.sobriety_start)) / 86400000);
+    }
+    let filtered = posts;
+    if (communityFilter === 'sameday') filtered = posts.filter(p => Math.abs((p.day_number || 0) - currentUserDays) <= 3);
+    else if (communityFilter === 'wins') filtered = posts.filter(p => p.mood === 'great' || p.mood === 'good');
+    else if (communityFilter === 'struggling') filtered = posts.filter(p => p.mood === 'rough' || p.mood === 'meh');
+    if (filtered.length === 0) { feed.innerHTML = '<div style="text-align:center;padding:40px;color:#3a4060;font-size:14px;">No posts in this category yet. Be the first!</div>'; return; }
+    const moodEmoji = { rough: '😔', meh: '😐', okay: '🙂', good: '😊', great: '🌟' };
+    feed.innerHTML = filtered.map(post => {
+      const mins = Math.floor((new Date() - new Date(post.created_at)) / 60000);
+      const hours = Math.floor(mins / 60);
+      const days = Math.floor(hours / 24);
+      const timeAgo = mins < 1 ? 'just now' : mins < 60 ? mins + 'm ago' : hours < 24 ? hours + 'h ago' : days + 'd ago';
+      const mood = post.mood ? moodEmoji[post.mood] || '' : '';
+      const dayBadge = post.day_number ? '<span style="background:#1e2333;border:1px solid #2a3048;padding:2px 8px;border-radius:99px;font-size:11px;color:#6b7394;">Day ' + post.day_number + '</span>' : '';
+      return '<div style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:20px;margin-bottom:14px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;"><div style="display:flex;align-items:center;gap:8px;"><div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2a3048,#1e2333);display:flex;align-items:center;justify-content:center;font-size:14px;">🌙</div><div><div style="font-size:13px;font-weight:600;color:#e8eaf2;">' + (post.is_anonymous ? 'Anonymous' : 'Community Member') + '</div><div style="font-size:11px;color:#3a4060;">' + timeAgo + '</div></div></div><div style="display:flex;align-items:center;gap:6px;">' + dayBadge + (mood ? '<span style="font-size:16px;">' + mood + '</span>' : '') + '</div></div><p style="font-size:14px;color:#9098b8;line-height:1.7;margin:0 0 14px;">' + post.content + '</p><div style="display:flex;align-items:center;gap:12px;"><button onclick="likePost(\'' + post.id + '\',this)" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#6b7394;font-family:\'DM Sans\',sans-serif;font-size:12px;cursor:pointer;padding:0;">❤️ <span class="like-count">' + (post.likes || 0) + '</span></button><button onclick="toggleComments(\'' + post.id + '\')" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#6b7394;font-family:\'DM Sans\',sans-serif;font-size:12px;cursor:pointer;padding:0;">💬 Reply</button></div><div id="comments-' + post.id + '" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #2a3048;"><textarea id="comment-text-' + post.id + '" placeholder="Write an encouraging reply..." style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:8px;padding:10px 12px;color:#e8eaf2;font-family:\'DM Sans\',sans-serif;font-size:13px;outline:none;resize:none;height:70px;box-sizing:border-box;"></textarea><button onclick="submitComment(\'' + post.id + '\')" style="margin-top:8px;padding:8px 16px;background:#2a3048;border:none;border-radius:7px;color:#e8eaf2;font-family:\'DM Sans\',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">Send</button></div></div>';
+    }).join('');
+  } catch(err) {
+    feed.innerHTML = '<div style="text-align:center;padding:40px;color:#e8728a;font-size:13px;">Could not load posts. Please try again.</div>';
+  }
+}
+
+async function submitCommunityPost() {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) { showToast('Please sign in to post'); return; }
+  const text = document.getElementById('community-post-text').value.trim();
+  if (!text) { showToast('Please write something first'); return; }
+  const isAnon = document.getElementById('post-anonymous').checked;
+  const { data: profile } = await db.from('profiles').select('sobriety_start').eq('id', user.id).single();
+  const dayNumber = profile ? Math.floor((new Date() - new Date(profile.sobriety_start)) / 86400000) : null;
+  const { error } = await db.from('community_posts').insert({ user_id: user.id, content: text, day_number: dayNumber, is_anonymous: isAnon });
+  if (error) { showToast('Could not post. Please try again.'); return; }
+  document.getElementById('community-post-text').value = '';
+  showToast('✨ Your post has been shared with the community!');
+  loadCommunityFeed();
+}
+
+async function likePost(postId, btn) {
+  await db.rpc('increment_post_likes', { post_id: postId });
+  const countEl = btn.querySelector('.like-count');
+  if (countEl) countEl.textContent = parseInt(countEl.textContent) + 1;
+}
+
+function toggleComments(postId) {
+  const el = document.getElementById('comments-' + postId);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+async function submitComment(postId) {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) { showToast('Please sign in to reply'); return; }
+  const text = document.getElementById('comment-text-' + postId).value.trim();
+  if (!text) return;
+  await db.from('community_comments').insert({ post_id: postId, user_id: user.id, content: text, is_anonymous: true });
+  document.getElementById('comment-text-' + postId).value = '';
+  showToast('💙 Reply sent!');
+}
+
+function filterCommunity(filter) {
+  communityFilter = filter;
+  ['all','sameday','wins','struggling'].forEach(f => {
+    const btn = document.getElementById('filter-' + f);
+    if (btn) { btn.style.background = f === filter ? 'rgba(240,168,104,0.15)' : 'transparent'; btn.style.borderColor = f === filter ? '#f0a868' : '#2a3048'; btn.style.color = f === filter ? '#f0a868' : '#6b7394'; }
+  });
+  loadCommunityFeed();
+}
+
+let allLessons = [];
+let readLessons = new Set();
+let lessonFilter = 'all';
+let currentLessonId = null;
+
+async function loadLessons() {
+  const list = document.getElementById('lessons-list');
+  if (!list) return;
+  try {
+    const { data: lessons } = await db.from('daily_lessons').select('*').order('day_number');
+    if (!lessons) return;
+    allLessons = lessons;
+    const { data: { user } } = await db.auth.getUser();
+    if (user) {
+      const { data: progress } = await db.from('lesson_progress').select('lesson_id').eq('user_id', user.id);
+      if (progress) readLessons = new Set(progress.map(p => p.lesson_id));
+    }
+    updateLessonsProgress();
+    renderLessons();
+  } catch(err) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:#e8728a;font-size:13px;">Could not load lessons.</div>';
+  }
+}
+
+function updateLessonsProgress() {
+  const total = allLessons.length;
+  const read = readLessons.size;
+  const pct = total > 0 ? (read / total) * 100 : 0;
+  const progressText = document.getElementById('lessons-progress-text');
+  const progressBar = document.getElementById('lessons-progress-bar');
+  if (progressText) progressText.textContent = read + ' / ' + total + ' lessons';
+  if (progressBar) progressBar.style.width = pct + '%';
+}
+
+function renderLessons() {
+  const list = document.getElementById('lessons-list');
+  if (!list) return;
+  const categoryEmoji = { science: '🔬', cravings: '🌊', health: '💚', mindset: '🧠', relationships: '💙', milestones: '🏆' };
+  const categoryColor = { science: '#68b4f0', cravings: '#f0a868', health: '#7ec8a4', mindset: '#a890e8', relationships: '#f0c060', milestones: '#f0a868' };
+  let filtered = lessonFilter === 'all' ? allLessons : allLessons.filter(l => l.category === lessonFilter);
+  if (filtered.length === 0) { list.innerHTML = '<div style="text-align:center;padding:40px;color:#3a4060;font-size:14px;">No lessons in this category.</div>'; return; }
+  list.innerHTML = filtered.map(lesson => {
+    const isRead = readLessons.has(lesson.id);
+    const emoji = categoryEmoji[lesson.category] || '📖';
+    const color = categoryColor[lesson.category] || '#f0a868';
+    return '<div onclick="openLesson(\'' + lesson.id + '\')" style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:18px 20px;margin-bottom:12px;cursor:pointer;' + (isRead ? 'opacity:0.6;' : '') + '"><div style="display:flex;align-items:flex-start;gap:14px;"><div style="width:40px;height:40px;border-radius:10px;background:#1e2333;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">' + (isRead ? '✓' : emoji) + '</div><div style="flex:1;min-width:0;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:' + color + ';">' + lesson.category + '</span><span style="font-size:10px;color:#3a4060;">· ' + lesson.read_time + ' min read</span>' + (isRead ? '<span style="font-size:10px;color:#7ec8a4;font-weight:600;">✓ Read</span>' : '') + '</div><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:4px;line-height:1.4;">' + lesson.title + '</div><div style="font-size:12px;color:#6b7394;line-height:1.5;">' + lesson.content.substring(0, 100) + '...</div></div></div></div>';
+  }).join('');
+}
+
+function openLesson(lessonId) {
+  const lesson = allLessons.find(l => l.id === lessonId);
+  if (!lesson) return;
+  currentLessonId = lessonId;
+  const categoryEmoji = { science: '🔬', cravings: '🌊', health: '💚', mindset: '🧠', relationships: '💙', milestones: '🏆' };
+  document.getElementById('lesson-modal-category').textContent = (categoryEmoji[lesson.category] || '📖') + ' ' + lesson.category.toUpperCase();
+  document.getElementById('lesson-modal-title').textContent = lesson.title;
+  document.getElementById('lesson-modal-content').textContent = lesson.content;
+  document.getElementById('lesson-modal-readtime').textContent = lesson.read_time + ' min read · Day ' + lesson.day_number;
+  const btn = document.getElementById('lesson-modal-btn');
+  if (readLessons.has(lessonId)) { btn.textContent = '✓ Already Read'; btn.style.background = '#2a3048'; btn.style.color = '#6b7394'; }
+  else { btn.textContent = 'Mark as Read ✓'; btn.style.background = 'linear-gradient(135deg,#f0a868,#f0c060)'; btn.style.color = '#0f1117'; }
+  document.getElementById('lesson-modal').style.display = 'flex';
+}
+
+function closeLessonModal() {
+  document.getElementById('lesson-modal').style.display = 'none';
+  currentLessonId = null;
+}
+
+async function markLessonRead() {
+  if (!currentLessonId || readLessons.has(currentLessonId)) return;
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) { showToast('Please sign in'); return; }
+  await db.from('lesson_progress').upsert({ user_id: user.id, lesson_id: currentLessonId });
+  readLessons.add(currentLessonId);
+  showToast('📖 Lesson completed! Keep learning.');
+  updateLessonsProgress();
+  renderLessons();
+  closeLessonModal();
+}
+
+function filterLessons(filter) {
+  lessonFilter = filter;
+  ['all','science','cravings','health','mindset','relationships'].forEach(f => {
+    const btn = document.getElementById('lesson-filter-' + f);
+    if (btn) { btn.style.background = f === filter ? 'rgba(240,168,104,0.15)' : 'transparent'; btn.style.borderColor = f === filter ? '#f0a868' : '#2a3048'; btn.style.color = f === filter ? '#f0a868' : '#6b7394'; }
+  });
+  renderLessons();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.nav-tab').forEach(tab => {
+    const oc = tab.getAttribute('onclick') || '';
+    if (oc.includes('community')) tab.addEventListener('click', loadCommunityFeed);
+    if (oc.includes('lessons')) tab.addEventListener('click', loadLessons);
+  });
+});
+    </script>
   </body>
 </html>
