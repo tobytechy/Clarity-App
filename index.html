@@ -1867,28 +1867,127 @@ function searchMeetingsByLocation() {
   const input = document.getElementById('meetings-location-input').value.trim();
   if (!input) { showToast('Please enter a city or postcode'); return; }
   const container = document.getElementById('meetings-map-container');
-  const encoded = encodeURIComponent('AA meetings near ' + input);
   container.style.display = 'block';
-  container.innerHTML = `<iframe width="100%" height="400" frameborder="0" style="border:0;border-radius:10px;" src="https://maps.google.com/maps?q=${encoded}&output=embed" allowfullscreen></iframe>`;
+  container.innerHTML = `
+    <div id="meetings-map" style="width:100%;height:300px;border-radius:10px;margin-bottom:16px;"></div>
+    <div id="meetings-places-list"><div style="text-align:center;padding:20px;color:#6b7394;font-size:13px;">🔍 Searching for meetings...</div></div>
+  `;
+
+  const script = document.createElement('script');
+  script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCRTDkO2m3TmT-rx7u7IH7XBsjpIzVgJqU&libraries=places&callback=initMeetingsMap`;
+  script.async = true;
+  window._meetingsSearchInput = input;
+  document.head.appendChild(script);
 }
 
-function filterOnlineMeetings(type) {
-  const cards = document.querySelectorAll('.online-meeting-card');
-  cards.forEach(card => {
-    if (type === 'all' || card.dataset.type === type) {
-      card.style.display = 'block';
-    } else {
-      card.style.display = 'none';
+function initMeetingsMap() {
+  const geocoder = new google.maps.Geocoder();
+  geocoder.geocode({ address: window._meetingsSearchInput + ' AA meetings' }, (results, status) => {
+    if (status !== 'OK' || !results[0]) {
+      document.getElementById('meetings-places-list').innerHTML = '<div style="text-align:center;padding:20px;color:#e8728a;font-size:13px;">Location not found. Please try a different search.</div>';
+      return;
+    }
+
+    const location = results[0].geometry.location;
+
+    const map = new google.maps.Map(document.getElementById('meetings-map'), {
+      center: location,
+      zoom: 13,
+      styles: [
+        { elementType: 'geometry', stylers: [{ color: '#1e2333' }] },
+        { elementType: 'labels.text.fill', stylers: [{ color: '#9098b8' }] },
+        { elementType: 'labels.text.stroke', stylers: [{ color: '#1e2333' }] },
+        { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2a3048' }] },
+        { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0f1117' }] },
+        { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#181c27' }] },
+      ]
+    });
+
+    const service = new google.maps.places.PlacesService(map);
+    const queries = [
+      window._meetingsSearchInput + ' AA Alcoholics Anonymous meeting',
+      window._meetingsSearchInput + ' NA Narcotics Anonymous meeting',
+      window._meetingsSearchInput + ' SMART Recovery meeting'
+    ];
+
+    let allPlaces = [];
+    let completed = 0;
+
+    queries.forEach(query => {
+      service.textSearch({ query }, (results, status) => {
+        completed++;
+        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+          allPlaces = allPlaces.concat(results.slice(0, 5));
+        }
+        if (completed === queries.length) {
+          renderPlacesMeetings(allPlaces, map);
+        }
+      });
+    });
+  });
+}
+
+function renderPlacesMeetings(places, map) {
+  const list = document.getElementById('meetings-places-list');
+  if (!list) return;
+
+  if (!places || places.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:#6b7394;font-size:13px;">No meetings found in this area. Try searching a nearby city.</div>';
+    return;
+  }
+
+  const markers = [];
+  places.forEach((place, i) => {
+    if (place.geometry) {
+      const marker = new google.maps.Marker({
+        position: place.geometry.location,
+        map: map,
+        title: place.name,
+        label: { text: String(i + 1), color: '#0f1117', fontWeight: 'bold', fontSize: '11px' },
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 14,
+          fillColor: '#f0a868',
+          fillOpacity: 1,
+          strokeColor: '#0f1117',
+          strokeWeight: 2
+        }
+      });
+      markers.push(marker);
     }
   });
-  ['all','aa','na','smart','mental'].forEach(f => {
-    const btn = document.getElementById('omfilter-' + f);
-    if (btn) {
-      btn.style.background = f === type ? 'rgba(240,168,104,0.15)' : 'transparent';
-      btn.style.borderColor = f === type ? '#f0a868' : '#2a3048';
-      btn.style.color = f === type ? '#f0a868' : '#6b7394';
-    }
-  });
+
+  list.innerHTML = '<div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7394;margin-bottom:14px;margin-top:4px;">Meetings Found</div>' +
+    places.map((place, i) => {
+      const address = place.formatted_address || place.vicinity || 'Address not available';
+      const phone = place.formatted_phone_number || '';
+      const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(place.name + ' ' + address)}`;
+      const isOnline = (place.name || '').toLowerCase().includes('online');
+
+      let tag = 'AA';
+      let tagColor = '#f0a868';
+      if ((place.name || '').toUpperCase().includes('NA') || (place.name || '').toUpperCase().includes('NARCOTICS')) {
+        tag = 'NA'; tagColor = '#a890e8';
+      } else if ((place.name || '').toUpperCase().includes('SMART')) {
+        tag = 'SMART'; tagColor = '#7ec8a4';
+      }
+
+      return `
+        <div style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:18px 20px;margin-bottom:12px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                <span style="background:#2a3048;color:#e8eaf2;font-size:11px;font-weight:700;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;">${i + 1}</span>
+                <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${tagColor};">${tag}</span>
+              </div>
+              <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:4px;line-height:1.4;">${place.name}</div>
+              <div style="font-size:12px;color:#6b7394;margin-bottom:${phone ? '4px' : '0'};">📍 ${address}</div>
+              ${phone ? `<div style="font-size:12px;color:#6b7394;">📞 ${phone}</div>` : ''}
+            </div>
+            <a href="${mapsUrl}" target="_blank" style="padding:9px 14px;background:#1e2333;border:1px solid #2a3048;border-radius:8px;color:#f0a868;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0;">Directions →</a>
+          </div>
+        </div>`;
+    }).join('');
 }
     </script>
   </body>
