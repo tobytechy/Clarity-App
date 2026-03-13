@@ -1720,7 +1720,7 @@ function loadNearbyMeetings() {
     if (prompt) prompt.innerHTML = '<div style="text-align:center;padding:20px;color:#6b7394;font-size:13px;">🔍 Finding meetings near you...</div>';
 
     try {
-      const response = await fetch(`https://api.meetingguide.org/meetings?latitude=${latitude}&longitude=${longitude}&distance=10&distance_units=miles`);
+     const response = await fetch(`https://meeting-guide.org/api/meetings?latitude=${latitude}&longitude=${longitude}&distance=10`);
       const data = await response.json();
 
       if (!data || !data.meetings || data.meetings.length === 0) {
@@ -1749,15 +1749,30 @@ function renderMeetings() {
   const typeColors = { AA: '#f0a868', NA: '#a890e8', SMART: '#7ec8a4', online: '#68b4f0' };
 
   let filtered = allMeetingsData;
-  if (meetingsFilter === 'online') {
-    filtered = allMeetingsData.filter(m => m.types && m.types.includes('ONL'));
-  } else if (meetingsFilter !== 'all') {
-    filtered = allMeetingsData.filter(m => {
-      const name = (m.name || '').toUpperCase();
-      const type = (m.type || '').toUpperCase();
-      return name.includes(meetingsFilter) || type.includes(meetingsFilter);
-    });
-  }
+if (meetingsFilter === 'online') {
+  filtered = allMeetingsData.filter(m => 
+    (m.types && m.types.includes('ONL')) || 
+    (m.name && m.name.toLowerCase().includes('online')) ||
+    (m.location && m.location.toLowerCase().includes('online'))
+  );
+} else if (meetingsFilter === 'AA') {
+  filtered = allMeetingsData.filter(m => 
+    !((m.name || '').toUpperCase().includes('NA ') || 
+      (m.name || '').toUpperCase().startsWith('NA') ||
+      (m.type || '').toUpperCase() === 'NA' ||
+      (m.name || '').toUpperCase().includes('SMART'))
+  );
+} else if (meetingsFilter === 'NA') {
+  filtered = allMeetingsData.filter(m => 
+    (m.name || '').toUpperCase().includes('NA') || 
+    (m.type || '').toUpperCase().includes('NA')
+  );
+} else if (meetingsFilter === 'SMART') {
+  filtered = allMeetingsData.filter(m => 
+    (m.name || '').toUpperCase().includes('SMART') || 
+    (m.type || '').toUpperCase().includes('SMART')
+  );
+}
 
   if (filtered.length === 0) {
     list.innerHTML = '<div style="text-align:center;padding:40px;color:#3a4060;font-size:14px;">No meetings found in this category nearby.</div>';
