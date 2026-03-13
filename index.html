@@ -799,97 +799,151 @@ textarea::placeholder { color: var(--muted); }
 <div class="page" id="page-meetings">
   <div style="max-width:600px;margin:0 auto;padding:24px 20px 80px;">
 
-    <!-- Header -->
     <div style="margin-bottom:24px;">
       <h1 style="font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:#e8eaf2;margin-bottom:6px;">Meetings <span style="color:#68b4f0;font-style:italic;">near you</span></h1>
-      <p style="font-size:13px;color:#6b7394;">Real AA, NA and SMART Recovery meetings in your area.</p>
+      <p style="font-size:13px;color:#6b7394;">Find AA, NA and SMART Recovery meetings in your area.</p>
     </div>
 
-    <!-- Location button -->
-    <div id="meetings-location-prompt" style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:24px;text-align:center;margin-bottom:24px;">
-      <div style="font-size:32px;margin-bottom:12px;">📍</div>
-      <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:8px;">Find meetings near you</div>
-      <div style="font-size:13px;color:#6b7394;margin-bottom:16px;">We'll use your location to find real meetings happening nearby.</div>
-      <button onclick="loadNearbyMeetings()" style="padding:12px 24px;background:linear-gradient(135deg,#68b4f0,#a890e8);border:none;border-radius:9px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Find Meetings Near Me</button>
+    <!-- Find local meetings -->
+    <div style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:20px;margin-bottom:20px;">
+      <div style="font-size:13px;font-weight:600;color:#e8eaf2;margin-bottom:6px;">📍 Local Meetings</div>
+      <div style="font-size:12px;color:#6b7394;margin-bottom:14px;">Search for meetings happening near your location.</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <input id="meetings-location-input" type="text" placeholder="Enter your city or postcode..." style="flex:1;background:#1e2333;border:1px solid #2a3048;border-radius:8px;padding:10px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;"/>
+        <button onclick="searchMeetingsByLocation()" style="padding:10px 16px;background:linear-gradient(135deg,#68b4f0,#a890e8);border:none;border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Search</button>
+      </div>
+      <div id="meetings-map-container" style="display:none;border-radius:10px;overflow:hidden;"></div>
     </div>
 
-    <!-- Filter tabs -->
-    <div style="display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;">
-      <button onclick="filterMeetingsLive('all')" id="mfilter-all" style="padding:7px 16px;border-radius:99px;border:1px solid #f0a868;background:rgba(240,168,104,0.15);color:#f0a868;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">All</button>
-      <button onclick="filterMeetingsLive('AA')" id="mfilter-AA" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">AA</button>
-      <button onclick="filterMeetingsLive('NA')" id="mfilter-NA" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">NA</button>
-      <button onclick="filterMeetingsLive('SMART')" id="mfilter-SMART" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">SMART</button>
-      <button onclick="filterMeetingsLive('online')" id="mfilter-online" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Online</button>
+    <!-- Meeting type filters -->
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7394;margin-bottom:14px;">Online Meetings</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;">
+      <button onclick="filterOnlineMeetings('all')" id="omfilter-all" style="padding:7px 16px;border-radius:99px;border:1px solid #f0a868;background:rgba(240,168,104,0.15);color:#f0a868;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">All</button>
+      <button onclick="filterOnlineMeetings('aa')" id="omfilter-aa" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">AA</button>
+      <button onclick="filterOnlineMeetings('na')" id="omfilter-na" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">NA</button>
+      <button onclick="filterOnlineMeetings('smart')" id="omfilter-smart" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">SMART</button>
+      <button onclick="filterOnlineMeetings('mental')" id="omfilter-mental" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Mental Health</button>
     </div>
 
-    <!-- Meetings list -->
-    <div id="meetings-live-list"></div>
+    <!-- Online meetings list -->
+    <div id="online-meetings-list">
 
-    <!-- Always available online meetings -->
-    <div style="margin-top:28px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7394;margin-bottom:14px;">Always Available Online</div>
-
-      <div style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:18px 20px;margin-bottom:12px;">
+      <!-- AA -->
+      <div class="online-meeting-card" data-type="aa" style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:18px 20px;margin-bottom:12px;">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div>
-            <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:4px;">AA Online Intergroup</div>
-            <div style="font-size:12px;color:#6b7394;">24/7 online AA meetings worldwide</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f0a868;">AA</span>
+              <span style="font-size:10px;color:#3a4060;">· 24/7</span>
+            </div>
+            <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:3px;">AA Online Intergroup</div>
+            <div style="font-size:12px;color:#6b7394;">Hundreds of online AA meetings daily worldwide</div>
           </div>
-          <a href="https://aa-intergroup.org/meetings" target="_blank" style="padding:9px 16px;background:#1e2333;border:1px solid #2a3048;border-radius:8px;color:#68b4f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;text-decoration:none;">Join →</a>
+          <a href="https://aa-intergroup.org/meetings" target="_blank" style="padding:9px 14px;background:#1e2333;border:1px solid #2a3048;border-radius:8px;color:#68b4f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0;">Join →</a>
         </div>
       </div>
 
-      <div style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:18px 20px;margin-bottom:12px;">
+      <div class="online-meeting-card" data-type="aa" style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:18px 20px;margin-bottom:12px;">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div>
-            <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:4px;">NA Online</div>
-            <div style="font-size:12px;color:#6b7394;">Narcotics Anonymous virtual meetings</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f0a868;">AA</span>
+              <span style="font-size:10px;color:#3a4060;">· 24/7</span>
+            </div>
+            <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:3px;">In The Rooms</div>
+            <div style="font-size:12px;color:#6b7394;">Online recovery community with live meetings</div>
           </div>
-          <a href="https://virtual-na.org" target="_blank" style="padding:9px 16px;background:#1e2333;border:1px solid #2a3048;border-radius:8px;color:#68b4f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;text-decoration:none;">Join →</a>
+          <a href="https://www.intherooms.com" target="_blank" style="padding:9px 14px;background:#1e2333;border:1px solid #2a3048;border-radius:8px;color:#68b4f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0;">Join →</a>
         </div>
       </div>
 
-      <div style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:18px 20px;margin-bottom:12px;">
+      <!-- NA -->
+      <div class="online-meeting-card" data-type="na" style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:18px 20px;margin-bottom:12px;">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div>
-            <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:4px;">SMART Recovery Online</div>
-            <div style="font-size:12px;color:#6b7394;">Science-based recovery meetings</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#a890e8;">NA</span>
+              <span style="font-size:10px;color:#3a4060;">· 24/7</span>
+            </div>
+            <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:3px;">NA Virtual Meetings</div>
+            <div style="font-size:12px;color:#6b7394;">Narcotics Anonymous online meetings worldwide</div>
           </div>
-          <a href="https://www.smartrecovery.org/community/calendar.php" target="_blank" style="padding:9px 16px;background:#1e2333;border:1px solid #2a3048;border-radius:8px;color:#68b4f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;text-decoration:none;">Join →</a>
+          <a href="https://virtual-na.org" target="_blank" style="padding:9px 14px;background:#1e2333;border:1px solid #2a3048;border-radius:8px;color:#68b4f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0;">Join →</a>
         </div>
       </div>
 
-      <div style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:18px 20px;margin-bottom:12px;">
+      <div class="online-meeting-card" data-type="na" style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:18px 20px;margin-bottom:12px;">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div>
-            <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:4px;">In The Rooms</div>
-            <div style="font-size:12px;color:#6b7394;">Online recovery community & meetings</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#a890e8;">NA</span>
+              <span style="font-size:10px;color:#3a4060;">· Daily</span>
+            </div>
+            <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:3px;">NA World Services</div>
+            <div style="font-size:12px;color:#6b7394;">Official NA meeting finder and resources</div>
           </div>
-          <a href="https://www.intherooms.com" target="_blank" style="padding:9px 16px;background:#1e2333;border:1px solid #2a3048;border-radius:8px;color:#68b4f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;text-decoration:none;">Join →</a>
+          <a href="https://www.na.org/meetingsearch" target="_blank" style="padding:9px 14px;background:#1e2333;border:1px solid #2a3048;border-radius:8px;color:#68b4f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0;">Find →</a>
         </div>
       </div>
 
-    </div>
-  </div>
-</div>
-<!-- ===== COUNSELLORS ===== -->
-<div class="page" id="page-counsellors">
-  <div class="counsellors-inner">
-    <h1 class="page-title fade-in d1">Find <span style="font-style:italic;color:var(--lavender)">support</span></h1>
-    <p class="page-sub fade-in d1">Certified counsellors and therapists specializing in recovery. All verified, many offer sliding-scale fees.</p>
-    <div class="c-grid fade-in d2">
-      <div class="c-card"><div class="c-avatar-wrap">👩‍⚕️</div><div class="c-name">Dr. Sarah Chen</div><div class="c-title">Licensed Clinical Social Worker</div><div class="c-specs"><span class="c-spec">Addiction</span><span class="c-spec">Trauma</span><span class="c-spec">CBT</span></div><div class="c-meta"><div><span class="c-stars">★★★★★</span> 4.9 (84)</div><div>💻 Online & In-person</div><div>💰 $90–$150 · Sliding scale</div><div>📅 Tomorrow</div></div><button class="c-book" onclick="showToast('📅 Booking page opening...')">Book a Session</button></div>
-      <div class="c-card"><div class="c-avatar-wrap">👨‍⚕️</div><div class="c-name">Marcus Williams</div><div class="c-title">Certified Addiction Counsellor</div><div class="c-specs"><span class="c-spec">Alcohol</span><span class="c-spec">Family</span><span class="c-spec">Relapse Prev.</span></div><div class="c-meta"><div><span class="c-stars">★★★★★</span> 4.8 (61)</div><div>💻 Online only</div><div>💰 $75–$120/session</div><div>📅 Today 4pm</div></div><button class="c-book" onclick="showToast('📅 Booking page opening...')">Book a Session</button></div>
-      <div class="c-card"><div class="c-avatar-wrap">👩</div><div class="c-name">Priya Okafor, MSW</div><div class="c-title">Recovery Therapist</div><div class="c-specs"><span class="c-spec">Women's Groups</span><span class="c-spec">EMDR</span></div><div class="c-meta"><div><span class="c-stars">★★★★★</span> 5.0 (42)</div><div>🏢 In-person, Vancouver</div><div>💰 $100–$160/session</div><div>📅 Mar 10</div></div><button class="c-book" onclick="showToast('📅 Booking page opening...')">Book a Session</button></div>
-      <div class="c-card"><div class="c-avatar-wrap">👨</div><div class="c-name">James Thornton</div><div class="c-title">Peer Recovery Coach</div><div class="c-specs"><span class="c-spec">Peer Support</span><span class="c-spec">12-Step</span></div><div class="c-meta"><div><span class="c-stars">★★★★☆</span> 4.7 (38)</div><div>💻 Online & Phone</div><div>💰 $40–$80 · Sliding scale</div><div>📅 Today 6pm</div></div><button class="c-book" onclick="showToast('📅 Booking page opening...')">Book a Session</button></div>
-    </div>
-    <div style="margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:18px 20px;" class="fade-in d4">
-      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Crisis Support — 24/7 Free</div>
-      <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:300;margin-bottom:10px;">Need to talk <span style="font-style:italic;color:var(--rose)">right now?</span></div>
-      <div style="display:flex;gap:9px;flex-wrap:wrap;">
-        <button onclick="showToast('📞 Calling SAMHSA...')" style="padding:10px 16px;background:rgba(232,114,138,0.12);border:1px solid rgba(232,114,138,0.28);border-radius:8px;color:var(--rose);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">📞 1-800-662-4357</button>
-        <button onclick="showToast('💬 Live chat opening...')" style="padding:10px 16px;background:rgba(104,180,240,0.1);border:1px solid rgba(104,180,240,0.22);border-radius:8px;color:var(--sky);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">💬 Live Chat</button>
+      <!-- SMART -->
+      <div class="online-meeting-card" data-type="smart" style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:18px 20px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#7ec8a4;">SMART</span>
+              <span style="font-size:10px;color:#3a4060;">· Daily</span>
+            </div>
+            <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:3px;">SMART Recovery Online</div>
+            <div style="font-size:12px;color:#6b7394;">Science-based recovery meetings, no steps required</div>
+          </div>
+          <a href="https://www.smartrecovery.org/community/calendar.php" target="_blank" style="padding:9px 14px;background:#1e2333;border:1px solid #2a3048;border-radius:8px;color:#68b4f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0;">Join →</a>
+        </div>
       </div>
+
+      <!-- Mental Health -->
+      <div class="online-meeting-card" data-type="mental" style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:18px 20px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f0c060;">Mental Health</span>
+              <span style="font-size:10px;color:#3a4060;">· Weekly</span>
+            </div>
+            <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:3px;">NAMI Online Support Groups</div>
+            <div style="font-size:12px;color:#6b7394;">Free peer-led groups for depression and anxiety</div>
+          </div>
+          <a href="https://www.nami.org/Support-Education/Support-Groups" target="_blank" style="padding:9px 14px;background:#1e2333;border:1px solid #2a3048;border-radius:8px;color:#68b4f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0;">Join →</a>
+        </div>
+      </div>
+
+      <div class="online-meeting-card" data-type="mental" style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:18px 20px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f0c060;">Mental Health</span>
+              <span style="font-size:10px;color:#3a4060;">· Daily</span>
+            </div>
+            <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:3px;">7 Cups Online Therapy</div>
+            <div style="font-size:12px;color:#6b7394;">Free emotional support and online therapy sessions</div>
+          </div>
+          <a href="https://www.7cups.com" target="_blank" style="padding:9px 14px;background:#1e2333;border:1px solid #2a3048;border-radius:8px;color:#68b4f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0;">Join →</a>
+        </div>
+      </div>
+
+      <div class="online-meeting-card" data-type="mental" style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:18px 20px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f0c060;">Mental Health</span>
+              <span style="font-size:10px;color:#3a4060;">· 24/7</span>
+            </div>
+            <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:3px;">Depression & Bipolar Support</div>
+            <div style="font-size:12px;color:#6b7394;">DBSA online support groups for mood disorders</div>
+          </div>
+          <a href="https://www.dbsalliance.org/support/chapters-and-support-groups/online-support-groups/" target="_blank" style="padding:9px 14px;background:#1e2333;border:1px solid #2a3048;border-radius:8px;color:#68b4f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;flex-shrink:0;">Join →</a>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1809,17 +1863,32 @@ if (meetingsFilter === 'online') {
   }).join('');
 }
 
-function filterMeetingsLive(filter) {
-  meetingsFilter = filter;
-  ['all','AA','NA','SMART','online'].forEach(f => {
-    const btn = document.getElementById('mfilter-' + f);
-    if (btn) {
-      btn.style.background = f === filter ? 'rgba(240,168,104,0.15)' : 'transparent';
-      btn.style.borderColor = f === filter ? '#f0a868' : '#2a3048';
-      btn.style.color = f === filter ? '#f0a868' : '#6b7394';
+function searchMeetingsByLocation() {
+  const input = document.getElementById('meetings-location-input').value.trim();
+  if (!input) { showToast('Please enter a city or postcode'); return; }
+  const container = document.getElementById('meetings-map-container');
+  const encoded = encodeURIComponent('AA meetings near ' + input);
+  container.style.display = 'block';
+  container.innerHTML = `<iframe width="100%" height="400" frameborder="0" style="border:0;border-radius:10px;" src="https://maps.google.com/maps?q=${encoded}&output=embed" allowfullscreen></iframe>`;
+}
+
+function filterOnlineMeetings(type) {
+  const cards = document.querySelectorAll('.online-meeting-card');
+  cards.forEach(card => {
+    if (type === 'all' || card.dataset.type === type) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
     }
   });
-  if (allMeetingsData.length > 0) renderMeetings();
+  ['all','aa','na','smart','mental'].forEach(f => {
+    const btn = document.getElementById('omfilter-' + f);
+    if (btn) {
+      btn.style.background = f === type ? 'rgba(240,168,104,0.15)' : 'transparent';
+      btn.style.borderColor = f === type ? '#f0a868' : '#2a3048';
+      btn.style.color = f === type ? '#f0a868' : '#6b7394';
+    }
+  });
 }
     </script>
   </body>
