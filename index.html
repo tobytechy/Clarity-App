@@ -1882,14 +1882,12 @@ function searchMeetingsByLocation() {
 
 function initMeetingsMap() {
   const geocoder = new google.maps.Geocoder();
- geocoder.geocode({ address: window._meetingsSearchInput }, (results, status) => {
+  geocoder.geocode({ address: window._meetingsSearchInput }, (results, status) => {
     if (status !== 'OK' || !results[0]) {
       document.getElementById('meetings-places-list').innerHTML = '<div style="text-align:center;padding:20px;color:#e8728a;font-size:13px;">Location not found. Please try a different search.</div>';
       return;
     }
-
     const location = results[0].geometry.location;
-
     const map = new google.maps.Map(document.getElementById('meetings-map'), {
       center: location,
       zoom: 13,
@@ -1903,54 +1901,56 @@ function initMeetingsMap() {
       ]
     });
 
-const service = new google.maps.places.PlacesService(map);
-const queries = [
-  'AA Alcoholics Anonymous meeting',
-  'NA Narcotics Anonymous meeting',
-  'SMART Recovery meeting'
-];
-const radii = [10000, 50000, 100000];
+    const service = new google.maps.places.PlacesService(map);
+    const queries = [
+      'AA Alcoholics Anonymous meeting',
+      'NA Narcotics Anonymous meeting',
+      'SMART Recovery meeting'
+    ];
+    const radii = [10000, 50000, 100000];
 
-function searchWithRadius(radius) {
-  let allPlaces = [];
-  let completed = 0;
-  queries.forEach(query => {
-    service.textSearch({ query, location: location, radius: radius }, (results, status) => {
-      completed++;
-      if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-        results.slice(0, 5).forEach(place => {
-          if (place.geometry) {
-            const dist = google.maps.geometry.spherical.computeDistanceBetween(location, place.geometry.location);
-            if (dist <= radius) allPlaces.push({ ...place, distanceMeters: dist });
+    function searchWithRadius(radius) {
+      let allPlaces = [];
+      let completed = 0;
+      queries.forEach(query => {
+        service.textSearch({ query, location: location, radius: radius }, (results, status) => {
+          completed++;
+          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+            results.slice(0, 5).forEach(place => {
+              if (place.geometry) {
+                const dist = google.maps.geometry.spherical.computeDistanceBetween(location, place.geometry.location);
+                if (dist <= radius) allPlaces.push({ ...place, distanceMeters: dist });
+              }
+            });
+          }
+          if (completed === queries.length) {
+            if (allPlaces.length === 0) {
+              const nextRadius = radii[radii.indexOf(radius) + 1];
+              if (nextRadius) {
+                const km = nextRadius / 1000;
+                document.getElementById('meetings-places-list').innerHTML = `<div style="text-align:center;padding:20px;color:#6b7394;font-size:13px;">No meetings found nearby — expanding search to ${km}km...</div>`;
+                setTimeout(() => searchWithRadius(nextRadius), 1000);
+              } else {
+                document.getElementById('meetings-places-list').innerHTML = `
+                  <div style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:24px;text-align:center;">
+                    <div style="font-size:32px;margin-bottom:12px;">🌍</div>
+                    <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:8px;">No local meetings found</div>
+                    <div style="font-size:13px;color:#6b7394;line-height:1.6;margin-bottom:16px;">We couldn't find meetings within 100km of this location. Support is still available online 24/7.</div>
+                    <button onclick="filterOnlineMeetings('all');document.getElementById('online-meetings-list').scrollIntoView({behavior:'smooth'});" style="padding:12px 24px;background:linear-gradient(135deg,#68b4f0,#a890e8);border:none;border-radius:9px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">View Online Meetings ↓</button>
+                  </div>`;
+              }
+            } else {
+              allPlaces.sort((a, b) => a.distanceMeters - b.distanceMeters);
+              renderPlacesMeetings(allPlaces, map, radius);
+            }
           }
         });
-      }
-      if (completed === queries.length) {
-        if (allPlaces.length === 0) {
-          const nextRadius = radii[radii.indexOf(radius) + 1];
-          if (nextRadius) {
-            const km = nextRadius / 1000;
-            document.getElementById('meetings-places-list').innerHTML = `<div style="text-align:center;padding:20px;color:#6b7394;font-size:13px;">No meetings found nearby — expanding search to ${km}km...</div>`;
-            setTimeout(() => searchWithRadius(nextRadius), 1000);
-          } else {
-            document.getElementById('meetings-places-list').innerHTML = `
-              <div style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:24px;text-align:center;">
-                <div style="font-size:32px;margin-bottom:12px;">🌍</div>
-                <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:8px;">No local meetings found</div>
-                <div style="font-size:13px;color:#6b7394;line-height:1.6;margin-bottom:16px;">We couldn't find meetings within 100km of this location. Support is still available online 24/7.</div>
-                <button onclick="filterOnlineMeetings('all');document.getElementById('online-meetings-list').scrollIntoView({behavior:'smooth'});" style="padding:12px 24px;background:linear-gradient(135deg,#68b4f0,#a890e8);border:none;border-radius:9px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">View Online Meetings ↓</button>
-              </div>`;
-          }
-        } else {
-          allPlaces.sort((a, b) => a.distanceMeters - b.distanceMeters);
-          renderPlacesMeetings(allPlaces, map, radius);
-        }
-      }
-    });
+      });
+    }
+
+    searchWithRadius(radii[0]);
   });
 }
-
-searchWithRadius(radii[0]);
 
 function renderPlacesMeetings(places, map) {
   const list = document.getElementById('meetings-places-list');
