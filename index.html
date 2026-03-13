@@ -1882,7 +1882,7 @@ function searchMeetingsByLocation() {
 
 function initMeetingsMap() {
   const geocoder = new google.maps.Geocoder();
-  geocoder.geocode({ address: window._meetingsSearchInput + ' AA meetings' }, (results, status) => {
+ geocoder.geocode({ address: window._meetingsSearchInput }, (results, status) => {
     if (status !== 'OK' || !results[0]) {
       document.getElementById('meetings-places-list').innerHTML = '<div style="text-align:center;padding:20px;color:#e8728a;font-size:13px;">Location not found. Please try a different search.</div>';
       return;
@@ -1989,6 +1989,28 @@ function renderPlacesMeetings(places, map) {
         </div>`;
     }).join('');
 }
+  </div>`;
+    }).join('');
+}
+
+function filterOnlineMeetings(type) {
+  const cards = document.querySelectorAll('.online-meeting-card');
+  cards.forEach(card => {
+    if (type === 'all' || card.dataset.type === type) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  ['all','aa','na','smart','mental'].forEach(f => {
+    const btn = document.getElementById('omfilter-' + f);
+    if (btn) {
+      btn.style.background = f === type ? 'rgba(240,168,104,0.15)' : 'transparent';
+      btn.style.borderColor = f === type ? '#f0a868' : '#2a3048';
+      btn.style.color = f === type ? '#f0a868' : '#6b7394';
+    }
+  });
+}    
     </script>
   </body>
 </html>
