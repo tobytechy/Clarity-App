@@ -1632,9 +1632,17 @@ async function loadLessons() {
 
     // Filter lessons to only show ones matching user's journeys
     allLessons = lessons.filter(l => {
-      if (!l.journeys) return true;
-      return l.journeys.some(j => userJourneys.includes(j));
-    });
+  if (!l.journeys) return true;
+  // Show lessons matching user's journey OR any locked pack previews
+  return l.journeys.some(j => userJourneys.includes(j));
+});
+
+// Also include building/momentum/mastery packs even if journey doesn't match
+// so users can see what they're missing and upgrade
+const lockedPackLessons = lessons.filter(l => 
+  l.pack !== 'foundation' && !allLessons.find(al => al.id === l.id)
+);
+allLessons = [...allLessons, ...lockedPackLessons];
 
     // Update category filter buttons based on available lessons
     updateCategoryFilters();
