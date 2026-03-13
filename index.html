@@ -1874,7 +1874,7 @@ function searchMeetingsByLocation() {
   `;
 
   const script = document.createElement('script');
-  script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCRTDkO2m3TmT-rx7u7IH7XBsjpIzVgJqU&libraries=places&callback=initMeetingsMap`;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCRTDkO2m3TmT-rx7u7IH7XBsjpIzVgJqU&libraries=places,geometry&callback=initMeetingsMap`;
   script.async = true;
   window._meetingsSearchInput = input;
   document.head.appendChild(script);
@@ -1903,35 +1903,74 @@ function initMeetingsMap() {
       ]
     });
 
-    const service = new google.maps.places.PlacesService(map);
-    const queries = [
-   'AA Alcoholics Anonymous meeting',
-   'NA Narcotics Anonymous meeting',
-   'SMART Recovery meeting'
- ];
+const service = new google.maps.places.PlacesService(map);
+const queries = [
+  'AA Alcoholics Anonymous meeting',
+  'NA Narcotics Anonymous meeting',
+  'SMART Recovery meeting'
+];
 
-    let allPlaces = [];
-    let completed = 0;
+let allPlaces = [];
+let completed = 0;
+const radii = [10000, 50000, 100000];
 
-    queries.forEach(query => {
-  service.textSearch({ query, location: location, radius: 10000 }, (results, status) => {
-        completed++;
-        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-          allPlaces = allPlaces.concat(results.slice(0, 5));
+function searchWithRadius(radius) {
+  allPlaces = [];
+  completed = 0;
+
+  queries.forEach(query => {
+    service.textSearch({ query, location: location, radius: radius }, (results, status) => {
+      completed++;
+
+      if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+        // Only include results within the actual radius
+        results.slice(0, 5).forEach(place => {
+          if (place.geometry) {
+            const placeLocation = place.geometry.location;
+            const distance = google.maps.geometry.spherical.computeDistanceBetween(location, placeLocation);
+            if (distance <= radius) {
+              allPlaces.push({ ...place, distanceMeters: distance });
+            }
+          }
+        });
+      }
+
+      if (completed === queries.length) {
+        if (allPlaces.length === 0) {
+          const nextRadius = radii[radii.indexOf(radius) + 1];
+          if (nextRadius) {
+            const km = nextRadius / 1000;
+            document.getElementById('meetings-places-list').innerHTML = `<div style="text-align:center;padding:20px;color:#6b7394;font-size:13px;">No meetings found nearby — expanding search to ${km}km...</div>`;
+            setTimeout(() => searchWithRadius(nextRadius), 1000);
+          } else {
+            // No meetings found within any radius
+            document.getElementById('meetings-places-list').innerHTML = `
+              <div style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:24px;text-align:center;">
+                <div style="font-size:32px;margin-bottom:12px;">🌍</div>
+                <div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:8px;">No local meetings found</div>
+                <div style="font-size:13px;color:#6b7394;line-height:1.6;margin-bottom:16px;">We couldn't find meetings within 100km of this location. This is common in some regions — but support is still available online 24/7.</div>
+                <button onclick="filterOnlineMeetings('all');document.getElementById('online-meetings-list').scrollIntoView({behavior:'smooth'});" style="padding:12px 24px;background:linear-gradient(135deg,#68b4f0,#a890e8);border:none;border-radius:9px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">View Online Meetings ↓</button>
+              </div>`;
+          }
+        } else {
+          // Sort by distance
+          allPlaces.sort((a, b) => a.distanceMeters - b.distanceMeters);
+          renderPlacesMeetings(allPlaces, map, radius);
         }
-        if (completed === queries.length) {
-          renderPlacesMeetings(allPlaces, map);
-        }
-      });
+      }
     });
   });
 }
 
-function renderPlacesMeetings(places, map) {
+searchWithRadius(radii[0]);
+
+function renderPlacesMeetings(places, map, radius) {
+  const radiusKm = Math.round(radius / 1000);
   const list = document.getElementById('meetings-places-list');
   if (!list) return;
 
   if (!places || places.length === 0) {
+    const headerText = radiusKm <= 10 ? 'Meetings Nearby' : `Meetings Within ${radiusKm}km`;
     list.innerHTML = '<div style="text-align:center;padding:20px;color:#6b7394;font-size:13px;">No meetings found in this area. Try searching a nearby city.</div>';
     return;
   }
@@ -1957,7 +1996,7 @@ function renderPlacesMeetings(places, map) {
     }
   });
 
-  list.innerHTML = '<div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7394;margin-bottom:14px;margin-top:4px;">Meetings Found</div>' +
+  list.innerHTML = `<div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7394;margin-bottom:14px;margin-top:4px;">${headerText}</div>` +
     places.map((place, i) => {
       const address = place.formatted_address || place.vicinity || 'Address not available';
       const phone = place.formatted_phone_number || '';
