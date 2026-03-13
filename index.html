@@ -1874,7 +1874,7 @@ function searchMeetingsByLocation() {
   `;
 
   const script = document.createElement('script');
-  script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCRTDkO2m3TmT-rx7u7IH7XBsjpIzVgJqU&libraries=places&callback=initMeetingsMap`;
+  script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCRTDkO2m3TmT-rx7u7IH7XBsjpIzVgJqU&libraries=places,geometry&callback=initMeetingsMap`;
   script.async = true;
   window._meetingsSearchInput = input;
   document.head.appendChild(script);
