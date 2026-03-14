@@ -1826,6 +1826,20 @@ function toggleJourney(journey, el) {
   } else {
     if (allBtn) { allBtn.style.borderColor = '#2a3048'; allBtn.style.background = '#1e2333'; }
   }
+  const dateLabel = document.getElementById('date-label');
+  if (dateLabel) {
+    if (selectedJourneys.includes('sobriety') && selectedJourneys.length === 1) {
+    dateLabel.textContent = '📅 My sobriety start date';
+  } else if (selectedJourneys.length === 1 && selectedJourneys.includes('depression')) {
+    dateLabel.textContent = '📅 When did you start addressing your depression?';
+  } else if (selectedJourneys.length === 1 && selectedJourneys.includes('anxiety')) {
+    dateLabel.textContent = '📅 When did you start your anxiety journey?';
+  } else if (selectedJourneys.length > 1) {
+    dateLabel.textContent = '📅 When did your wellness journey begin?';
+  } else {
+    dateLabel.textContent = '📅 When did your journey begin?';
+    }
+  }
 }
 let allMeetingsData = [];
 let meetingsFilter = 'all';
