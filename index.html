@@ -330,10 +330,10 @@ textarea::placeholder { color: var(--muted); }
 </style>
 </head>
 <body><!-- AUTH SCREEN -->
-<div id="auth-screen" style="display:flex;position:fixed;inset:0;z-index:9999;background:#0f1117;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
-  <div style="background:#181c27;border:1px solid #2a3048;border-radius:20px;padding:36px 32px;max-width:400px;width:100%;text-align:center;margin:auto;">
+<div id="auth-screen" style="display:flex;position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#0d2137 0%,#1a1040 50%,#0d2137 100%);align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+  <div style="background:rgba(15,30,50,0.85);border:1px solid rgba(100,180,210,0.2);border-radius:20px;padding:36px 32px;max-width:400px;width:100%;text-align:center;margin:auto;backdrop-filter:blur(10px);">
     <div style="font-family:Georgia,serif;font-size:32px;font-weight:300;color:#e8eaf2;margin-bottom:6px;">Clar<span style="color:#f0a868;font-style:italic;">ity</span></div>
-    <div style="font-size:13px;color:#6b7394;margin-bottom:28px;">Your sobriety companion</div>
+    <div style="font-size:13px;color:#7a9bb5;margin-bottom:28px;">You are not alone. Recovery starts here.</div>
 
     <!-- Toggle tabs -->
     <div style="display:flex;background:#1e2333;border-radius:9px;padding:3px;margin-bottom:22px;">
@@ -354,7 +354,8 @@ textarea::placeholder { color: var(--muted); }
       <input id="su-name" type="text" placeholder="Your first name" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px;box-sizing:border-box;">
       <input id="su-email" type="email" placeholder="Email address" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px;box-sizing:border-box;">
       <input id="su-password" type="password" placeholder="Password (min 6 characters)" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px;box-sizing:border-box;">
-      <input id="su-date" type="date" placeholder="Sobriety start date" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:16px;box-sizing:border-box;">
+     <div style="font-size:12px;font-weight:600;color:#7a9bb5;text-align:left;margin-bottom:6px;" id="date-label">📅 When did your journey begin?</div>
+      <input id="su-date" type="date" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:16px;box-sizing:border-box;">
       <div style="margin-bottom:20px;">
   <div style="font-size:13px;font-weight:600;color:#e8eaf2;margin-bottom:12px;">What brings you to Clarity? <span style="color:#e8728a;">*</span></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
