@@ -344,7 +344,7 @@ textarea::placeholder { color: var(--muted); }
     <!-- Sign In form -->
     <div id="form-signin">
       <input id="si-email" type="email" placeholder="Email address" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px;box-sizing:border-box;">
-      <input id="si-password" type="password" placeholder="Password" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:16px;box-sizing:border-box;">
+      <input id="si-password" type="password" placeholder="Password" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(160,140,220,0.2);border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:16px;box-sizing:border-box;">
       <button onclick="signIn()" style="width:100%;padding:14px;background:linear-gradient(135deg,#f0a868,#f0c060);border:none;border-radius:10px;color:#0f1117;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;">Sign In</button>
       <div id="si-error" style="font-size:12px;color:#e8728a;margin-top:6px;min-height:16px;"></div>
     </div>
@@ -355,32 +355,32 @@ textarea::placeholder { color: var(--muted); }
       <input id="su-email" type="email" placeholder="Email address" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px;box-sizing:border-box;">
       <input id="su-password" type="password" placeholder="Password (min 6 characters)" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px;box-sizing:border-box;">
      <div style="font-size:12px;font-weight:600;color:#7a9bb5;text-align:left;margin-bottom:6px;" id="date-label">📅 When did your journey begin?</div>
-      <input id="su-date" type="date" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:16px;box-sizing:border-box;">
+      <input id="su-date" type="date" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(160,140,220,0.2);border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:16px;box-sizing:border-box;">
       <div style="margin-bottom:20px;">
   <div style="font-size:13px;font-weight:600;color:#e8eaf2;margin-bottom:12px;">What brings you to Clarity? <span style="color:#e8728a;">*</span></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-    <div onclick="toggleJourney('sobriety', this)" id="journey-sobriety" style="padding:14px 12px;background:#1e2333;border:2px solid #2a3048;border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;">
+    <div onclick="toggleJourney('sobriety', this)" id="journey-sobriety" style="padding:14px 12px;background:rgba(255,255,255,0.05);border:2px solid rgba(160,140,220,0.2);border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;">
       <div style="font-size:22px;margin-bottom:6px;">🌙</div>
       <div style="font-size:12px;font-weight:600;color:#e8eaf2;">Sobriety</div>
       <div style="font-size:10px;color:#6b7394;margin-top:3px;">Recovery support</div>
     </div>
-    <div onclick="toggleJourney('depression', this)" id="journey-depression" style="padding:14px 12px;background:#1e2333;border:2px solid #2a3048;border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;">
+    <div onclick="toggleJourney('depression', this)" id="journey-depression" style="padding:14px 12px;background:rgba(255,255,255,0.05);border:2px solid rgba(160,140,220,0.2);border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;">
       <div style="font-size:22px;margin-bottom:6px;">🌤️</div>
       <div style="font-size:12px;font-weight:600;color:#e8eaf2;">Depression</div>
       <div style="font-size:10px;color:#6b7394;margin-top:3px;">Low mood support</div>
     </div>
-    <div onclick="toggleJourney('anxiety', this)" id="journey-anxiety" style="padding:14px 12px;background:#1e2333;border:2px solid #2a3048;border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;">
+    <div onclick="toggleJourney('anxiety', this)" id="journey-anxiety" style="padding:14px 12px;background:rgba(255,255,255,0.05);border:2px solid rgba(160,140,220,0.2);border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;">
       <div style="font-size:22px;margin-bottom:6px;">😰</div>
       <div style="font-size:12px;font-weight:600;color:#e8eaf2;">Anxiety</div>
       <div style="font-size:10px;color:#6b7394;margin-top:3px;">Stress & worry</div>
     </div>
-    <div onclick="toggleJourney('wellness', this)" id="journey-wellness" style="padding:14px 12px;background:#1e2333;border:2px solid #2a3048;border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;">
+    <div onclick="toggleJourney('wellness', this)" id="journey-wellness" style="padding:14px 12px;background:rgba(255,255,255,0.05);border:2px solid rgba(160,140,220,0.2);border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;">
       <div style="font-size:22px;margin-bottom:6px;">💚</div>
       <div style="font-size:12px;font-weight:600;color:#e8eaf2;">General Wellness</div>
       <div style="font-size:10px;color:#6b7394;margin-top:3px;">Everyday wellbeing</div>
     </div>
   </div>
-  <div onclick="toggleJourney('all', this)" id="journey-all" style="margin-top:10px;padding:14px 12px;background:#1e2333;border:2px solid #2a3048;border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;">
+  <div onclick="toggleJourney('all', this)" id="journey-all" style="margin-top:10px;padding:14px 12px;background:rgba(255,255,255,0.05);border:2px solid rgba(160,140,220,0.2);border-radius:12px;cursor:pointer;text-align:center;transition:all 0.2s;">
     <div style="font-size:22px;margin-bottom:4px;">✨</div>
     <div style="font-size:12px;font-weight:600;color:#e8eaf2;">All of the above</div>
     <div style="font-size:10px;color:#6b7394;margin-top:3px;">Full Clarity experience</div>
