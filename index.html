@@ -327,6 +327,45 @@ textarea::placeholder { color: var(--muted); }
 @keyframes fadeIn { to { opacity: 1; } }
 .d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.28s}.d4{animation-delay:.36s}.d5{animation-delay:.44s}
 
+/* ===== LEARN TAB ===== */
+.learn-tab {
+  flex-shrink:0; padding:0.5rem 1rem; border-radius:999px;
+  border:1px solid #2a3048; background:transparent;
+  color:#6b7394; font-size:0.78rem; font-weight:600;
+  cursor:pointer; transition:all 0.2s; white-space:nowrap;
+  font-family:'DM Sans',sans-serif;
+}
+.learn-tab:hover { border-color:#a890e8; color:#e8eaf2; }
+.learn-tab.active { background:#a890e8; border-color:#a890e8; color:white; box-shadow:0 2px 12px rgba(168,144,232,0.4); }
+.learn-section { display:none; }
+.learn-section.active { display:block; }
+.wb-card {
+  background:#181c27; border:1px solid #2a3048;
+  border-radius:14px; padding:16px; cursor:pointer;
+  transition:all 0.2s;
+}
+.wb-card:hover { border-color:#a890e8; transform:translateX(3px); background:rgba(168,144,232,0.05); }
+.wb-filter {
+  flex-shrink:0; padding:0.4rem 0.85rem; border-radius:999px;
+  border:1px solid #2a3048; background:transparent;
+  color:#6b7394; font-size:0.75rem; font-weight:600;
+  cursor:pointer; transition:all 0.2s; white-space:nowrap;
+  font-family:'DM Sans',sans-serif;
+}
+.wb-filter:hover { border-color:#a890e8; color:#e8eaf2; }
+.wb-filter.active { background:rgba(168,144,232,0.15); border-color:#a890e8; color:#a890e8; }
+.wb-question { margin-bottom:1rem; }
+.wb-question label { display:block; font-size:0.85rem; font-weight:600; color:#e8eaf2; margin-bottom:0.4rem; }
+.wb-question p { font-size:0.78rem; color:#6b7394; margin-bottom:0.5rem; line-height:1.5; }
+.wb-textarea {
+  width:100%; background:#1e2333; border:1px solid #2a3048;
+  border-radius:9px; padding:0.75rem; color:#e8eaf2;
+  font-family:'DM Sans',sans-serif; font-size:0.85rem;
+  line-height:1.6; resize:none; outline:none;
+  transition:border-color 0.2s; min-height:80px;
+}
+.wb-textarea:focus { border-color:#a890e8; }
+.wb-textarea::placeholder { color:#6b7394; }
 /* ===== CRAVING TOOLKIT ===== */
 @keyframes ct-pulse {
   0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
