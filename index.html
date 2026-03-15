@@ -1325,12 +1325,13 @@ let selWinCat = '';
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
+  const pg = document.getElementById('page-' + id);
+  if (pg) pg.classList.add('active');
   const map = {home:0,wins:1,village:2,messages:3,meetings:4,counsellors:5,journal:6};
   const tabs = document.querySelectorAll('.nav-tab');
   if (map[id] !== undefined) tabs[map[id]].classList.add('active');
   window.scrollTo(0,0);
-  if (page === 'journal') loadTriggerHistory();
+  if (id === 'journal') loadTriggerHistory();
 }
 
 // Village tabs
@@ -2456,8 +2457,7 @@ async function loadDailyPledge() {
   if (!user) return;
 
   const today = new Date().toISOString().split('T')[0];
-  const { data: pledge } = await db.from('daily_pledges').select('*').eq('user_id', user.id).eq('date', today).single().catch(() => ({ data: null }));
-
+  const { data: pledge } = await db.from('daily_pledges').select('*').eq('user_id', user.id).eq('date', today).maybeSingle() ?? { data: null };
   const morningEl = document.getElementById('pledge-morning');
   const doneEl = document.getElementById('pledge-done');
   const doneText = document.getElementById('pledge-done-text');
