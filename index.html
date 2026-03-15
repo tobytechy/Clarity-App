@@ -1585,7 +1585,7 @@ async function initApp() {
         const el = document.getElementById('day-count');
         if (el) el.textContent = realDays;
       }
-
+      loadDailyPledge();
       console.log('✅ Clarity loaded for user:', session.user.id);
     } else {
       document.getElementById('auth-screen').style.display = 'flex';
