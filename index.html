@@ -1327,7 +1327,7 @@ function showPage(id) {
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   const pg = document.getElementById('page-' + id);
   if (pg) pg.classList.add('active');
-  const map = {home:0,wins:1,village:2,messages:3,meetings:4,counsellors:5,journal:6};
+  const map = {home:0,wins:1,village:2,messages:3,meetings:4,counsellors:5,journal:6,pricing:7,community:8,lessons:9};
   const tabs = document.querySelectorAll('.nav-tab');
   if (map[id] !== undefined) tabs[map[id]].classList.add('active');
   window.scrollTo(0,0);
