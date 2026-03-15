@@ -463,7 +463,7 @@ textarea::placeholder { color: var(--muted); }
     <button class="nav-tab" onclick="showPage('community')">🌍 Community</button>
 <button class="nav-tab" onclick="showPage('lessons')">📖 Learn</button>
   </div>
- <button class="nav-sos" onclick="showSOS()">🆘 Help</button>
+ <button class="nav-sos" onclick="openCravingToolkit()"()">🆘 Help</button>
   <div style="position:relative;display:inline-block;">
     <button onclick="toggleProfileMenu()" class="nav-sos" style="background:rgba(255,255,255,0.1);margin-left:8px;">👤</button>
     <div id="profile-menu" style="display:none;position:absolute;top:44px;right:0;background:#1e2333;border:1px solid #2a3048;border-radius:14px;padding:8px;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,0.5);z-index:1002;">
@@ -2859,6 +2859,178 @@ document.addEventListener('DOMContentLoaded', () => {
   } catch(e) {
     el.innerHTML = '<span style="color:var(--muted);">Could not load trigger history.</span>';
   }
+}
+  // ===== CRAVING TOOLKIT =====
+function openCravingToolkit() {
+  const el = document.getElementById('craving-toolkit');
+  el.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  showTool('urge');
+}
+
+function closeCravingToolkit() {
+  const el = document.getElementById('craving-toolkit');
+  el.style.display = 'none';
+  document.body.style.overflow = '';
+  stopUrgeTimer();
+  stopBreathing();
+}
+
+function showTool(name) {
+  document.querySelectorAll('.ct-tool').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('.ct-pill').forEach(p => p.classList.remove('active'));
+  document.getElementById('tool-' + name).style.display = 'block';
+  document.querySelector('[data-tool="' + name + '"]').classList.add('active');
+}
+
+// URGE SURF
+let urgeInterval = null;
+let urgeSeconds = 15 * 60;
+let urgeRunning = false;
+
+function setUrgeTimer(mins, btn) {
+  stopUrgeTimer();
+  urgeSeconds = mins * 60;
+  document.getElementById('urge-time').textContent = formatTime(urgeSeconds);
+  document.getElementById('urge-start-btn').textContent = '▶ Start Timer';
+  document.getElementById('urge-start-btn').style.display = 'block';
+  document.getElementById('urge-complete').style.display = 'none';
+  document.querySelectorAll('.ct-btn-outline').forEach(b => b.classList.remove('ct-active-dur'));
+  if (btn) btn.classList.add('ct-active-dur');
+}
+
+function toggleUrgeTimer() {
+  if (urgeRunning) {
+    stopUrgeTimer();
+    document.getElementById('urge-start-btn').textContent = '▶ Resume Timer';
+  } else {
+    urgeRunning = true;
+    document.getElementById('urge-start-btn').textContent = '⏸ Pause';
+    urgeInterval = setInterval(() => {
+      urgeSeconds--;
+      document.getElementById('urge-time').textContent = formatTime(urgeSeconds);
+      if (urgeSeconds <= 0) {
+        stopUrgeTimer();
+        document.getElementById('urge-time').textContent = '0:00';
+        document.getElementById('urge-start-btn').style.display = 'none';
+        document.getElementById('urge-complete').style.display = 'block';
+      }
+    }, 1000);
+  }
+}
+
+function stopUrgeTimer() {
+  clearInterval(urgeInterval);
+  urgeRunning = false;
+}
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return m + ':' + String(sec).padStart(2, '0');
+}
+
+// GROUNDING
+function nextGroundStep(current) {
+  document.getElementById('ground-step-' + current).style.display = 'none';
+  document.getElementById('ground-step-' + (current + 1)).style.display = 'block';
+}
+
+function resetGrounding() {
+  for (let i = 0; i <= 5; i++) {
+    const el = document.getElementById('ground-step-' + i);
+    if (el) el.style.display = 'none';
+  }
+  document.querySelectorAll('.ct-input').forEach(i => i.value = '');
+  document.getElementById('ground-step-0').style.display = 'block';
+}
+
+// BOX BREATHING
+let breathInterval = null;
+let breathRunning = false;
+let breathCycles = 0;
+let breathPhase = 0;
+let breathCountdown = 4;
+const BREATH_PHASES = ['Inhale','Hold','Exhale','Hold'];
+const DOT_PATH = [
+  {top:'-8px', left:'-8px'},
+  {top:'-8px', left:'182px'},
+  {top:'182px', left:'182px'},
+  {top:'182px', left:'-8px'}
+];
+
+function toggleBreathing() {
+  if (breathRunning) {
+    stopBreathing();
+    document.getElementById('breathe-start-btn').textContent = '▶ Resume';
+  } else {
+    breathRunning = true;
+    document.getElementById('breathe-start-btn').textContent = '⏹ Stop';
+    runBreathPhase();
+  }
+}
+
+function runBreathPhase() {
+  if (!breathRunning) return;
+  const dot = document.getElementById('breath-dot');
+  const instr = document.getElementById('breath-instruction');
+  const countEl = document.getElementById('breath-count');
+  dot.style.top = DOT_PATH[breathPhase].top;
+  dot.style.left = DOT_PATH[breathPhase].left;
+  instr.textContent = BREATH_PHASES[breathPhase];
+  breathCountdown = 4;
+  countEl.textContent = breathCountdown;
+  clearInterval(breathInterval);
+  breathInterval = setInterval(() => {
+    breathCountdown--;
+    countEl.textContent = breathCountdown > 0 ? breathCountdown : '';
+    if (breathCountdown <= 0) {
+      clearInterval(breathInterval);
+      breathPhase = (breathPhase + 1) % 4;
+      if (breathPhase === 0) {
+        breathCycles++;
+        document.getElementById('breath-cycle-display').textContent = breathCycles + ' / 4 cycles';
+        if (breathCycles >= 4) {
+          stopBreathing();
+          instr.textContent = '✓ Complete';
+          countEl.textContent = '';
+          document.getElementById('breathe-start-btn').textContent = '▶ Again';
+          breathCycles = 0;
+          breathPhase = 0;
+          document.getElementById('breath-cycle-display').textContent = '0 / 4 cycles';
+          return;
+        }
+      }
+      if (breathRunning) runBreathPhase();
+    }
+  }, 1000);
+}
+
+function stopBreathing() {
+  clearInterval(breathInterval);
+  breathRunning = false;
+}
+
+// DISTRACT
+function trackDistraction(type, btn) {
+  document.querySelectorAll('.ct-distract-card').forEach(c => c.classList.remove('selected'));
+  if (btn) btn.classList.add('selected');
+  document.getElementById('distract-confirmed').style.display = 'block';
+}
+
+// VILLAGE ALERT
+async function alertVillage() {
+  try {
+    const { data: { user } } = await db.auth.getUser();
+    if (!user) return;
+    await db.from('sos_events').insert({
+      user_id: user.id,
+      type: 'craving_toolkit',
+      message: "I'm using the Craving Toolkit right now — could use your support 🫂",
+      created_at: new Date().toISOString()
+    });
+  } catch(e) { console.error(e); }
+  document.getElementById('village-alerted').style.display = 'block';
 }
     </script>
   </body>
