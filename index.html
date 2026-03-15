@@ -464,7 +464,35 @@ textarea::placeholder { color: var(--muted); }
       <div class="stat-card"><div class="stat-val" style="color:var(--dawn)">$940</div><div class="stat-lbl">Saved</div></div>
       <div class="stat-card"><div class="stat-val" style="color:var(--sky)">1,128</div><div class="stat-lbl">Hrs Clear</div></div>
     </div>
-    <button class="checkin-btn fade-in d3" id="checkin-btn" onclick="doCheckin()"><span>✓</span> Check in for today</button>
+   <button class="checkin-btn fade-in d3" id="checkin-btn" onclick="doCheckin()"><span>✓</span> Check in for today</button>
+
+    <!-- DAILY PLEDGE -->
+    <div id="daily-pledge-card" class="fade-in d3" style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:20px;margin:16px 0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:700;color:#e8eaf2;" id="pledge-card-title">🌅 Today's Intention</div>
+        <div id="pledge-streak" style="font-size:11px;color:#f0a868;font-weight:600;"></div>
+      </div>
+      <div id="pledge-morning" style="display:block;">
+        <textarea id="pledge-text" placeholder="What is your intention for today? What will you choose?" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;resize:none;height:80px;box-sizing:border-box;line-height:1.6;margin-bottom:12px;"></textarea>
+        <button onclick="savePledge()" style="width:100%;padding:11px;background:linear-gradient(135deg,#a890e8,#68b4f0);border:none;border-radius:9px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Set My Intention ✨</button>
+      </div>
+      <div id="pledge-done" style="display:none;">
+        <div id="pledge-done-text" style="font-size:13px;color:#9098b8;line-height:1.6;font-style:italic;margin-bottom:12px;"></div>
+        <button onclick="openEveningReview()" id="evening-review-btn" style="display:none;width:100%;padding:11px;background:linear-gradient(135deg,#f0a868,#f0c060);border:none;border-radius:9px;color:#0f1117;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">🌙 Evening Review</button>
+      </div>
+    </div>
+
+    <!-- TRIGGER TRACKER — shows after check-in -->
+    <div id="trigger-tracker" style="display:none;background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:20px;margin:0 0 16px;">
+      <div style="font-size:13px;font-weight:700;color:#e8eaf2;margin-bottom:6px;">🎯 What triggered you today?</div>
+      <div style="font-size:12px;color:#6b7394;margin-bottom:14px;">Optional — helps you spot patterns over time.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;" id="trigger-chips"></div>
+      <button onclick="saveTriggers()" style="width:100%;padding:10px;background:#2a3048;border:none;border-radius:9px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Save & Continue</button>
+    </div>
+
+    <div class="mini-section fade-in d4">
+      <div class="mini-title">How are you feeling?</div>
+      <div class="mood-grid">
     <div class="mini-section fade-in d4">
       <div class="mini-title">How are you feeling?</div>
       <div class="mood-grid">
@@ -1145,7 +1173,21 @@ textarea::placeholder { color: var(--muted); }
     <button onclick="saveNotificationSettings()" style="width:100%;padding:13px;background:linear-gradient(135deg,#a890e8,#68b4f0);border:none;border-radius:9px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Save Settings</button>
   </div>
 </div>
-  <!-- ===== SOS MODAL ===== -->
+<!-- EVENING REVIEW MODAL -->
+<div id="evening-review-modal" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#181c27;border:1px solid #2a3048;border-radius:20px;max-width:420px;width:100%;padding:28px;">
+    <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:#e8eaf2;margin-bottom:6px;">🌙 Evening Review</div>
+    <div style="font-size:13px;color:#6b7394;margin-bottom:20px;">How did today go? Be honest — this is just for you.</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button onclick="selectEveningMood('rough',this)" style="flex:1;padding:10px;background:#1e2333;border:1px solid #2a3048;border-radius:9px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">😔 Rough</button>
+      <button onclick="selectEveningMood('okay',this)" style="flex:1;padding:10px;background:#1e2333;border:1px solid #2a3048;border-radius:9px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">😐 Okay</button>
+      <button onclick="selectEveningMood('good',this)" style="flex:1;padding:10px;background:#1e2333;border:1px solid #2a3048;border-radius:9px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">😊 Good</button>
+    </div>
+    <textarea id="evening-review-text" placeholder="What happened today? What did you learn? What are you grateful for?" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;resize:none;height:100px;box-sizing:border-box;line-height:1.6;margin-bottom:16px;"></textarea>
+    <button onclick="saveEveningReview()" style="width:100%;padding:13px;background:linear-gradient(135deg,#f0a868,#f0c060);border:none;border-radius:9px;color:#0f1117;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Complete Today ✓</button>
+  </div>
+</div>
+    <!-- ===== SOS MODAL ===== -->
 <!-- ===== PRICING PAGE ===== -->
 <div class="page" id="page-pricing">
   <div style="max-width:680px;margin:0 auto;padding:32px 20px 80px;">
@@ -2382,6 +2424,151 @@ async function saveNotificationSettings() {
   showToast('✅ Notification settings saved!');
   closeNotificationSettings();
 }
+  // ============================================================
+// DAILY PLEDGE & TRIGGER TRACKER
+// ============================================================
+let selectedEveningMood = '';
+let selectedTriggers = [];
+
+const triggersByJourney = {
+  sobriety: ['Stress', 'Boredom', 'Social pressure', 'Loneliness', 'Celebration', 'Anxiety', 'Anger', 'Tiredness', 'Conflict', 'Financial stress'],
+  depression: ['Poor sleep', 'Isolation', 'Negative thoughts', 'Low energy', 'Conflict', 'Rejection', 'Overwhelm', 'Lack of routine', 'Grief', 'Disappointment'],
+  anxiety: ['Uncertainty', 'Crowds', 'Work pressure', 'Health worries', 'Conflict', 'Change', 'Deadlines', 'Social situations', 'Financial stress', 'Overthinking'],
+  wellness: ['Poor sleep', 'Stress', 'Isolation', 'Unhealthy eating', 'Lack of movement', 'Screen time', 'Conflict', 'Overwhelm', 'Boredom', 'Low energy']
+};
+
+async function loadDailyPledge() {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+
+  const today = new Date().toISOString().split('T')[0];
+  const { data: pledge } = await db.from('daily_pledges').select('*').eq('user_id', user.id).eq('date', today).single().catch(() => ({ data: null }));
+
+  const morningEl = document.getElementById('pledge-morning');
+  const doneEl = document.getElementById('pledge-done');
+  const doneText = document.getElementById('pledge-done-text');
+  const eveningBtn = document.getElementById('evening-review-btn');
+  const streakEl = document.getElementById('pledge-streak');
+
+  // Get pledge streak
+  const { data: pledges } = await db.from('daily_pledges').select('date').eq('user_id', user.id).order('date', { ascending: false }).limit(30);
+  if (pledges && pledges.length > 0) {
+    let streak = 0;
+    let checkDate = new Date();
+    for (const p of pledges) {
+      const pDate = new Date(p.date);
+      const diffDays = Math.floor((checkDate - pDate) / 86400000);
+      if (diffDays <= 1) { streak++; checkDate = pDate; }
+      else break;
+    }
+    if (streak > 0 && streakEl) streakEl.textContent = '🔥 ' + streak + ' day streak';
+  }
+
+  if (pledge && pledge.pledge_text) {
+    if (morningEl) morningEl.style.display = 'none';
+    if (doneEl) doneEl.style.display = 'block';
+    if (doneText) doneText.textContent = '"' + pledge.pledge_text + '"';
+    const hour = new Date().getHours();
+    if (hour >= 17 && eveningBtn && !pledge.evening_review) {
+      eveningBtn.style.display = 'block';
+    }
+  }
+
+  // Load trigger chips based on journey
+  const { data: profile } = await db.from('profiles').select('journey').eq('id', user.id).single();
+  const journey = profile?.journey?.[0] || 'sobriety';
+  const triggers = triggersByJourney[journey] || triggersByJourney.sobriety;
+  const chipsEl = document.getElementById('trigger-chips');
+  if (chipsEl) {
+    chipsEl.innerHTML = triggers.map(t =>
+      `<button onclick="toggleTrigger('${t}',this)" style="padding:7px 12px;background:#1e2333;border:1px solid #2a3048;border-radius:99px;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;">${t}</button>`
+    ).join('');
+  }
+}
+
+async function savePledge() {
+  const text = document.getElementById('pledge-text').value.trim();
+  if (!text) { showToast('Please write your intention first'); return; }
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+  const today = new Date().toISOString().split('T')[0];
+  await db.from('daily_pledges').upsert({ user_id: user.id, date: today, pledge_text: text });
+  document.getElementById('pledge-morning').style.display = 'none';
+  document.getElementById('pledge-done').style.display = 'block';
+  document.getElementById('pledge-done-text').textContent = '"' + text + '"';
+  showToast('✨ Intention set! Have a powerful day.');
+  // Show trigger tracker
+  document.getElementById('trigger-tracker').style.display = 'block';
+}
+
+function toggleTrigger(trigger, btn) {
+  const idx = selectedTriggers.indexOf(trigger);
+  if (idx > -1) {
+    selectedTriggers.splice(idx, 1);
+    btn.style.borderColor = '#2a3048';
+    btn.style.background = '#1e2333';
+    btn.style.color = '#6b7394';
+  } else {
+    selectedTriggers.push(trigger);
+    btn.style.borderColor = '#f0a868';
+    btn.style.background = 'rgba(240,168,104,0.15)';
+    btn.style.color = '#f0a868';
+  }
+}
+
+async function saveTriggers() {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+  const today = new Date().toISOString().split('T')[0];
+  await db.from('daily_pledges').upsert({ user_id: user.id, date: today, triggers: selectedTriggers });
+  document.getElementById('trigger-tracker').style.display = 'none';
+  if (selectedTriggers.length > 0) {
+    showToast('🎯 Triggers logged. Awareness is strength.');
+  } else {
+    showToast('✅ All clear today!');
+  }
+  selectedTriggers = [];
+}
+
+function openEveningReview() {
+  document.getElementById('evening-review-modal').style.display = 'flex';
+}
+
+function selectEveningMood(mood, btn) {
+  selectedEveningMood = mood;
+  document.querySelectorAll('#evening-review-modal button').forEach(b => {
+    b.style.borderColor = '#2a3048';
+    b.style.background = '#1e2333';
+  });
+  btn.style.borderColor = '#f0a868';
+  btn.style.background = 'rgba(240,168,104,0.15)';
+}
+
+async function saveEveningReview() {
+  const text = document.getElementById('evening-review-text').value.trim();
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+  const today = new Date().toISOString().split('T')[0];
+  await db.from('daily_pledges').upsert({
+    user_id: user.id,
+    date: today,
+    evening_review: text,
+    mood_evening: selectedEveningMood
+  });
+  document.getElementById('evening-review-modal').style.display = 'none';
+  document.getElementById('evening-review-btn').style.display = 'none';
+  showToast('🌙 Day complete. Rest well — you showed up today.');
+}
+
+// Call loadDailyPledge when Today page loads
+document.addEventListener('DOMContentLoaded', () => {
+  const homePage = document.getElementById('page-home');
+  if (homePage && homePage.classList.contains('active')) loadDailyPledge();
+  document.querySelectorAll('.nav-tab').forEach(tab => {
+    const oc = tab.getAttribute('onclick') || '';
+    if (oc.includes("'home'")) tab.addEventListener('click', loadDailyPledge);
+  });
+});
     </script>
   </body>
 </html>
