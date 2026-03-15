@@ -448,7 +448,189 @@ textarea::placeholder { color: var(--muted); }
   </div>
 </nav>
 <div class="confetti-container" id="confetti"></div>
+  <!-- CRAVING TOOLKIT -->
+<div id="craving-toolkit" style="display:none;position:fixed;inset:0;background:rgba(10,10,20,0.95);backdrop-filter:blur(8px);z-index:9999;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:1rem;">
+  <div style="width:100%;max-width:480px;background:#0f0f1a;border-radius:20px;border:1px solid rgba(255,255,255,0.08);overflow:hidden;margin:auto;box-shadow:0 24px 80px rgba(0,0,0,0.6);">
 
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.25rem 1rem;background:linear-gradient(135deg,rgba(124,106,247,0.2),rgba(94,234,212,0.1));border-bottom:1px solid rgba(255,255,255,0.08);">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <div style="width:12px;height:12px;background:#4ade80;border-radius:50%;box-shadow:0 0 0 0 rgba(74,222,128,0.4);animation:ct-pulse 2s infinite;flex-shrink:0;"></div>
+        <div>
+          <div style="font-size:1.1rem;font-weight:700;color:#f0f0ff;">Craving Toolkit</div>
+          <div style="font-size:0.75rem;color:#9090b0;margin-top:1px;">You've got this. Pick a tool.</div>
+        </div>
+      </div>
+      <button onclick="closeCravingToolkit()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#9090b0;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+
+    <!-- Nav Pills -->
+    <div style="display:flex;gap:0.4rem;padding:0.9rem 1.25rem;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid rgba(255,255,255,0.08);">
+      <button class="ct-pill active" onclick="showTool('urge')" data-tool="urge">🌊 Urge Surf</button>
+      <button class="ct-pill" onclick="showTool('ground')" data-tool="ground">🌿 Ground</button>
+      <button class="ct-pill" onclick="showTool('breathe')" data-tool="breathe">💨 Breathe</button>
+      <button class="ct-pill" onclick="showTool('distract')" data-tool="distract">⚡ Distract</button>
+      <button class="ct-pill" onclick="showTool('help')" data-tool="help">🫂 Get Help</button>
+    </div>
+
+    <!-- URGE SURF -->
+    <div id="tool-urge" class="ct-tool" style="display:block;padding:1.25rem;">
+      <h2 style="font-size:1.15rem;font-weight:700;color:#f0f0ff;margin:0 0 0.4rem;">Ride the Wave 🌊</h2>
+      <p style="font-size:0.82rem;color:#9090b0;line-height:1.5;margin:0 0 1rem;">Cravings peak in about 15–20 minutes then fade. Set a timer and observe the feeling — don't fight it, surf it.</p>
+      <div style="text-align:center;margin:0.5rem 0 0.75rem;">
+        <div id="urge-time" style="font-size:2.5rem;font-weight:800;color:#f0f0ff;font-variant-numeric:tabular-nums;letter-spacing:-1px;">15:00</div>
+        <div style="font-size:0.75rem;color:#9090b0;margin-top:2px;">minutes remaining</div>
+      </div>
+      <div style="display:flex;gap:0.5rem;justify-content:center;margin-bottom:0.5rem;">
+        <button class="ct-btn-outline" onclick="setUrgeTimer(5,this)">5 min</button>
+        <button class="ct-btn-outline ct-active-dur" onclick="setUrgeTimer(15,this)">15 min</button>
+        <button class="ct-btn-outline" onclick="setUrgeTimer(20,this)">20 min</button>
+      </div>
+      <button id="urge-start-btn" class="ct-btn-primary" onclick="toggleUrgeTimer()">▶ Start Timer</button>
+      <div id="urge-complete" style="display:none;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25);border-radius:12px;padding:0.9rem;font-size:0.85rem;color:#4ade80;text-align:center;margin-top:0.75rem;">
+        🎉 You surfed the wave! The craving passed. You're stronger than you think.
+      </div>
+    </div>
+
+    <!-- GROUNDING -->
+    <div id="tool-ground" class="ct-tool" style="display:none;padding:1.25rem;">
+      <h2 style="font-size:1.15rem;font-weight:700;color:#f0f0ff;margin:0 0 0.4rem;">5-4-3-2-1 Grounding 🌿</h2>
+      <p style="font-size:0.82rem;color:#9090b0;line-height:1.5;margin:0 0 1rem;">Anchor yourself to the present moment. Go through each sense slowly.</p>
+      <div id="ground-step-0" class="ct-gstep">
+        <div style="font-size:3rem;font-weight:900;background:linear-gradient(135deg,#7c6af7,#5eead4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;">5</div>
+        <div style="font-size:1rem;font-weight:700;color:#f0f0ff;margin-bottom:0.4rem;">👁 See</div>
+        <div style="font-size:0.82rem;color:#9090b0;margin-bottom:0.75rem;">Name 5 things you can <strong>see</strong> right now</div>
+        <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.75rem;">
+          <input class="ct-input" type="text" placeholder="I see..."/>
+          <input class="ct-input" type="text" placeholder="I see..."/>
+          <input class="ct-input" type="text" placeholder="I see..."/>
+          <input class="ct-input" type="text" placeholder="I see..."/>
+          <input class="ct-input" type="text" placeholder="I see..."/>
+        </div>
+        <button class="ct-btn-primary" onclick="nextGroundStep(0)">Next →</button>
+      </div>
+      <div id="ground-step-1" class="ct-gstep" style="display:none;">
+        <div style="font-size:3rem;font-weight:900;background:linear-gradient(135deg,#7c6af7,#5eead4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;">4</div>
+        <div style="font-size:1rem;font-weight:700;color:#f0f0ff;margin-bottom:0.4rem;">✋ Touch</div>
+        <div style="font-size:0.82rem;color:#9090b0;margin-bottom:0.75rem;">Name 4 things you can <strong>feel</strong></div>
+        <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.75rem;">
+          <input class="ct-input" type="text" placeholder="I feel..."/>
+          <input class="ct-input" type="text" placeholder="I feel..."/>
+          <input class="ct-input" type="text" placeholder="I feel..."/>
+          <input class="ct-input" type="text" placeholder="I feel..."/>
+        </div>
+        <button class="ct-btn-primary" onclick="nextGroundStep(1)">Next →</button>
+      </div>
+      <div id="ground-step-2" class="ct-gstep" style="display:none;">
+        <div style="font-size:3rem;font-weight:900;background:linear-gradient(135deg,#7c6af7,#5eead4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;">3</div>
+        <div style="font-size:1rem;font-weight:700;color:#f0f0ff;margin-bottom:0.4rem;">👂 Hear</div>
+        <div style="font-size:0.82rem;color:#9090b0;margin-bottom:0.75rem;">Name 3 things you can <strong>hear</strong></div>
+        <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.75rem;">
+          <input class="ct-input" type="text" placeholder="I hear..."/>
+          <input class="ct-input" type="text" placeholder="I hear..."/>
+          <input class="ct-input" type="text" placeholder="I hear..."/>
+        </div>
+        <button class="ct-btn-primary" onclick="nextGroundStep(2)">Next →</button>
+      </div>
+      <div id="ground-step-3" class="ct-gstep" style="display:none;">
+        <div style="font-size:3rem;font-weight:900;background:linear-gradient(135deg,#7c6af7,#5eead4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;">2</div>
+        <div style="font-size:1rem;font-weight:700;color:#f0f0ff;margin-bottom:0.4rem;">👃 Smell</div>
+        <div style="font-size:0.82rem;color:#9090b0;margin-bottom:0.75rem;">Name 2 things you can <strong>smell</strong></div>
+        <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.75rem;">
+          <input class="ct-input" type="text" placeholder="I smell..."/>
+          <input class="ct-input" type="text" placeholder="I smell..."/>
+        </div>
+        <button class="ct-btn-primary" onclick="nextGroundStep(3)">Next →</button>
+      </div>
+      <div id="ground-step-4" class="ct-gstep" style="display:none;">
+        <div style="font-size:3rem;font-weight:900;background:linear-gradient(135deg,#7c6af7,#5eead4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;">1</div>
+        <div style="font-size:1rem;font-weight:700;color:#f0f0ff;margin-bottom:0.4rem;">👅 Taste</div>
+        <div style="font-size:0.82rem;color:#9090b0;margin-bottom:0.75rem;">Name 1 thing you can <strong>taste</strong></div>
+        <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.75rem;">
+          <input class="ct-input" type="text" placeholder="I taste..."/>
+        </div>
+        <button class="ct-btn-primary" onclick="nextGroundStep(4)">Finish ✓</button>
+      </div>
+      <div id="ground-step-5" class="ct-gstep" style="display:none;">
+        <div style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25);border-radius:12px;padding:0.9rem;font-size:0.85rem;color:#4ade80;text-align:center;">
+          🌿 Well done. You are here. You are present. The craving has less power now.
+        </div>
+        <button class="ct-btn-outline" onclick="resetGrounding()" style="margin-top:1rem;width:100%;">Start again</button>
+      </div>
+    </div>
+
+    <!-- BOX BREATHING -->
+    <div id="tool-breathe" class="ct-tool" style="display:none;padding:1.25rem;">
+      <h2 style="font-size:1.15rem;font-weight:700;color:#f0f0ff;margin:0 0 0.4rem;">Box Breathing 💨</h2>
+      <p style="font-size:0.82rem;color:#9090b0;line-height:1.5;margin:0 0 1rem;">Used by Navy SEALs to stay calm under pressure. 4 counts each.</p>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:0.5rem 0 1rem;">
+        <div style="width:190px;height:190px;border:2px solid rgba(124,106,247,0.4);border-radius:16px;position:relative;margin-bottom:1rem;background:rgba(124,106,247,0.04);">
+          <div id="breath-dot" style="width:16px;height:16px;border-radius:50%;background:#5eead4;box-shadow:0 0 12px #5eead4;position:absolute;top:-8px;left:-8px;transition:top 4s linear,left 4s linear;"></div>
+          <span style="position:absolute;font-size:0.65rem;color:#9090b0;font-weight:600;text-transform:uppercase;top:-20px;left:0;">Inhale</span>
+          <span style="position:absolute;font-size:0.65rem;color:#9090b0;font-weight:600;text-transform:uppercase;top:-20px;right:0;">Hold</span>
+          <span style="position:absolute;font-size:0.65rem;color:#9090b0;font-weight:600;text-transform:uppercase;bottom:-20px;right:0;">Exhale</span>
+          <span style="position:absolute;font-size:0.65rem;color:#9090b0;font-weight:600;text-transform:uppercase;bottom:-20px;left:0;">Hold</span>
+        </div>
+        <div id="breath-instruction" style="font-size:1.1rem;font-weight:700;color:#f0f0ff;height:1.5rem;text-align:center;">Press Start</div>
+        <div id="breath-count" style="font-size:2rem;font-weight:800;color:#7c6af7;font-variant-numeric:tabular-nums;min-height:2.5rem;">—</div>
+      </div>
+      <div style="text-align:center;font-size:0.78rem;color:#9090b0;margin-bottom:0.25rem;"><span id="breath-cycle-display">0 / 4 cycles</span></div>
+      <button id="breathe-start-btn" class="ct-btn-primary" onclick="toggleBreathing()">▶ Start</button>
+    </div>
+
+    <!-- DISTRACT -->
+    <div id="tool-distract" class="ct-tool" style="display:none;padding:1.25rem;">
+      <h2 style="font-size:1.15rem;font-weight:700;color:#f0f0ff;margin:0 0 0.4rem;">Break the Pattern ⚡</h2>
+      <p style="font-size:0.82rem;color:#9090b0;line-height:1.5;margin:0 0 1rem;">Pick something to do right now. Interrupting the craving loop is enough.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:0.75rem;">
+        <button class="ct-distract-card" onclick="trackDistraction('walk',this)"><span style="font-size:1.5rem;">🚶</span><span style="font-size:0.78rem;font-weight:600;color:#f0f0ff;">Go for a walk</span><span style="font-size:0.68rem;color:#9090b0;">5–10 min</span></button>
+        <button class="ct-distract-card" onclick="trackDistraction('water',this)"><span style="font-size:1.5rem;">💧</span><span style="font-size:0.78rem;font-weight:600;color:#f0f0ff;">Drink cold water</span><span style="font-size:0.68rem;color:#9090b0;">2 min</span></button>
+        <button class="ct-distract-card" onclick="trackDistraction('text',this)"><span style="font-size:1.5rem;">📱</span><span style="font-size:0.78rem;font-weight:600;color:#f0f0ff;">Text someone</span><span style="font-size:0.68rem;color:#9090b0;">Now</span></button>
+        <button class="ct-distract-card" onclick="trackDistraction('music',this)"><span style="font-size:1.5rem;">🎵</span><span style="font-size:0.78rem;font-weight:600;color:#f0f0ff;">Play a song</span><span style="font-size:0.68rem;color:#9090b0;">3 min</span></button>
+        <button class="ct-distract-card" onclick="trackDistraction('pushups',this)"><span style="font-size:1.5rem;">💪</span><span style="font-size:0.78rem;font-weight:600;color:#f0f0ff;">10 push-ups</span><span style="font-size:0.68rem;color:#9090b0;">2 min</span></button>
+        <button class="ct-distract-card" onclick="trackDistraction('journal',this)"><span style="font-size:1.5rem;">✍️</span><span style="font-size:0.78rem;font-weight:600;color:#f0f0ff;">Write it out</span><span style="font-size:0.68rem;color:#9090b0;">5 min</span></button>
+        <button class="ct-distract-card" onclick="trackDistraction('outside',this)"><span style="font-size:1.5rem;">🌤</span><span style="font-size:0.78rem;font-weight:600;color:#f0f0ff;">Step outside</span><span style="font-size:0.68rem;color:#9090b0;">2 min</span></button>
+        <button class="ct-distract-card" onclick="trackDistraction('breathe',this)"><span style="font-size:1.5rem;">🧘</span><span style="font-size:0.78rem;font-weight:600;color:#f0f0ff;">Deep breaths</span><span style="font-size:0.68rem;color:#9090b0;">1 min</span></button>
+      </div>
+      <div id="distract-confirmed" style="display:none;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25);border-radius:12px;padding:0.9rem;font-size:0.85rem;color:#4ade80;text-align:center;">
+        ✅ Good choice. You're interrupting the pattern. That takes courage.
+      </div>
+    </div>
+
+    <!-- GET HELP -->
+    <div id="tool-help" class="ct-tool" style="display:none;padding:1.25rem;">
+      <h2 style="font-size:1.15rem;font-weight:700;color:#f0f0ff;margin:0 0 0.4rem;">You Don't Have to Do This Alone 🫂</h2>
+      <p style="font-size:0.82rem;color:#9090b0;line-height:1.5;margin:0 0 1rem;">Reach out right now. Real humans are ready to help.</p>
+      <div style="display:flex;flex-direction:column;gap:0.6rem;margin-bottom:0.75rem;">
+        <a href="tel:18006624357" style="display:flex;align-items:center;gap:0.9rem;padding:0.9rem 1rem;border-radius:14px;border:1px solid rgba(248,113,113,0.25);background:#1a1a2e;text-decoration:none;">
+          <span style="font-size:1.4rem;">📞</span>
+          <div style="flex:1;"><strong style="display:block;font-size:0.88rem;color:#f0f0ff;">SAMHSA Helpline</strong><span style="font-size:0.74rem;color:#9090b0;">1-800-662-4357 · Free · 24/7 · Confidential</span></div>
+        </a>
+        <a href="tel:988" style="display:flex;align-items:center;gap:0.9rem;padding:0.9rem 1rem;border-radius:14px;border:1px solid rgba(248,113,113,0.25);background:#1a1a2e;text-decoration:none;">
+          <span style="font-size:1.4rem;">💙</span>
+          <div style="flex:1;"><strong style="display:block;font-size:0.88rem;color:#f0f0ff;">988 Crisis Lifeline</strong><span style="font-size:0.74rem;color:#9090b0;">Call or text 988 · Mental health crisis</span></div>
+        </a>
+        <button onclick="alertVillage()" style="display:flex;align-items:center;gap:0.9rem;padding:0.9rem 1rem;border-radius:14px;border:1px solid rgba(255,255,255,0.08);background:#1a1a2e;cursor:pointer;width:100%;text-align:left;">
+          <span style="font-size:1.4rem;">🫂</span>
+          <div style="flex:1;"><strong style="display:block;font-size:0.88rem;color:#f0f0ff;">Alert My Village</strong><span style="font-size:0.74rem;color:#9090b0;">Notify your support circle right now</span></div>
+        </button>
+        <button onclick="showPage('meetings');closeCravingToolkit();" style="display:flex;align-items:center;gap:0.9rem;padding:0.9rem 1rem;border-radius:14px;border:1px solid rgba(255,255,255,0.08);background:#1a1a2e;cursor:pointer;width:100%;text-align:left;">
+          <span style="font-size:1.4rem;">📍</span>
+          <div style="flex:1;"><strong style="display:block;font-size:0.88rem;color:#f0f0ff;">Find a Meeting</strong><span style="font-size:0.74rem;color:#9090b0;">AA · NA · SMART Recovery near you</span></div>
+        </button>
+      </div>
+      <div id="village-alerted" style="display:none;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25);border-radius:12px;padding:0.9rem;font-size:0.85rem;color:#4ade80;text-align:center;">
+        🫂 Your Village has been notified. Help is on the way.
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="padding:0.9rem 1.25rem;border-top:1px solid rgba(255,255,255,0.08);background:rgba(124,106,247,0.04);text-align:center;font-size:0.75rem;color:#9090b0;">
+      💪 You reached for this toolkit instead. That's already a win.
+    </div>
+
+  </div>
+</div>
 <!-- ===== HOME ===== -->
 <div class="page active" id="page-home">
   <div class="home-inner">
