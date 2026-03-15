@@ -2135,6 +2135,13 @@ async function signOut() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   showToast('👋 Signed out successfully');
 }
+  document.addEventListener('click', function(e) {
+  const menu = document.getElementById('profile-menu');
+  const btn = e.target.closest('button[onclick="toggleProfileMenu()"]');
+  if (!btn && menu && menu.style.display === 'block') {
+    menu.style.display = 'none';
+  }
+});
     </script>
   </body>
 </html>
