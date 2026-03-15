@@ -1028,6 +1028,10 @@ textarea::placeholder { color: var(--muted); }
       <button class="action-btn btn-gold" style="width:100%;" onclick="saveEntry()">Save today's entry →</button>
     </div>
     <div class="j-label" style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;">Past entries <span style="flex:1;height:1px;background:var(--border);display:block;"></span></div>
+   <div class="journal-box fade-in d3">
+  <div class="j-label">🎯 My Trigger Patterns</div>
+  <div id="trigger-history" style="font-size:13px;color:var(--muted);">Loading...</div>
+</div>   
     <div class="past-entries fade-in d3" id="past-entries">
       <div class="entry-item"><div class="entry-date">March 6 · Day 46</div><div class="entry-preview">"Woke up feeling anxious but went for a walk instead. First time I didn't reach for my phone..."</div></div>
       <div class="entry-item"><div class="entry-date">March 4 · Day 44</div><div class="entry-preview">"Ran into an old friend today. It was uncomfortable but I stayed. I'm starting to believe I can do hard things..."</div></div>
@@ -1326,6 +1330,7 @@ function showPage(id) {
   const tabs = document.querySelectorAll('.nav-tab');
   if (map[id] !== undefined) tabs[map[id]].classList.add('active');
   window.scrollTo(0,0);
+  if (page === 'journal') loadTriggerHistory();
 }
 
 // Village tabs
@@ -2526,17 +2531,28 @@ function toggleTrigger(trigger, btn) {
 }
 
 async function saveTriggers() {
-  const { data: { user } } = await db.auth.getUser();
-  if (!user) return;
-  const today = new Date().toISOString().split('T')[0];
-  await db.from('daily_pledges').upsert({ user_id: user.id, date: today, triggers: selectedTriggers });
+  const selected = [...document.querySelectorAll('#trigger-chips .chip-selected')]
+    .map(c => c.dataset.trigger);
+  
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const today = new Date().toISOString().slice(0, 10);
+      // Upsert into daily_checkins — update today's row with triggers
+      await supabase
+        .from('daily_checkins')
+        .upsert({
+          user_id: user.id,
+          date: today,
+          triggers: selected
+        }, { onConflict: 'user_id,date' });
+    }
+  } catch(e) { console.error('saveTriggers:', e); }
+
   document.getElementById('trigger-tracker').style.display = 'none';
-  if (selectedTriggers.length > 0) {
-    showToast('🎯 Triggers logged. Awareness is strength.');
-  } else {
-    showToast('✅ All clear today!');
-  }
-  selectedTriggers = [];
+  showToast(selected.length > 0
+    ? `🎯 Triggers saved — ${selected.length} logged`
+    : '✓ No triggers today — that\'s a win!');
 }
 
 function openEveningReview() {
@@ -2578,6 +2594,48 @@ document.addEventListener('DOMContentLoaded', () => {
     if (oc.includes("'home'")) tab.addEventListener('click', loadDailyPledge);
   });
 });
+  async function loadTriggerHistory() {
+  const el = document.getElementById('trigger-history');
+  if (!el) return;
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data } = await supabase
+      .from('daily_checkins')
+      .select('date, triggers')
+      .eq('user_id', user.id)
+      .not('triggers', 'is', null)
+      .order('date', { ascending: false })
+      .limit(14);
+
+    if (!data || data.length === 0) {
+      el.innerHTML = '<span style="color:var(--muted);font-size:13px;">No triggers logged yet. They\'ll appear here once you start tracking.</span>';
+      return;
+    }
+
+    // Count frequency
+    const counts = {};
+    data.forEach(row => {
+      (row.triggers || []).forEach(t => { counts[t] = (counts[t] || 0) + 1; });
+    });
+    const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+
+    el.innerHTML = `
+      <div style="margin-bottom:12px;">
+        ${sorted.map(([trigger, count]) => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+            <span style="font-size:13px;color:var(--text);">${trigger}</span>
+            <span style="font-size:11px;font-weight:700;color:var(--dawn);">${count}x this fortnight</span>
+          </div>
+        `).join('')}
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;">Based on your last 14 days of check-ins</div>
+    `;
+  } catch(e) {
+    el.innerHTML = '<span style="color:var(--muted);">Could not load trigger history.</span>';
+  }
+}
     </script>
   </body>
 </html>
