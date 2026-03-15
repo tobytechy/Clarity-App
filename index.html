@@ -420,9 +420,30 @@ textarea::placeholder { color: var(--muted); }
  <button class="nav-sos" onclick="showSOS()">🆘 Help</button>
   <div style="position:relative;display:inline-block;">
     <button onclick="toggleProfileMenu()" class="nav-sos" style="background:rgba(255,255,255,0.1);margin-left:8px;">👤</button>
-    <div id="profile-menu" style="display:none;position:absolute;top:44px;right:0;background:#1e2333;border:1px solid #2a3048;border-radius:12px;padding:8px;min-width:140px;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:1002;">
-      <button onclick="signOut()" style="width:100%;padding:10px 14px;background:none;border:none;color:#e8728a;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:left;border-radius:8px;" onmouseover="this.style.background='rgba(232,114,138,0.1)'" onmouseout="this.style.background='none'">🚪 Sign Out</button>
-    </div>
+    <div id="profile-menu" style="display:none;position:absolute;top:44px;right:0;background:#1e2333;border:1px solid #2a3048;border-radius:14px;padding:8px;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,0.5);z-index:1002;">
+  
+  <!-- User info header -->
+  <div id="profile-menu-header" style="padding:12px 14px 10px;border-bottom:1px solid #2a3048;margin-bottom:6px;">
+    <div id="profile-menu-name" style="font-size:14px;font-weight:700;color:#e8eaf2;margin-bottom:2px;">Loading...</div>
+    <div id="profile-menu-days" style="font-size:11px;color:#6b7394;"></div>
+  </div>
+
+  <!-- Menu items -->
+  <button onclick="openEditProfile();toggleProfileMenu()" style="width:100%;padding:10px 14px;background:none;border:none;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;text-align:left;border-radius:8px;display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">👤 <span>Edit Profile</span></button>
+
+  <button onclick="openJourneySettings();toggleProfileMenu()" style="width:100%;padding:10px 14px;background:none;border:none;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;text-align:left;border-radius:8px;display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">🎯 <span>My Journey</span></button>
+
+  <button onclick="showPage('pricing');toggleProfileMenu()" style="width:100%;padding:10px 14px;background:none;border:none;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;text-align:left;border-radius:8px;display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">⭐ <span>My Subscription</span></button>
+
+  <button onclick="openNotificationSettings();toggleProfileMenu()" style="width:100%;padding:10px 14px;background:none;border:none;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;text-align:left;border-radius:8px;display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">🔔 <span>Notifications</span></button>
+
+  <button onclick="sendFeedback();toggleProfileMenu()" style="width:100%;padding:10px 14px;background:none;border:none;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;text-align:left;border-radius:8px;display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='none'">💬 <span>Send Feedback</span></button>
+
+  <div style="border-top:1px solid #2a3048;margin:6px 0;"></div>
+
+  <button onclick="signOut()" style="width:100%;padding:10px 14px;background:none;border:none;color:#e8728a;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:left;border-radius:8px;display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='rgba(232,114,138,0.1)'" onmouseout="this.style.background='none'">🚪 <span>Sign Out</span></button>
+
+</div>
   </div>
 </nav>
 <div class="confetti-container" id="confetti"></div>
@@ -1045,6 +1066,83 @@ textarea::placeholder { color: var(--muted); }
         <button id="lesson-modal-btn" onclick="markLessonRead()" style="padding:12px 24px;background:linear-gradient(135deg,#f0a868,#f0c060);border:none;border-radius:9px;color:#0f1117;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Mark as Read ✓</button>
       </div>
     </div>
+  </div>
+</div>
+  <!-- EDIT PROFILE MODAL -->
+<div id="edit-profile-modal" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#181c27;border:1px solid #2a3048;border-radius:20px;max-width:420px;width:100%;padding:28px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:300;color:#e8eaf2;">Edit Profile</div>
+      <button onclick="closeEditProfile()" style="background:none;border:none;color:#6b7394;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div style="font-size:12px;font-weight:600;color:#7a9bb5;margin-bottom:6px;">Display Name</div>
+    <input id="edit-name" type="text" placeholder="Your name" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:16px;box-sizing:border-box;">
+    <div style="font-size:12px;font-weight:600;color:#7a9bb5;margin-bottom:6px;">📅 Journey Start Date</div>
+    <input id="edit-date" type="date" style="width:100%;background:#1e2333;border:1px solid #2a3048;border-radius:9px;padding:12px 14px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:20px;box-sizing:border-box;">
+    <button onclick="saveEditProfile()" style="width:100%;padding:13px;background:linear-gradient(135deg,#a890e8,#68b4f0);border:none;border-radius:9px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Save Changes</button>
+  </div>
+</div>
+
+<!-- JOURNEY SETTINGS MODAL -->
+<div id="journey-settings-modal" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#181c27;border:1px solid #2a3048;border-radius:20px;max-width:420px;width:100%;padding:28px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:300;color:#e8eaf2;">My Journey</div>
+      <button onclick="closeJourneySettings()" style="background:none;border:none;color:#6b7394;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div style="font-size:13px;color:#6b7394;margin-bottom:16px;">Select all that apply to you. Your lessons and content will update accordingly.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div id="js-sobriety" onclick="toggleJourneyBtn('sobriety')" style="padding:14px 12px;background:#1e2333;border:2px solid #2a3048;border-radius:12px;cursor:pointer;text-align:center;">
+        <div style="font-size:22px;margin-bottom:6px;">🌙</div>
+        <div style="font-size:12px;font-weight:600;color:#e8eaf2;">Sobriety</div>
+      </div>
+      <div id="js-depression" onclick="toggleJourneyBtn('depression')" style="padding:14px 12px;background:#1e2333;border:2px solid #2a3048;border-radius:12px;cursor:pointer;text-align:center;">
+        <div style="font-size:22px;margin-bottom:6px;">🌤️</div>
+        <div style="font-size:12px;font-weight:600;color:#e8eaf2;">Depression</div>
+      </div>
+      <div id="js-anxiety" onclick="toggleJourneyBtn('anxiety')" style="padding:14px 12px;background:#1e2333;border:2px solid #2a3048;border-radius:12px;cursor:pointer;text-align:center;">
+        <div style="font-size:22px;margin-bottom:6px;">😰</div>
+        <div style="font-size:12px;font-weight:600;color:#e8eaf2;">Anxiety</div>
+      </div>
+      <div id="js-wellness" onclick="toggleJourneyBtn('wellness')" style="padding:14px 12px;background:#1e2333;border:2px solid #2a3048;border-radius:12px;cursor:pointer;text-align:center;">
+        <div style="font-size:22px;margin-bottom:6px;">💚</div>
+        <div style="font-size:12px;font-weight:600;color:#e8eaf2;">Wellness</div>
+      </div>
+    </div>
+    <button onclick="saveJourneySettings()" style="width:100%;padding:13px;background:linear-gradient(135deg,#a890e8,#68b4f0);border:none;border-radius:9px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Save Journey</button>
+  </div>
+</div>
+
+<!-- NOTIFICATION SETTINGS MODAL -->
+<div id="notification-settings-modal" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#181c27;border:1px solid #2a3048;border-radius:20px;max-width:420px;width:100%;padding:28px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:300;color:#e8eaf2;">Notifications</div>
+      <button onclick="closeNotificationSettings()" style="background:none;border:none;color:#6b7394;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div style="font-size:13px;color:#6b7394;margin-bottom:20px;">Choose which notifications your Village members receive about your journey.</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #2a3048;">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#e8eaf2;">🏆 Milestone alerts</div>
+        <div style="font-size:11px;color:#6b7394;margin-top:2px;">Notify Village when you hit a milestone</div>
+      </div>
+      <input type="checkbox" id="notif-milestone" checked style="accent-color:#f0a868;width:18px;height:18px;">
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #2a3048;">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#e8eaf2;">📅 Missed check-in</div>
+        <div style="font-size:11px;color:#6b7394;margin-top:2px;">Alert Village if you miss a daily check-in</div>
+      </div>
+      <input type="checkbox" id="notif-checkin" checked style="accent-color:#f0a868;width:18px;height:18px;">
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;margin-bottom:20px;">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#e8eaf2;">🆘 SOS alerts</div>
+        <div style="font-size:11px;color:#6b7394;margin-top:2px;">Notify Village when you press SOS</div>
+      </div>
+      <input type="checkbox" id="notif-sos" checked style="accent-color:#f0a868;width:18px;height:18px;">
+    </div>
+    <button onclick="saveNotificationSettings()" style="width:100%;padding:13px;background:linear-gradient(135deg,#a890e8,#68b4f0);border:none;border-radius:9px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">Save Settings</button>
   </div>
 </div>
   <!-- ===== SOS MODAL ===== -->
@@ -2142,6 +2240,148 @@ async function signOut() {
     menu.style.display = 'none';
   }
 });
+// Load profile info into menu header
+async function loadProfileMenuHeader() {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+  const { data: profile } = await db.from('profiles').select('display_name, sobriety_start, journey, subscription').eq('id', user.id).single();
+  if (!profile) return;
+
+  const nameEl = document.getElementById('profile-menu-name');
+  const daysEl = document.getElementById('profile-menu-days');
+  if (nameEl) nameEl.textContent = profile.display_name || 'My Profile';
+  if (daysEl) {
+    const days = profile.sobriety_start ? Math.floor((new Date() - new Date(profile.sobriety_start)) / 86400000) : 0;
+    const journey = profile.journey ? profile.journey.join(', ') : 'sobriety';
+    const tier = profile.subscription || 'free';
+    daysEl.textContent = `Day ${days} · ${tier.charAt(0).toUpperCase() + tier.slice(1)} plan`;
+  }
+}
+
+// Update toggleProfileMenu to load header
+const _origToggleProfileMenu = toggleProfileMenu;
+function toggleProfileMenu() {
+  const menu = document.getElementById('profile-menu');
+  if (!menu) return;
+  const isHidden = menu.style.display === 'none';
+  menu.style.display = isHidden ? 'block' : 'none';
+  if (isHidden) loadProfileMenuHeader();
+}
+
+// Send feedback
+function sendFeedback() {
+  window.location.href = 'mailto:feedback@clarityapp.com?subject=Clarity App Feedback';
+}
+
+// Edit Profile Modal
+function openEditProfile() {
+  document.getElementById('edit-profile-modal').style.display = 'flex';
+  loadEditProfileData();
+}
+
+function closeEditProfile() {
+  document.getElementById('edit-profile-modal').style.display = 'none';
+}
+
+async function loadEditProfileData() {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+  const { data: profile } = await db.from('profiles').select('display_name, sobriety_start').eq('id', user.id).single();
+  if (!profile) return;
+  document.getElementById('edit-name').value = profile.display_name || '';
+  document.getElementById('edit-date').value = profile.sobriety_start || '';
+}
+
+async function saveEditProfile() {
+  const name = document.getElementById('edit-name').value.trim();
+  const date = document.getElementById('edit-date').value;
+  if (!name) { showToast('Please enter your name'); return; }
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+  await db.from('profiles').update({ display_name: name, sobriety_start: date }).eq('id', user.id);
+  showToast('✅ Profile updated!');
+  closeEditProfile();
+}
+
+// Journey Settings Modal
+function openJourneySettings() {
+  document.getElementById('journey-settings-modal').style.display = 'flex';
+  loadCurrentJourney();
+}
+
+function closeJourneySettings() {
+  document.getElementById('journey-settings-modal').style.display = 'none';
+}
+
+async function loadCurrentJourney() {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+  const { data: profile } = await db.from('profiles').select('journey').eq('id', user.id).single();
+  if (!profile?.journey) return;
+  const journeys = profile.journey;
+  ['sobriety','depression','anxiety','wellness'].forEach(j => {
+    const btn = document.getElementById('js-' + j);
+    if (btn) {
+      const active = journeys.includes(j);
+      btn.style.borderColor = active ? '#f0a868' : '#2a3048';
+      btn.style.background = active ? 'rgba(240,168,104,0.15)' : '#1e2333';
+      btn.dataset.active = active ? 'true' : 'false';
+    }
+  });
+}
+
+function toggleJourneyBtn(journey) {
+  const btn = document.getElementById('js-' + journey);
+  if (!btn) return;
+  const active = btn.dataset.active === 'true';
+  btn.dataset.active = active ? 'false' : 'true';
+  btn.style.borderColor = active ? '#2a3048' : '#f0a868';
+  btn.style.background = active ? '#1e2333' : 'rgba(240,168,104,0.15)';
+}
+
+async function saveJourneySettings() {
+  const selected = ['sobriety','depression','anxiety','wellness'].filter(j => {
+    const btn = document.getElementById('js-' + j);
+    return btn && btn.dataset.active === 'true';
+  });
+  if (selected.length === 0) { showToast('Please select at least one journey'); return; }
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+  await db.from('profiles').update({ journey: selected }).eq('id', user.id);
+  showToast('✅ Journey updated! Reload to see new lessons.');
+  closeJourneySettings();
+}
+
+// Notification Settings Modal
+function openNotificationSettings() {
+  document.getElementById('notification-settings-modal').style.display = 'flex';
+  loadNotificationSettings();
+}
+
+function closeNotificationSettings() {
+  document.getElementById('notification-settings-modal').style.display = 'none';
+}
+
+async function loadNotificationSettings() {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+  const { data } = await db.from('village_members').select('alert_milestone, alert_checkin, alert_sos').eq('owner_id', user.id).eq('role', 'self').single();
+  if (!data) return;
+  document.getElementById('notif-milestone').checked = data.alert_milestone ?? true;
+  document.getElementById('notif-checkin').checked = data.alert_checkin ?? true;
+  document.getElementById('notif-sos').checked = data.alert_sos ?? true;
+}
+
+async function saveNotificationSettings() {
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) return;
+  const milestone = document.getElementById('notif-milestone').checked;
+  const checkin = document.getElementById('notif-checkin').checked;
+  const sos = document.getElementById('notif-sos').checked;
+  await db.from('village_members').update({ alert_milestone: milestone, alert_checkin: checkin, alert_sos: sos }).eq('owner_id', user.id).eq('role', 'self');
+  showToast('✅ Notification settings saved!');
+  closeNotificationSettings();
+}
     </script>
   </body>
 </html>
