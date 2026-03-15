@@ -79,8 +79,13 @@ nav {
 .nav-sos:hover { transform: scale(1.04); box-shadow: 0 4px 20px rgba(232,114,138,0.4); }
 
 .page { display: none; padding-top: 68px; min-height: 100vh; position: relative; z-index: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.page.active { display: block; max-width: 480px; margin: 0 auto; }
-.page.active { display: block; }
+.page.active { 
+  display: block; 
+  max-width: 480px; 
+  margin: 0 auto;
+  overflow-x: hidden;
+  width: 100%;
+}
 
 /* ===== HOME ===== */
 .home-inner { max-width: 500px; margin: 0 auto; padding: 32px 20px 80px; text-align: center; }
@@ -491,42 +496,45 @@ textarea::placeholder { color: var(--muted); }
       <button onclick="saveTriggers()" style="width:100%;padding:10px;background:#2a3048;border:none;border-radius:9px;color:#e8eaf2;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Save & Continue</button>
     </div>
 
-    <div class="mini-section fade-in d4">
-      <div class="mini-title">How are you feeling?</div>
-      <div class="mood-grid">
-    <div class="mini-section fade-in d4">
-      <div class="mini-title">How are you feeling?</div>
-      <div class="mood-grid">
-        <div class="mood-btn" onclick="selectMood(this)">😔<span>Rough</span></div>
-        <div class="mood-btn" onclick="selectMood(this)">😕<span>Meh</span></div>
-        <div class="mood-btn" onclick="selectMood(this)">😐<span>Okay</span></div>
-        <div class="mood-btn" onclick="selectMood(this)">🙂<span>Good</span></div>
-        <div class="mood-btn" onclick="selectMood(this)">😊<span>Great</span></div>
-      </div>
-    </div>
-    <div class="mini-section fade-in d4">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div class="mini-title" style="margin:0">This Month</div><div style="font-size:12px;color:var(--dawn);font-weight:600;">47 day streak 🔥</div></div>
-      <div class="calendar-grid" id="cal-grid"></div>
-    </div>
-    <!-- Village peek -->
-    <div class="mini-section village-peek fade-in d5" onclick="showPage('messages')">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div class="mini-title" style="margin:0;">💌 New from your Village</div><div style="font-size:12px;color:var(--rose);font-weight:600;">3 unread</div></div>
-      <div style="display:flex;flex-direction:column;gap:7px;">
-        <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;background:var(--surface2);border-radius:8px;">
-          <span style="font-size:16px;">👩</span>
-          <div style="flex:1;font-size:13px;font-weight:600;">Mom — <span style="font-weight:300;color:var(--muted);">So proud of you today ❤️</span></div>
-          <div style="width:7px;height:7px;border-radius:50%;background:var(--sky);flex-shrink:0;"></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;background:var(--surface2);border-radius:8px;">
-          <span style="font-size:16px;">👨</span>
-          <div style="flex:1;font-size:13px;font-weight:600;">Mike (Sponsor) — <span style="font-weight:300;color:var(--muted);">Thinking of you. Call anytime.</span></div>
-          <div style="width:7px;height:7px;border-radius:50%;background:var(--sky);flex-shrink:0;"></div>
-        </div>
-      </div>
-    </div>
-    <div class="affirmation fade-in d5">"Every morning you wake up sober is a <span>victory</span> worth celebrating."</div>
+   <div class="mini-section fade-in d4">
+  <div class="mini-title">How are you feeling?</div>
+  <div class="mood-grid">
+    <div class="mood-btn" onclick="selectMood(this)">😔<span>Rough</span></div>
+    <div class="mood-btn" onclick="selectMood(this)">😕<span>Meh</span></div>
+    <div class="mood-btn" onclick="selectMood(this)">😐<span>Okay</span></div>
+    <div class="mood-btn" onclick="selectMood(this)">🙂<span>Good</span></div>
+    <div class="mood-btn" onclick="selectMood(this)">😊<span>Great</span></div>
   </div>
 </div>
+
+<div class="mini-section fade-in d4">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <div class="mini-title" style="margin:0">This Month</div>
+    <div style="font-size:12px;color:var(--dawn);font-weight:600;">47 day streak 🔥</div>
+  </div>
+  <div class="calendar-grid" id="cal-grid"></div>
+</div>
+
+<div class="mini-section village-peek fade-in d5" onclick="showPage('messages')">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <div class="mini-title" style="margin:0;">💌 New from your Village</div>
+    <div style="font-size:12px;color:var(--rose);font-weight:600;">3 unread</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:7px;">
+    <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;background:var(--surface2);border-radius:8px;">
+      <span style="font-size:16px;">👩</span>
+      <div style="flex:1;font-size:13px;font-weight:600;">Mom — <span style="font-weight:300;color:var(--muted);">So proud of you today ❤️</span></div>
+      <div style="width:7px;height:7px;border-radius:50%;background:var(--sky);flex-shrink:0;"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;padding:9px 10px;background:var(--surface2);border-radius:8px;">
+      <span style="font-size:16px;">👨</span>
+      <div style="flex:1;font-size:13px;font-weight:600;">Mike (Sponsor) — <span style="font-weight:300;color:var(--muted);">Thinking of you. Call anytime.</span></div>
+      <div style="width:7px;height:7px;border-radius:50%;background:var(--sky);flex-shrink:0;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="affirmation fade-in d5">"Every morning you wake up sober is a <span>victory</span> worth celebrating."</div>
 
 <!-- ===== MY WINS ===== -->
 <div class="page" id="page-wins">
