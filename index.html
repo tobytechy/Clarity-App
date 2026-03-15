@@ -80,11 +80,15 @@ nav {
 
 .page { display: none; padding-top: 68px; min-height: 100vh; position: relative; z-index: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .page.active { 
-  display: block; 
+  display: block !important;
   max-width: 480px; 
   margin: 0 auto;
   overflow-x: hidden;
   width: 100%;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+  padding-top: 68px;
 }
 
 /* ===== HOME ===== */
