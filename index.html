@@ -585,10 +585,10 @@ async function loadWorkbookHistory() {
 }
 
 // Make sure lessons section shows by default on load
-document.addEventListener('DOMContentLoaded', function() {
+function initLearnTab() {
   const lessonsSection = document.getElementById('learn-lessons');
   if (lessonsSection) lessonsSection.classList.add('active');
-});
+}
 /* ===== CRAVING TOOLKIT ===== */
 @keyframes ct-pulse {
   0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
@@ -1953,6 +1953,7 @@ function showPage(id) {
   if (map[id] !== undefined) tabs[map[id]].classList.add('active');
   window.scrollTo(0,0);
   if (id === 'journal') loadTriggerHistory();
+  if (id === 'lessons') initLearnTab();
 }
 
 // Village tabs
