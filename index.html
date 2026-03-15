@@ -327,6 +327,51 @@ textarea::placeholder { color: var(--muted); }
 @keyframes fadeIn { to { opacity: 1; } }
 .d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.28s}.d4{animation-delay:.36s}.d5{animation-delay:.44s}
 
+/* ===== CRAVING TOOLKIT ===== */
+@keyframes ct-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
+  70%  { box-shadow: 0 0 0 8px rgba(74,222,128,0); }
+  100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+}
+.ct-pill {
+  flex-shrink:0; padding:0.45rem 0.85rem; border-radius:999px;
+  border:1px solid rgba(255,255,255,0.08); background:transparent;
+  color:#9090b0; font-size:0.78rem; font-weight:500; cursor:pointer;
+  transition:all 0.2s; white-space:nowrap; font-family:'DM Sans',sans-serif;
+}
+.ct-pill:hover { border-color:#7c6af7; color:#f0f0ff; }
+.ct-pill.active { background:#7c6af7; border-color:#7c6af7; color:white; box-shadow:0 2px 12px rgba(124,106,247,0.4); }
+.ct-btn-primary {
+  width:100%; padding:0.85rem; border-radius:12px; border:none;
+  background:linear-gradient(135deg,#7c6af7,#5b4de8); color:white;
+  font-size:0.9rem; font-weight:600; cursor:pointer; transition:all 0.2s;
+  margin-top:0.75rem; font-family:'DM Sans',sans-serif;
+}
+.ct-btn-primary:hover { transform:translateY(-1px); }
+.ct-btn-outline {
+  padding:0.55rem 1.1rem; border-radius:999px;
+  border:1px solid rgba(255,255,255,0.08); background:transparent;
+  color:#9090b0; font-size:0.82rem; cursor:pointer; transition:all 0.2s;
+  font-family:'DM Sans',sans-serif;
+}
+.ct-btn-outline:hover, .ct-active-dur { border-color:#5eead4; color:#5eead4; }
+.ct-input {
+  background:#1e2333; border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px; padding:0.6rem 0.8rem; color:#f0f0ff;
+  font-size:0.85rem; outline:none; transition:border-color 0.2s;
+  width:100%; font-family:'DM Sans',sans-serif;
+}
+.ct-input:focus { border-color:#7c6af7; }
+.ct-input::placeholder { color:#9090b0; }
+.ct-gstep { display:block; }
+.ct-distract-card {
+  background:#1a1a2e; border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px; padding:1rem 0.75rem; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; gap:0.3rem;
+  transition:all 0.2s; font-family:'DM Sans',sans-serif;
+}
+.ct-distract-card:hover { border-color:#7c6af7; background:rgba(124,106,247,0.08); transform:translateY(-2px); }
+.ct-distract-card.selected { border-color:#4ade80; background:rgba(74,222,128,0.06); }
 @media(max-width:640px){ .c-grid{grid-template-columns:1fr;} .nav-tabs{display:none;} .meeting-card{grid-template-columns:auto 1fr;} }
 </style>
 </head>
