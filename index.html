@@ -376,6 +376,11 @@ function showLearnTab(name, btn) {
   if (name === 'workbook') loadWorkbookHistory();
 }
 
+function initLearnTab() {
+  const lessonsSection = document.getElementById('learn-lessons');
+  if (lessonsSection) lessonsSection.classList.add('active');
+}
+
 function filterWorkbook(cat, btn) {
   document.querySelectorAll('.wb-filter').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
@@ -388,7 +393,6 @@ function filterWorkbook(cat, btn) {
   });
 }
 
-// ===== WORKBOOK EXERCISES =====
 const workbookExercises = {
   'thought-record': {
     title: 'Thought Record',
@@ -582,13 +586,6 @@ async function loadWorkbookHistory() {
   } catch(e) {
     el.innerHTML = '<div style="color:#6b7394;font-size:13px;">Could not load history.</div>';
   }
-}
-
-// Make sure lessons section shows by default on load
-function initLearnTab() {
-  const lessonsSection = document.getElementById('learn-lessons');
-  if (lessonsSection) lessonsSection.classList.add('active');
-}
 /* ===== CRAVING TOOLKIT ===== */
 @keyframes ct-pulse {
   0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
@@ -1547,9 +1544,10 @@ function initLearnTab() {
     <div style="padding:1rem 1.25rem;border-top:1px solid #2a3048;display:flex;gap:0.75rem;">
       <button id="wb-save-btn" onclick="saveWorkbookEntry()" style="flex:1;padding:0.85rem;border-radius:12px;border:none;background:linear-gradient(135deg,#a890e8,#68b4f0);color:white;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Save Entry ✓</button>
     </div>
-  </div>
+ </div>
 </div>
-  <!-- WORKBOOK MODAL -->
+
+<!-- WORKBOOK MODAL -->
 <div id="workbook-modal" style="display:none;position:fixed;inset:0;background:rgba(10,10,20,0.95);backdrop-filter:blur(8px);z-index:9999;align-items:flex-start;justify-content:center;overflow-y:auto;padding:1rem;">
   <div style="width:100%;max-width:480px;background:#0f1117;border-radius:20px;border:1px solid #2a3048;overflow:hidden;margin:auto;box-shadow:0 24px 80px rgba(0,0,0,0.6);">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem;background:linear-gradient(135deg,rgba(168,144,232,0.2),rgba(104,180,240,0.1));border-bottom:1px solid #2a3048;">
@@ -1565,7 +1563,8 @@ function initLearnTab() {
     </div>
   </div>
 </div>
-  <div class="page" id="page-community">
+
+<div class="page" id="page-community">
   <div style="max-width:600px;margin:0 auto;padding:24px 20px 80px;">
     <div style="margin-bottom:24px;">
       <h1 style="font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:#e8eaf2;margin-bottom:6px;">Community 🌍</h1>
@@ -1582,6 +1581,26 @@ function initLearnTab() {
         <button onclick="submitCommunityPost()" style="padding:10px 20px;background:linear-gradient(135deg,#f0a868,#f0c060);border:none;border-radius:8px;color:#0f1117;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Share</button>
       </div>
     </div>
+    <div id="community-feed"><div style="text-align:center;padding:40px;color:#3a4060;font-size:14px;">Loading community posts...</div></div>
+  </div>
+</div>
+
+<div class="page" id="page-lessons">
+  <div style="max-width:600px;margin:0 auto;padding:24px 20px 80px;">
+    <div style="margin-bottom:24px;">
+      <h1 style="font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:#e8eaf2;margin-bottom:6px;">Daily Lessons 📖</h1>
+      <p style="font-size:13px;color:#6b7394;">Evidence-based insights for your recovery journey.</p>
+    </div>
+    <div style="background:#181c27;border:1px solid #2a3048;border-radius:14px;padding:20px;margin-bottom:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:13px;font-weight:600;color:#e8eaf2;">Your Progress</div>
+        <div id="lessons-progress-text" style="font-size:13px;color:#f0a868;font-weight:600;">0 / 30 lessons</div>
+      </div>
+      <div style="background:#1e2333;border-radius:99px;height:6px;overflow:hidden;">
+        <div id="lessons-progress-bar" style="height:100%;background:linear-gradient(135deg,#f0a868,#f0c060);border-radius:99px;width:0%;transition:width 0.5s ease;"></div>
+      </div>
+    </div>
+
     <!-- LEARN SUB TABS -->
     <div style="display:flex;gap:0.4rem;margin-bottom:20px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;">
       <button class="learn-tab active" onclick="showLearnTab('lessons',this)">📖 Lessons</button>
@@ -1591,18 +1610,108 @@ function initLearnTab() {
     </div>
 
     <!-- LESSONS SECTION -->
-    <div id="learn-lessons" class="learn-section">
-    <div style="display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;">
-      <button onclick="filterCommunity('all')" id="filter-all" style="padding:7px 16px;border-radius:99px;border:1px solid #f0a868;background:rgba(240,168,104,0.15);color:#f0a868;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">All Posts</button>
-      <button onclick="filterCommunity('sameday')" id="filter-sameday" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Same Day as Me</button>
-      <button onclick="filterCommunity('wins')" id="filter-wins" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Wins</button>
-      <button onclick="filterCommunity('struggling')" id="filter-struggling" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Need Support</button>
+    <div id="learn-lessons" class="learn-section active">
+      <div style="display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;">
+        <button onclick="filterLessons('all')" id="lesson-filter-all" style="padding:7px 16px;border-radius:99px;border:1px solid #f0a868;background:rgba(240,168,104,0.15);color:#f0a868;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">All</button>
+        <button onclick="filterLessons('science')" id="lesson-filter-science" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">🔬 Science</button>
+        <button onclick="filterLessons('cravings')" id="lesson-filter-cravings" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">🌊 Cravings</button>
+        <button onclick="filterLessons('health')" id="lesson-filter-health" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">💚 Health</button>
+        <button onclick="filterLessons('mindset')" id="lesson-filter-mindset" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">🧠 Mindset</button>
+        <button onclick="filterLessons('relationships')" id="lesson-filter-relationships" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">💙 Relationships</button>
+      </div>
+      <div id="lessons-list"><div style="text-align:center;padding:40px;color:#3a4060;font-size:14px;">Loading lessons...</div></div>
     </div>
-    <div id="community-feed"><div style="text-align:center;padding:40px;color:#3a4060;font-size:14px;">Loading community posts...</div></div>
+
+    <!-- WORKBOOK SECTION -->
+    <div id="learn-workbook" class="learn-section" style="display:none;">
+      <div style="margin-bottom:16px;">
+        <h2 style="font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:#e8eaf2;margin-bottom:4px;">Workbook <span style="font-style:italic;color:#a890e8;">Activities</span></h2>
+        <p style="font-size:13px;color:#6b7394;">Evidence-based CBT & DBT exercises for lasting recovery.</p>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;">
+        <button class="wb-filter active" onclick="filterWorkbook('all',this)">All</button>
+        <button class="wb-filter" onclick="filterWorkbook('cbt',this)">🧠 CBT</button>
+        <button class="wb-filter" onclick="filterWorkbook('dbt',this)">💙 DBT</button>
+        <button class="wb-filter" onclick="filterWorkbook('values',this)">⭐ Values</button>
+        <button class="wb-filter" onclick="filterWorkbook('cravings',this)">🌊 Cravings</button>
+        <button class="wb-filter" onclick="filterWorkbook('relationships',this)">❤️ Relationships</button>
+      </div>
+      <div id="workbook-cards" style="display:flex;flex-direction:column;gap:10px;">
+        <div class="wb-card" data-cat="cbt" onclick="openWorkbook('thought-record')">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:rgba(168,144,232,0.15);border:1px solid rgba(168,144,232,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🧠</div>
+            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">Thought Record</div><div style="font-size:12px;color:#6b7394;">Challenge negative thinking patterns · CBT</div></div>
+            <div style="font-size:11px;color:#a890e8;font-weight:600;">5 min</div>
+          </div>
+        </div>
+        <div class="wb-card" data-cat="dbt" onclick="openWorkbook('dear-man')">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:rgba(104,180,240,0.15);border:1px solid rgba(104,180,240,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">💙</div>
+            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">DEAR MAN</div><div style="font-size:12px;color:#6b7394;">Ask for what you need assertively · DBT</div></div>
+            <div style="font-size:11px;color:#68b4f0;font-weight:600;">8 min</div>
+          </div>
+        </div>
+        <div class="wb-card" data-cat="cravings" onclick="openWorkbook('craving-analysis')">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:rgba(240,168,104,0.15);border:1px solid rgba(240,168,104,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🌊</div>
+            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">Craving Analysis</div><div style="font-size:12px;color:#6b7394;">Understand what drives your urges</div></div>
+            <div style="font-size:11px;color:#f0a868;font-weight:600;">6 min</div>
+          </div>
+        </div>
+        <div class="wb-card" data-cat="values" onclick="openWorkbook('values-clarification')">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:rgba(240,192,96,0.15);border:1px solid rgba(240,192,96,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">⭐</div>
+            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">Values Clarification</div><div style="font-size:12px;color:#6b7394;">Discover what matters most to you</div></div>
+            <div style="font-size:11px;color:#f0c060;font-weight:600;">10 min</div>
+          </div>
+        </div>
+        <div class="wb-card" data-cat="dbt" onclick="openWorkbook('opposite-action')">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:rgba(126,200,164,0.15);border:1px solid rgba(126,200,164,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🔄</div>
+            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">Opposite Action</div><div style="font-size:12px;color:#6b7394;">Act against the urge to change emotion · DBT</div></div>
+            <div style="font-size:11px;color:#7ec8a4;font-weight:600;">7 min</div>
+          </div>
+        </div>
+        <div class="wb-card" data-cat="cbt" onclick="openWorkbook('behavioral-activation')">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:rgba(232,114,138,0.15);border:1px solid rgba(232,114,138,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">⚡</div>
+            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">Behavioural Activation</div><div style="font-size:12px;color:#6b7394;">Break the avoidance cycle · CBT</div></div>
+            <div style="font-size:11px;color:#e8728a;font-weight:600;">8 min</div>
+          </div>
+        </div>
+        <div class="wb-card" data-cat="relationships" onclick="openWorkbook('relationship-inventory')">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:rgba(245,184,160,0.15);border:1px solid rgba(245,184,160,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">❤️</div>
+            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">Relationship Inventory</div><div style="font-size:12px;color:#6b7394;">Assess your support network honestly</div></div>
+            <div style="font-size:11px;color:#f5b8a0;font-weight:600;">12 min</div>
+          </div>
+        </div>
+        <div class="wb-card" data-cat="values" onclick="openWorkbook('future-self')">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:rgba(104,180,240,0.15);border:1px solid rgba(104,180,240,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🔮</div>
+            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">Letter to Future Self</div><div style="font-size:12px;color:#6b7394;">Write to the person you're becoming</div></div>
+            <div style="font-size:11px;color:#68b4f0;font-weight:600;">15 min</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:24px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7394;margin-bottom:12px;">My Completed Entries</div>
+        <div id="workbook-history" style="font-size:13px;color:#6b7394;">Loading...</div>
+      </div>
+    </div>
+
+    <!-- CHALLENGES SECTION -->
+    <div id="learn-challenges" class="learn-section" style="display:none;">
+      <div style="text-align:center;padding:40px 20px;color:#6b7394;">🏆 Challenges coming soon...</div>
+    </div>
+
+    <!-- VIDEOS SECTION -->
+    <div id="learn-videos" class="learn-section" style="display:none;">
+      <div style="text-align:center;padding:40px 20px;color:#6b7394;">🎬 Videos coming soon...</div>
+    </div>
+
   </div>
 </div>
-
-<div class="page" id="page-lessons">
   <div style="max-width:600px;margin:0 auto;padding:24px 20px 80px;">
     <div style="margin-bottom:24px;">
       <h1 style="font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:#e8eaf2;margin-bottom:6px;">Daily Lessons 📖</h1>
@@ -1714,6 +1823,10 @@ function initLearnTab() {
     <!-- VIDEOS SECTION -->
     <div id="learn-videos" class="learn-section" style="display:none;">
       <div style="text-align:center;padding:40px 20px;color:#6b7394;">🎬 Videos coming soon...</div>
+    </div>
+
+  </div>
+</div>
     </div><div id="lesson-modal" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px;">
   <div style="background:#181c27;border:1px solid #2a3048;border-radius:20px;max-width:560px;width:100%;max-height:85vh;overflow-y:auto;">
     <div style="padding:24px 28px;border-bottom:1px solid #2a3048;display:flex;justify-content:space-between;align-items:center;">
