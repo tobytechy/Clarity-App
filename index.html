@@ -376,6 +376,11 @@ function showLearnTab(name, btn) {
   if (name === 'workbook') loadWorkbookHistory();
 }
 
+function initLearnTab() {
+  const lessonsSection = document.getElementById('learn-lessons');
+  if (lessonsSection) lessonsSection.classList.add('active');
+}
+
 function filterWorkbook(cat, btn) {
   document.querySelectorAll('.wb-filter').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
@@ -388,7 +393,6 @@ function filterWorkbook(cat, btn) {
   });
 }
 
-// ===== WORKBOOK EXERCISES =====
 const workbookExercises = {
   'thought-record': {
     title: 'Thought Record',
@@ -582,13 +586,6 @@ async function loadWorkbookHistory() {
   } catch(e) {
     el.innerHTML = '<div style="color:#6b7394;font-size:13px;">Could not load history.</div>';
   }
-}
-
-// Make sure lessons section shows by default on load
-function initLearnTab() {
-  const lessonsSection = document.getElementById('learn-lessons');
-  if (lessonsSection) lessonsSection.classList.add('active');
-}
 /* ===== CRAVING TOOLKIT ===== */
 @keyframes ct-pulse {
   0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
