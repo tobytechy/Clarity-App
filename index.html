@@ -366,7 +366,147 @@ textarea::placeholder { color: var(--muted); }
 }
 .wb-textarea:focus { border-color:#a890e8; }
 .wb-textarea::placeholder { color:#6b7394; }
-// ===== LEARN TAB =====
+// ===== SUBSCRIPTION TIER =====
+let userPlan = 'free';
+
+async function loadUserPlan() {
+  try {
+    const { data: { user } } = await db.auth.getUser();
+    if (!user) return;
+    const { data } = await db
+      .from('subscriptions')
+      .select('plan, status')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .maybeSingle();
+    if (data && data.plan) {
+      userPlan = data.plan;
+    } else {
+      userPlan = 'free';
+    }
+    renderWorkbookCards();
+  } catch(e) {
+    userPlan = 'free';
+  }
+}
+
+function getPlanLevel(plan) {
+  if (plan === 'pro' || plan === 'team') return 3;
+  if (plan === 'basic') return 2;
+  return 1;
+}
+
+function canAccessExercise(requiredPlan) {
+  const level = getPlanLevel(userPlan);
+  if (requiredPlan === 'free') return true;
+  if (requiredPlan === 'basic') return level >= 2;
+  if (requiredPlan === 'pro') return level >= 3;
+  return false;
+}
+
+function renderWorkbookCards() {
+  const container = document.getElementById('workbook-cards');
+  if (!container) return;
+  const exercises = [
+    { id: 'thought-record', title: 'Thought Record', desc: 'Challenge negative thinking patterns · CBT', icon: '🧠', color: 'rgba(168,144,232,0.15)', border: 'rgba(168,144,232,0.3)', textColor: '#a890e8', time: '5 min', plan: 'free', cat: 'cbt' },
+    { id: 'craving-analysis', title: 'Craving Analysis', desc: 'Understand what drives your urges', icon: '🌊', color: 'rgba(240,168,104,0.15)', border: 'rgba(240,168,104,0.3)', textColor: '#f0a868', time: '6 min', plan: 'free', cat: 'cravings' },
+    { id: 'halt-check', title: 'HALT Check', desc: 'Hungry, Angry, Lonely, Tired assessment', icon: '🚦', color: 'rgba(126,200,164,0.15)', border: 'rgba(126,200,164,0.3)', textColor: '#7ec8a4', time: '3 min', plan: 'free', cat: 'cravings' },
+    { id: 'dear-man', title: 'DEAR MAN', desc: 'Ask for what you need assertively · DBT', icon: '💙', color: 'rgba(104,180,240,0.15)', border: 'rgba(104,180,240,0.3)', textColor: '#68b4f0', time: '8 min', plan: 'basic', cat: 'dbt' },
+    { id: 'values-clarification', title: 'Values Clarification', desc: 'Discover what matters most to you', icon: '⭐', color: 'rgba(240,192,96,0.15)', border: 'rgba(240,192,96,0.3)', textColor: '#f0c060', time: '10 min', plan: 'basic', cat: 'values' },
+    { id: 'opposite-action', title: 'Opposite Action', desc: 'Act against the urge to change emotion · DBT', icon: '🔄', color: 'rgba(126,200,164,0.15)', border: 'rgba(126,200,164,0.3)', textColor: '#7ec8a4', time: '7 min', plan: 'basic', cat: 'dbt' },
+    { id: 'behavioral-activation', title: 'Behavioural Activation', desc: 'Break the avoidance cycle · CBT', icon: '⚡', color: 'rgba(232,114,138,0.15)', border: 'rgba(232,114,138,0.3)', textColor: '#e8728a', time: '8 min', plan: 'basic', cat: 'cbt' },
+    { id: 'relationship-inventory', title: 'Relationship Inventory', desc: 'Assess your support network honestly', icon: '❤️', color: 'rgba(245,184,160,0.15)', border: 'rgba(245,184,160,0.3)', textColor: '#f5b8a0', time: '12 min', plan: 'basic', cat: 'relationships' },
+    { id: 'future-self', title: 'Letter to Future Self', desc: 'Write to the person you\'re becoming', icon: '🔮', color: 'rgba(104,180,240,0.15)', border: 'rgba(104,180,240,0.3)', textColor: '#68b4f0', time: '15 min', plan: 'basic', cat: 'values' },
+    { id: 'cognitive-distortions', title: 'Cognitive Distortions', desc: 'Identify your thinking traps · CBT', icon: '🕵️', color: 'rgba(168,144,232,0.15)', border: 'rgba(168,144,232,0.3)', textColor: '#a890e8', time: '8 min', plan: 'basic', cat: 'cbt' },
+    { id: 'wise-mind', title: 'Wise Mind', desc: 'Balance emotion and rational mind · DBT', icon: '🧘', color: 'rgba(104,180,240,0.15)', border: 'rgba(104,180,240,0.3)', textColor: '#68b4f0', time: '6 min', plan: 'pro', cat: 'dbt' },
+    { id: 'tipp-skills', title: 'TIPP Skills', desc: 'Crisis survival tool · DBT', icon: '🌡️', color: 'rgba(94,234,212,0.15)', border: 'rgba(94,234,212,0.3)', textColor: '#5eead4', time: '5 min', plan: 'pro', cat: 'dbt' },
+    { id: 'fast-skills', title: 'FAST Skills', desc: 'Maintain self-respect in relationships · DBT', icon: '🔗', color: 'rgba(240,192,96,0.15)', border: 'rgba(240,192,96,0.3)', textColor: '#f0c060', time: '7 min', plan: 'pro', cat: 'dbt' },
+    { id: 'pros-cons', title: 'Pros & Cons', desc: 'DBT distress tolerance decision tool', icon: '⚖️', color: 'rgba(168,144,232,0.15)', border: 'rgba(168,144,232,0.3)', textColor: '#a890e8', time: '6 min', plan: 'pro', cat: 'dbt' },
+    { id: 'worry-time', title: 'Worry Time', desc: 'Contain anxiety to specific times · CBT', icon: '😰', color: 'rgba(232,114,138,0.15)', border: 'rgba(232,114,138,0.3)', textColor: '#e8728a', time: '5 min', plan: 'pro', cat: 'cbt' },
+    { id: 'weekly-activity', title: 'Weekly Activity Schedule', desc: 'Plan meaningful activities · CBT', icon: '📅', color: 'rgba(126,200,164,0.15)', border: 'rgba(126,200,164,0.3)', textColor: '#7ec8a4', time: '10 min', plan: 'pro', cat: 'cbt' },
+    { id: 'relapse-prevention', title: 'Relapse Prevention Plan', desc: 'Identify warning signs and action steps', icon: '🚨', color: 'rgba(240,168,104,0.15)', border: 'rgba(240,168,104,0.3)', textColor: '#f0a868', time: '15 min', plan: 'pro', cat: 'cravings' },
+    { id: 'people-places-things', title: 'People Places Things', desc: 'Map your trigger environment', icon: '🗺️', color: 'rgba(104,180,240,0.15)', border: 'rgba(104,180,240,0.3)', textColor: '#68b4f0', time: '10 min', plan: 'pro', cat: 'cravings' },
+    { id: 'amends-letter', title: 'Amends Letter', desc: 'Make peace with the past', icon: '✉️', color: 'rgba(245,184,160,0.15)', border: 'rgba(245,184,160,0.3)', textColor: '#f5b8a0', time: '20 min', plan: 'pro', cat: 'relationships' },
+    { id: 'committed-action', title: 'Committed Action Plan', desc: 'Align actions with values · ACT', icon: '🎯', color: 'rgba(240,192,96,0.15)', border: 'rgba(240,192,96,0.3)', textColor: '#f0c060', time: '10 min', plan: 'pro', cat: 'values' },
+    { id: 'defusion', title: 'Defusion Exercise', desc: 'Detach from negative thoughts · ACT', icon: '🫧', color: 'rgba(94,234,212,0.15)', border: 'rgba(94,234,212,0.3)', textColor: '#5eead4', time: '8 min', plan: 'pro', cat: 'cbt' },
+    { id: 'acceptance-practice', title: 'Acceptance Practice', desc: 'Stop fighting difficult emotions · ACT', icon: '🌿', color: 'rgba(126,200,164,0.15)', border: 'rgba(126,200,164,0.3)', textColor: '#7ec8a4', time: '8 min', plan: 'pro', cat: 'values' }
+  ];
+
+  const currentFilter = document.querySelector('.wb-filter.active');
+  const activeCat = currentFilter ? currentFilter.dataset.cat || 'all' : 'all';
+
+  container.innerHTML = exercises
+    .filter(e => activeCat === 'all' || e.cat === activeCat)
+    .map(e => {
+      const locked = !canAccessExercise(e.plan);
+      const lockBadge = locked ? '<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(240,192,96,0.15);color:#f0c060;margin-left:6px;">' + (e.plan === 'basic' ? 'BASIC' : 'PRO') + ' 🔒</span>' : '<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(126,200,164,0.15);color:#7ec8a4;">FREE</span>' ;
+      const planBadge = e.plan !== 'free' ? '<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:' + (e.plan === 'basic' ? 'rgba(104,180,240,0.15);color:#68b4f0;' : 'rgba(168,144,232,0.15);color:#a890e8;') + '">' + e.plan.toUpperCase() + '</span>' : '';
+      return '<div class="wb-card" data-cat="' + e.cat + '" onclick="' + (locked ? 'showLockedPreview(\'' + e.id + '\')' : 'openWorkbook(\'' + e.id + '\')') + '" style="' + (locked ? 'opacity:0.7;' : '') + '">' +
+        '<div style="display:flex;align-items:center;gap:12px;">' +
+        '<div style="width:44px;height:44px;border-radius:12px;background:' + e.color + ';border:1px solid ' + e.border + ';display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">' + (locked ? '🔒' : e.icon) + '</div>' +
+        '<div style="flex:1;">' +
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">' +
+        '<div style="font-size:14px;font-weight:600;color:' + (locked ? '#6b7394' : '#e8eaf2') + ';">' + e.title + '</div>' +
+        (e.plan !== 'free' ? '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:' + (e.plan === 'basic' ? 'rgba(104,180,240,0.15);color:#68b4f0;' : 'rgba(168,144,232,0.15);color:#a890e8;') + '">' + e.plan.toUpperCase() + '</span>' : '') +
+        '</div>' +
+        '<div style="font-size:12px;color:#6b7394;">' + e.desc + '</div>' +
+        '</div>' +
+        '<div style="font-size:11px;color:' + e.textColor + ';font-weight:600;white-space:nowrap;">' + (locked ? '🔒' : e.time) + '</div>' +
+        '</div></div>';
+    }).join('');
+}
+
+function showLockedPreview(id) {
+  const exercises = {
+    'dear-man': { title: 'DEAR MAN', category: '💙 DBT Exercise', plan: 'basic', questions: [{ id: 'describe', label: 'Describe the situation', placeholder: 'Stick to the facts only...' }] },
+    'values-clarification': { title: 'Values Clarification', category: '⭐ Values Exercise', plan: 'basic', questions: [{ id: 'values', label: 'List your top 5 values in life', placeholder: 'e.g. Family, honesty, health...' }] },
+    'opposite-action': { title: 'Opposite Action', category: '🔄 DBT Exercise', plan: 'basic', questions: [{ id: 'emotion', label: 'What emotion are you feeling?', placeholder: 'Name it and rate 0-10...' }] },
+    'behavioral-activation': { title: 'Behavioural Activation', category: '⚡ CBT Exercise', plan: 'basic', questions: [{ id: 'avoiding', label: 'What have you been avoiding?', placeholder: 'Activities, people, places...' }] },
+    'relationship-inventory': { title: 'Relationship Inventory', category: '❤️ Relationships Exercise', plan: 'basic', questions: [{ id: 'supportive', label: 'Who in your life is genuinely supportive?', placeholder: 'Name them...' }] },
+    'future-self': { title: 'Letter to Future Self', category: '🔮 Values Exercise', plan: 'basic', questions: [{ id: 'date', label: 'Who are you writing to?', placeholder: 'Me in 6 months / 1 year...' }] },
+    'cognitive-distortions': { title: 'Cognitive Distortions', category: '🕵️ CBT Exercise', plan: 'basic', questions: [{ id: 'thought', label: 'Write down a negative thought you had today', placeholder: 'e.g. I always fail...' }] },
+    'wise-mind': { title: 'Wise Mind', category: '🧘 DBT Exercise', plan: 'pro', questions: [{ id: 'emotion', label: 'What is your emotional mind saying right now?', placeholder: 'What do your emotions want you to do?...' }] },
+    'tipp-skills': { title: 'TIPP Skills', category: '🌡️ DBT Exercise', plan: 'pro', questions: [{ id: 'temperature', label: 'Temperature — what cold sensation could you use right now?', placeholder: 'Cold water, ice pack, cold shower...' }] },
+    'fast-skills': { title: 'FAST Skills', category: '🔗 DBT Exercise', plan: 'pro', questions: [{ id: 'fair', label: 'Be Fair — are you being fair to yourself in this situation?', placeholder: 'What would being fair look like?...' }] },
+    'pros-cons': { title: 'Pros & Cons', category: '⚖️ DBT Exercise', plan: 'pro', questions: [{ id: 'situation', label: 'What decision or urge are you weighing?', placeholder: 'Describe the situation...' }] },
+    'worry-time': { title: 'Worry Time', category: '😰 CBT Exercise', plan: 'pro', questions: [{ id: 'worry', label: 'Write down your main worry right now', placeholder: 'What is on your mind?...' }] },
+    'weekly-activity': { title: 'Weekly Activity Schedule', category: '📅 CBT Exercise', plan: 'pro', questions: [{ id: 'mood', label: 'How has your mood been this week overall?', placeholder: 'Rate 0-10 and describe...' }] },
+    'relapse-prevention': { title: 'Relapse Prevention Plan', category: '🚨 Recovery Exercise', plan: 'pro', questions: [{ id: 'warning', label: 'What are your early warning signs of relapse?', placeholder: 'Thoughts, feelings, behaviours...' }] },
+    'people-places-things': { title: 'People Places Things', category: '🗺️ Recovery Exercise', plan: 'pro', questions: [{ id: 'people', label: 'Which people trigger your cravings?', placeholder: 'Be honest — this is just for you...' }] },
+    'amends-letter': { title: 'Amends Letter', category: '✉️ Recovery Exercise', plan: 'pro', questions: [{ id: 'person', label: 'Who are you writing this amends to?', placeholder: 'A person you have harmed...' }] },
+    'committed-action': { title: 'Committed Action Plan', category: '🎯 ACT Exercise', plan: 'pro', questions: [{ id: 'value', label: 'Which value does this action connect to?', placeholder: 'e.g. Family, health, honesty...' }] },
+    'defusion': { title: 'Defusion Exercise', category: '🫧 ACT Exercise', plan: 'pro', questions: [{ id: 'thought', label: 'Write down a thought that is bothering you', placeholder: 'e.g. I am not good enough...' }] },
+    'acceptance-practice': { title: 'Acceptance Practice', category: '🌿 ACT Exercise', plan: 'pro', questions: [{ id: 'emotion', label: 'What difficult emotion are you trying to avoid?', placeholder: 'Anxiety, shame, grief, anger...' }] },
+    'halt-check': { title: 'HALT Check', category: '🚦 Recovery Exercise', plan: 'free', questions: [{ id: 'hungry', label: 'Are you Hungry?', placeholder: 'When did you last eat?...' }] }
+  };
+  const exercise = exercises[id];
+  if (!exercise) return;
+  document.getElementById('wb-modal-title').textContent = exercise.title;
+  document.getElementById('wb-modal-category').textContent = exercise.category;
+  const content = document.getElementById('wb-modal-content');
+  const planName = exercise.plan === 'basic' ? 'Basic' : 'Pro';
+  const planColor = exercise.plan === 'basic' ? '#68b4f0' : '#a890e8';
+  content.innerHTML =
+    '<div class="wb-question">' +
+    '<label>' + exercise.questions[0].label + '</label>' +
+    '<textarea class="wb-textarea" placeholder="' + exercise.questions[0].placeholder + '" rows="3" disabled style="opacity:0.5;cursor:not-allowed;"></textarea>' +
+    '</div>' +
+    '<div style="position:relative;margin-top:0.5rem;">' +
+    '<div style="filter:blur(4px);pointer-events:none;">' +
+    '<div class="wb-question"><label>Question 2</label><textarea class="wb-textarea" rows="2" disabled></textarea></div>' +
+    '<div class="wb-question"><label>Question 3</label><textarea class="wb-textarea" rows="2" disabled></textarea></div>' +
+    '</div>' +
+    '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(15,17,23,0.85);border-radius:12px;padding:1.5rem;text-align:center;">' +
+    '<div style="font-size:1.5rem;margin-bottom:0.5rem;">🔒</div>' +
+    '<div style="font-size:14px;font-weight:700;color:#e8eaf2;margin-bottom:6px;">Unlock with ' + planName + '</div>' +
+    '<div style="font-size:12px;color:#6b7394;margin-bottom:1rem;">This exercise is available on the ' + planName + ' plan and above</div>' +
+    '<button onclick="closeCravingToolkit();showPage(\'pricing\')" style="padding:10px 24px;background:linear-gradient(135deg,' + planColor + ',#a890e8);border:none;border-radius:10px;color:white;font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Upgrade to ' + planName + ' →</button>' +
+    '</div></div>';
+  document.getElementById('workbook-modal').style.display = 'flex';
+  document.getElementById('wb-save-btn').style.display = 'none';
+  document.body.style.overflow = 'hidden';
+}  
+  // ===== LEARN TAB =====
 </style>
 </head>
 <body><!-- AUTH SCREEN -->
@@ -3113,7 +3253,7 @@ function showLearnTab(name, btn) {
   const section = document.getElementById('learn-' + name);
   if (section) section.classList.add('active');
   if (btn) btn.classList.add('active');
-  if (name === 'workbook') loadWorkbookHistory();
+  if (name === 'workbook') { loadUserPlan(); loadWorkbookHistory(); }
 }
 
 function initLearnTab() {
@@ -3132,8 +3272,8 @@ function filterWorkbook(cat, btn) {
     }
   });
 }
-
-function openWorkbook(id) {
+document.getElementById('wb-save-btn').style.display = 'block';
+  function openWorkbook(id) {
   const exercises = {
     'thought-record': { title: 'Thought Record', category: '🧠 CBT Exercise', questions: [
       { id: 'situation', label: 'What happened?', placeholder: 'Describe the situation briefly...' },
