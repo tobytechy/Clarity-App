@@ -326,6 +326,8 @@ textarea::placeholder { color: var(--muted); }
 .fade-in { opacity: 0; animation: fadeIn 0.5s ease forwards; }
 @keyframes fadeIn { to { opacity: 1; } }
 .d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.28s}.d4{animation-delay:.36s}.d5{animation-delay:.44s}
+
+/* ===== LEARN TAB ===== */
 .learn-tab {
   flex-shrink:0; padding:0.5rem 1rem; border-radius:999px;
   border:1px solid #2a3048; background:transparent;
@@ -364,7 +366,229 @@ textarea::placeholder { color: var(--muted); }
 }
 .wb-textarea:focus { border-color:#a890e8; }
 .wb-textarea::placeholder { color:#6b7394; }
+// ===== LEARN TAB =====
+function showLearnTab(name, btn) {
+  document.querySelectorAll('.learn-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.learn-tab').forEach(t => t.classList.remove('active'));
+  const section = document.getElementById('learn-' + name);
+  if (section) section.classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'workbook') loadWorkbookHistory();
+}
 
+function filterWorkbook(cat, btn) {
+  document.querySelectorAll('.wb-filter').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.wb-card').forEach(card => {
+    if (cat === 'all' || card.dataset.cat === cat) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// ===== WORKBOOK EXERCISES =====
+const workbookExercises = {
+  'thought-record': {
+    title: 'Thought Record',
+    category: '🧠 CBT Exercise',
+    questions: [
+      { id: 'situation', label: 'What happened?', placeholder: 'Describe the situation briefly...' },
+      { id: 'emotion', label: 'What emotion did you feel? (0-10 intensity)', placeholder: 'e.g. Anxiety 7/10, Shame 5/10...' },
+      { id: 'thought', label: 'What automatic thought went through your mind?', placeholder: 'e.g. "I always mess everything up"...' },
+      { id: 'evidence-for', label: 'Evidence that supports this thought', placeholder: 'What facts support this thought?' },
+      { id: 'evidence-against', label: 'Evidence that contradicts this thought', placeholder: 'What facts go against this thought?' },
+      { id: 'balanced', label: 'A more balanced thought', placeholder: 'Rewrite the thought more fairly...' },
+      { id: 'emotion-after', label: 'How do you feel now? (0-10 intensity)', placeholder: 'e.g. Anxiety 4/10...' }
+    ]
+  },
+  'dear-man': {
+    title: 'DEAR MAN',
+    category: '💙 DBT Exercise',
+    questions: [
+      { id: 'describe', label: 'Describe — What is the situation?', placeholder: 'Stick to the facts only...' },
+      { id: 'express', label: 'Express — How do you feel about it?', placeholder: 'Use "I feel..." statements...' },
+      { id: 'assert', label: 'Assert — What exactly do you want?', placeholder: 'Be clear and specific...' },
+      { id: 'reinforce', label: 'Reinforce — What\'s in it for them?', placeholder: 'Why should they say yes?...' },
+      { id: 'mindful', label: 'Stay Mindful — What distractions might come up?', placeholder: 'How will you stay on track?...' },
+      { id: 'appear', label: 'Appear Confident — How will you carry yourself?', placeholder: 'Body language, tone, eye contact...' },
+      { id: 'negotiate', label: 'Negotiate — What could you compromise on?', placeholder: 'What are you flexible about?...' }
+    ]
+  },
+  'craving-analysis': {
+    title: 'Craving Analysis',
+    category: '🌊 Cravings Exercise',
+    questions: [
+      { id: 'trigger', label: 'What triggered this craving?', placeholder: 'Person, place, feeling, time of day...' },
+      { id: 'body', label: 'Where do you feel it in your body?', placeholder: 'Chest, stomach, throat...' },
+      { id: 'need', label: 'What need is this craving trying to meet?', placeholder: 'Relief, connection, escape, pleasure...' },
+      { id: 'consequence', label: 'What would happen if you gave in?', placeholder: 'Short term vs long term...' },
+      { id: 'alternative', label: 'What else could meet that need right now?', placeholder: 'A healthier alternative...' },
+      { id: 'commitment', label: 'What do you choose to do instead?', placeholder: 'Your commitment right now...' }
+    ]
+  },
+  'values-clarification': {
+    title: 'Values Clarification',
+    category: '⭐ Values Exercise',
+    questions: [
+      { id: 'values', label: 'List your top 5 values in life', placeholder: 'e.g. Family, honesty, health, freedom...' },
+      { id: 'living', label: 'Which values are you currently living by?', placeholder: 'Which ones show up in your daily life?...' },
+      { id: 'not-living', label: 'Which values are you NOT living by?', placeholder: 'Where is there a gap?...' },
+      { id: 'why', label: 'Why is there a gap?', placeholder: 'What gets in the way?...' },
+      { id: 'one-step', label: 'One small step toward your values this week', placeholder: 'Something concrete and achievable...' }
+    ]
+  },
+  'opposite-action': {
+    title: 'Opposite Action',
+    category: '🔄 DBT Exercise',
+    questions: [
+      { id: 'emotion', label: 'What emotion are you feeling?', placeholder: 'Name it and rate intensity 0-10...' },
+      { id: 'urge', label: 'What does this emotion make you want to do?', placeholder: 'Your automatic urge or impulse...' },
+      { id: 'justified', label: 'Is this emotion justified by the facts?', placeholder: 'Does the situation warrant this reaction?...' },
+      { id: 'opposite', label: 'What is the OPPOSITE action?', placeholder: 'Do the opposite of what the emotion says...' },
+      { id: 'plan', label: 'How will you carry out the opposite action?', placeholder: 'Be specific — when, where, how...' },
+      { id: 'outcome', label: 'How did it go? (fill in after)', placeholder: 'What happened when you tried it?...' }
+    ]
+  },
+  'behavioral-activation': {
+    title: 'Behavioural Activation',
+    category: '⚡ CBT Exercise',
+    questions: [
+      { id: 'avoiding', label: 'What have you been avoiding?', placeholder: 'Activities, people, places...' },
+      { id: 'why', label: 'Why have you been avoiding it?', placeholder: 'What fear or feeling drives the avoidance?...' },
+      { id: 'cost', label: 'What is avoiding costing you?', placeholder: 'How does it affect your mood and life?...' },
+      { id: 'activity', label: 'One activity to schedule this week', placeholder: 'Something small and achievable...' },
+      { id: 'when', label: 'When exactly will you do it?', placeholder: 'Day, time, duration...' },
+      { id: 'mood-before', label: 'Mood before (0-10)', placeholder: 'Rate your mood right now...' },
+      { id: 'mood-after', label: 'Mood after (fill in later, 0-10)', placeholder: 'How did you feel after doing it?...' }
+    ]
+  },
+  'relationship-inventory': {
+    title: 'Relationship Inventory',
+    category: '❤️ Relationships Exercise',
+    questions: [
+      { id: 'supportive', label: 'Who in your life is genuinely supportive?', placeholder: 'Name them and how they support you...' },
+      { id: 'draining', label: 'Who drains your energy or triggers you?', placeholder: 'Be honest — this is just for you...' },
+      { id: 'missing', label: 'What kind of connection are you missing?', placeholder: 'Intimacy, fun, trust, understanding...' },
+      { id: 'boundaries', label: 'Where do you need better boundaries?', placeholder: 'Who or what needs a boundary?...' },
+      { id: 'reach-out', label: 'One person you could reach out to this week', placeholder: 'Someone safe and positive...' }
+    ]
+  },
+  'future-self': {
+    title: 'Letter to Future Self',
+    category: '🔮 Values Exercise',
+    questions: [
+      { id: 'date', label: 'Who are you writing to? (e.g. "Me in 1 year")', placeholder: 'Me in 6 months / 1 year / 5 years...' },
+      { id: 'proud', label: 'What are you proud of right now?', placeholder: 'Even small things count...' },
+      { id: 'hope', label: 'What do you hope your future self has achieved?', placeholder: 'Recovery, relationships, goals...' },
+      { id: 'advice', label: 'What advice do you want to give your future self?', placeholder: 'What do you need to hear?...' },
+      { id: 'letter', label: 'Write the full letter', placeholder: 'Dear future me...' }
+    ]
+  }
+};
+
+let currentWorkbook = null;
+
+function openWorkbook(id) {
+  const exercise = workbookExercises[id];
+  if (!exercise) return;
+  currentWorkbook = id;
+  document.getElementById('wb-modal-title').textContent = exercise.title;
+  document.getElementById('wb-modal-category').textContent = exercise.category;
+  const content = document.getElementById('wb-modal-content');
+  content.innerHTML = exercise.questions.map(q => `
+    <div class="wb-question">
+      <label>${q.label}</label>
+      <textarea class="wb-textarea" id="wb-${q.id}" placeholder="${q.placeholder}" rows="3"></textarea>
+    </div>
+  `).join('');
+  const modal = document.getElementById('workbook-modal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeWorkbook() {
+  document.getElementById('workbook-modal').style.display = 'none';
+  document.body.style.overflow = '';
+  currentWorkbook = null;
+}
+
+async function saveWorkbookEntry() {
+  if (!currentWorkbook) return;
+  const exercise = workbookExercises[currentWorkbook];
+  const answers = {};
+  exercise.questions.forEach(q => {
+    const el = document.getElementById('wb-' + q.id);
+    if (el) answers[q.id] = el.value;
+  });
+  const btn = document.getElementById('wb-save-btn');
+  btn.textContent = 'Saving...';
+  btn.style.opacity = '0.7';
+  try {
+    const { data: { user } } = await db.auth.getUser();
+    if (user) {
+      await db.from('workbook_entries').insert({
+        user_id: user.id,
+        exercise_type: currentWorkbook,
+        exercise_title: exercise.title,
+        answers: answers,
+        created_at: new Date().toISOString()
+      });
+    }
+    btn.textContent = '✓ Saved!';
+    btn.style.background = 'linear-gradient(135deg,#7ec8a4,#5aaa88)';
+    setTimeout(() => {
+      closeWorkbook();
+      loadWorkbookHistory();
+      showToast('✍️ Workbook entry saved!');
+    }, 1000);
+  } catch(e) {
+    console.error(e);
+    btn.textContent = 'Save Entry ✓';
+    btn.style.opacity = '1';
+    showToast('Could not save — please try again');
+  }
+}
+
+async function loadWorkbookHistory() {
+  const el = document.getElementById('workbook-history');
+  if (!el) return;
+  try {
+    const { data: { user } } = await db.auth.getUser();
+    if (!user) return;
+    const { data } = await db
+      .from('workbook_entries')
+      .select('exercise_title, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(10);
+    if (!data || data.length === 0) {
+      el.innerHTML = '<div style="text-align:center;padding:20px;color:#6b7394;font-size:13px;">No entries yet — complete your first exercise above!</div>';
+      return;
+    }
+    el.innerHTML = data.map(entry => {
+      const date = new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#181c27;border:1px solid #2a3048;border-radius:10px;margin-bottom:8px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#e8eaf2;">${entry.exercise_title}</div>
+            <div style="font-size:11px;color:#6b7394;margin-top:2px;">${date}</div>
+          </div>
+          <div style="font-size:11px;color:#a890e8;font-weight:600;">✓ Done</div>
+        </div>
+      `;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="color:#6b7394;font-size:13px;">Could not load history.</div>';
+  }
+}
+
+// Make sure lessons section shows by default on load
+function initLearnTab() {
+  const lessonsSection = document.getElementById('learn-lessons');
+  if (lessonsSection) lessonsSection.classList.add('active');
+}
 /* ===== CRAVING TOOLKIT ===== */
 @keyframes ct-pulse {
   0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
@@ -411,8 +635,9 @@ textarea::placeholder { color: var(--muted); }
 .ct-distract-card:hover { border-color:#7c6af7; background:rgba(124,106,247,0.08); transform:translateY(-2px); }
 .ct-distract-card.selected { border-color:#4ade80; background:rgba(74,222,128,0.06); }
 @media(max-width:640px){ .c-grid{grid-template-columns:1fr;} .nav-tabs{display:none;} .meeting-card{grid-template-columns:auto 1fr;} }
-
-  <!-- AUTH SCREEN -->
+</style>
+</head>
+<body><!-- AUTH SCREEN -->
 <div id="auth-screen" style="display:flex;position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#1a1035 0%,#0f1f3d 40%,#1a1035 100%);align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
   <div style="background:rgba(20,15,45,0.92);border:1px solid rgba(160,140,220,0.4);box-shadow:0 0 40px rgba(120,100,200,0.15);border-radius:20px;padding:36px 32px;max-width:400px;width:100%;text-align:center;margin:auto;backdrop-filter:blur(10px);">
     <div style="font-family:Georgia,serif;font-size:32px;font-weight:300;color:#e8eaf2;margin-bottom:6px;">Clar<span style="color:#f0a868;font-style:italic;">ity</span></div>
@@ -3321,227 +3546,6 @@ async function alertVillage() {
   } catch(e) { console.error(e); }
   document.getElementById('village-alerted').style.display = 'block';
 }
-  // ===== LEARN TAB =====
-function showLearnTab(name, btn) {
-  document.querySelectorAll('.learn-section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.learn-tab').forEach(t => t.classList.remove('active'));
-  const section = document.getElementById('learn-' + name);
-  if (section) section.classList.add('active');
-  if (btn) btn.classList.add('active');
-  if (name === 'workbook') loadWorkbookHistory();
-}
-
-function initLearnTab() {
-  const lessonsSection = document.getElementById('learn-lessons');
-  if (lessonsSection) lessonsSection.classList.add('active');
-}
-
-function filterWorkbook(cat, btn) {
-  document.querySelectorAll('.wb-filter').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  document.querySelectorAll('.wb-card').forEach(card => {
-    if (cat === 'all' || card.dataset.cat === cat) {
-      card.style.display = 'block';
-    } else {
-      card.style.display = 'none';
-    }
-  });
-}
-
-const workbookExercises = {
-  'thought-record': {
-    title: 'Thought Record',
-    category: '🧠 CBT Exercise',
-    questions: [
-      { id: 'situation', label: 'What happened?', placeholder: 'Describe the situation briefly...' },
-      { id: 'emotion', label: 'What emotion did you feel? (0-10 intensity)', placeholder: 'e.g. Anxiety 7/10, Shame 5/10...' },
-      { id: 'thought', label: 'What automatic thought went through your mind?', placeholder: 'e.g. "I always mess everything up"...' },
-      { id: 'evidence-for', label: 'Evidence that supports this thought', placeholder: 'What facts support this thought?' },
-      { id: 'evidence-against', label: 'Evidence that contradicts this thought', placeholder: 'What facts go against this thought?' },
-      { id: 'balanced', label: 'A more balanced thought', placeholder: 'Rewrite the thought more fairly...' },
-      { id: 'emotion-after', label: 'How do you feel now? (0-10 intensity)', placeholder: 'e.g. Anxiety 4/10...' }
-    ]
-  },
-  'dear-man': {
-    title: 'DEAR MAN',
-    category: '💙 DBT Exercise',
-    questions: [
-      { id: 'describe', label: 'Describe — What is the situation?', placeholder: 'Stick to the facts only...' },
-      { id: 'express', label: 'Express — How do you feel about it?', placeholder: 'Use "I feel..." statements...' },
-      { id: 'assert', label: 'Assert — What exactly do you want?', placeholder: 'Be clear and specific...' },
-      { id: 'reinforce', label: 'Reinforce — What\'s in it for them?', placeholder: 'Why should they say yes?...' },
-      { id: 'mindful', label: 'Stay Mindful — What distractions might come up?', placeholder: 'How will you stay on track?...' },
-      { id: 'appear', label: 'Appear Confident — How will you carry yourself?', placeholder: 'Body language, tone, eye contact...' },
-      { id: 'negotiate', label: 'Negotiate — What could you compromise on?', placeholder: 'What are you flexible about?...' }
-    ]
-  },
-  'craving-analysis': {
-    title: 'Craving Analysis',
-    category: '🌊 Cravings Exercise',
-    questions: [
-      { id: 'trigger', label: 'What triggered this craving?', placeholder: 'Person, place, feeling, time of day...' },
-      { id: 'body', label: 'Where do you feel it in your body?', placeholder: 'Chest, stomach, throat...' },
-      { id: 'need', label: 'What need is this craving trying to meet?', placeholder: 'Relief, connection, escape, pleasure...' },
-      { id: 'consequence', label: 'What would happen if you gave in?', placeholder: 'Short term vs long term...' },
-      { id: 'alternative', label: 'What else could meet that need right now?', placeholder: 'A healthier alternative...' },
-      { id: 'commitment', label: 'What do you choose to do instead?', placeholder: 'Your commitment right now...' }
-    ]
-  },
-  'values-clarification': {
-    title: 'Values Clarification',
-    category: '⭐ Values Exercise',
-    questions: [
-      { id: 'values', label: 'List your top 5 values in life', placeholder: 'e.g. Family, honesty, health, freedom...' },
-      { id: 'living', label: 'Which values are you currently living by?', placeholder: 'Which ones show up in your daily life?...' },
-      { id: 'not-living', label: 'Which values are you NOT living by?', placeholder: 'Where is there a gap?...' },
-      { id: 'why', label: 'Why is there a gap?', placeholder: 'What gets in the way?...' },
-      { id: 'one-step', label: 'One small step toward your values this week', placeholder: 'Something concrete and achievable...' }
-    ]
-  },
-  'opposite-action': {
-    title: 'Opposite Action',
-    category: '🔄 DBT Exercise',
-    questions: [
-      { id: 'emotion', label: 'What emotion are you feeling?', placeholder: 'Name it and rate intensity 0-10...' },
-      { id: 'urge', label: 'What does this emotion make you want to do?', placeholder: 'Your automatic urge or impulse...' },
-      { id: 'justified', label: 'Is this emotion justified by the facts?', placeholder: 'Does the situation warrant this reaction?...' },
-      { id: 'opposite', label: 'What is the OPPOSITE action?', placeholder: 'Do the opposite of what the emotion says...' },
-      { id: 'plan', label: 'How will you carry out the opposite action?', placeholder: 'Be specific — when, where, how...' },
-      { id: 'outcome', label: 'How did it go? (fill in after)', placeholder: 'What happened when you tried it?...' }
-    ]
-  },
-  'behavioral-activation': {
-    title: 'Behavioural Activation',
-    category: '⚡ CBT Exercise',
-    questions: [
-      { id: 'avoiding', label: 'What have you been avoiding?', placeholder: 'Activities, people, places...' },
-      { id: 'why', label: 'Why have you been avoiding it?', placeholder: 'What fear or feeling drives the avoidance?...' },
-      { id: 'cost', label: 'What is avoiding costing you?', placeholder: 'How does it affect your mood and life?...' },
-      { id: 'activity', label: 'One activity to schedule this week', placeholder: 'Something small and achievable...' },
-      { id: 'when', label: 'When exactly will you do it?', placeholder: 'Day, time, duration...' },
-      { id: 'mood-before', label: 'Mood before (0-10)', placeholder: 'Rate your mood right now...' },
-      { id: 'mood-after', label: 'Mood after (fill in later, 0-10)', placeholder: 'How did you feel after doing it?...' }
-    ]
-  },
-  'relationship-inventory': {
-    title: 'Relationship Inventory',
-    category: '❤️ Relationships Exercise',
-    questions: [
-      { id: 'supportive', label: 'Who in your life is genuinely supportive?', placeholder: 'Name them and how they support you...' },
-      { id: 'draining', label: 'Who drains your energy or triggers you?', placeholder: 'Be honest — this is just for you...' },
-      { id: 'missing', label: 'What kind of connection are you missing?', placeholder: 'Intimacy, fun, trust, understanding...' },
-      { id: 'boundaries', label: 'Where do you need better boundaries?', placeholder: 'Who or what needs a boundary?...' },
-      { id: 'reach-out', label: 'One person you could reach out to this week', placeholder: 'Someone safe and positive...' }
-    ]
-  },
-  'future-self': {
-    title: 'Letter to Future Self',
-    category: '🔮 Values Exercise',
-    questions: [
-      { id: 'date', label: 'Who are you writing to? (e.g. "Me in 1 year")', placeholder: 'Me in 6 months / 1 year / 5 years...' },
-      { id: 'proud', label: 'What are you proud of right now?', placeholder: 'Even small things count...' },
-      { id: 'hope', label: 'What do you hope your future self has achieved?', placeholder: 'Recovery, relationships, goals...' },
-      { id: 'advice', label: 'What advice do you want to give your future self?', placeholder: 'What do you need to hear?...' },
-      { id: 'letter', label: 'Write the full letter', placeholder: 'Dear future me...' }
-    ]
-  }
-};
-
-let currentWorkbook = null;
-
-function openWorkbook(id) {
-  const exercise = workbookExercises[id];
-  if (!exercise) return;
-  currentWorkbook = id;
-  document.getElementById('wb-modal-title').textContent = exercise.title;
-  document.getElementById('wb-modal-category').textContent = exercise.category;
-  const content = document.getElementById('wb-modal-content');
-  content.innerHTML = exercise.questions.map(q => `
-    <div class="wb-question">
-      <label>${q.label}</label>
-      <textarea class="wb-textarea" id="wb-${q.id}" placeholder="${q.placeholder}" rows="3"></textarea>
-    </div>
-  `).join('');
-  const modal = document.getElementById('workbook-modal');
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-
-function closeWorkbook() {
-  document.getElementById('workbook-modal').style.display = 'none';
-  document.body.style.overflow = '';
-  currentWorkbook = null;
-}
-
-async function saveWorkbookEntry() {
-  if (!currentWorkbook) return;
-  const exercise = workbookExercises[currentWorkbook];
-  const answers = {};
-  exercise.questions.forEach(q => {
-    const el = document.getElementById('wb-' + q.id);
-    if (el) answers[q.id] = el.value;
-  });
-  const btn = document.getElementById('wb-save-btn');
-  btn.textContent = 'Saving...';
-  btn.style.opacity = '0.7';
-  try {
-    const { data: { user } } = await db.auth.getUser();
-    if (user) {
-      await db.from('workbook_entries').insert({
-        user_id: user.id,
-        exercise_type: currentWorkbook,
-        exercise_title: exercise.title,
-        answers: answers,
-        created_at: new Date().toISOString()
-      });
-    }
-    btn.textContent = '✓ Saved!';
-    btn.style.background = 'linear-gradient(135deg,#7ec8a4,#5aaa88)';
-    setTimeout(() => {
-      closeWorkbook();
-      loadWorkbookHistory();
-      showToast('✍️ Workbook entry saved!');
-    }, 1000);
-  } catch(e) {
-    console.error(e);
-    btn.textContent = 'Save Entry ✓';
-    btn.style.opacity = '1';
-    showToast('Could not save — please try again');
-  }
-}
-
-async function loadWorkbookHistory() {
-  const el = document.getElementById('workbook-history');
-  if (!el) return;
-  try {
-    const { data: { user } } = await db.auth.getUser();
-    if (!user) return;
-    const { data } = await db
-      .from('workbook_entries')
-      .select('exercise_title, created_at')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(10);
-    if (!data || data.length === 0) {
-      el.innerHTML = '<div style="text-align:center;padding:20px;color:#6b7394;font-size:13px;">No entries yet — complete your first exercise above!</div>';
-      return;
-    }
-    el.innerHTML = data.map(entry => {
-      const date = new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      return `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#181c27;border:1px solid #2a3048;border-radius:10px;margin-bottom:8px;">
-          <div>
-            <div style="font-size:13px;font-weight:600;color:#e8eaf2;">${entry.exercise_title}</div>
-            <div style="font-size:11px;color:#6b7394;margin-top:2px;">${date}</div>
-          </div>
-          <div style="font-size:11px;color:#a890e8;font-weight:600;">✓ Done</div>
-        </div>
-      `;
-    }).join('');
-  } catch(e) {
-    el.innerHTML = '<div style="color:#6b7394;font-size:13px;">Could not load history.</div>';
-  }
-}   
     </script>
   </body>
 </html>
