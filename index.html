@@ -326,8 +326,6 @@ textarea::placeholder { color: var(--muted); }
 .fade-in { opacity: 0; animation: fadeIn 0.5s ease forwards; }
 @keyframes fadeIn { to { opacity: 1; } }
 .d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.28s}.d4{animation-delay:.36s}.d5{animation-delay:.44s}
-
-/* ===== LEARN TAB ===== */
 .learn-tab {
   flex-shrink:0; padding:0.5rem 1rem; border-radius:999px;
   border:1px solid #2a3048; background:transparent;
@@ -366,7 +364,7 @@ textarea::placeholder { color: var(--muted); }
 }
 .wb-textarea:focus { border-color:#a890e8; }
 .wb-textarea::placeholder { color:#6b7394; }
-// ===== LEARN TAB =====
+
 /* ===== CRAVING TOOLKIT ===== */
 @keyframes ct-pulse {
   0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
@@ -413,9 +411,8 @@ textarea::placeholder { color: var(--muted); }
 .ct-distract-card:hover { border-color:#7c6af7; background:rgba(124,106,247,0.08); transform:translateY(-2px); }
 .ct-distract-card.selected { border-color:#4ade80; background:rgba(74,222,128,0.06); }
 @media(max-width:640px){ .c-grid{grid-template-columns:1fr;} .nav-tabs{display:none;} .meeting-card{grid-template-columns:auto 1fr;} }
-</style>
-</head>
-<body><!-- AUTH SCREEN -->
+
+  <!-- AUTH SCREEN -->
 <div id="auth-screen" style="display:flex;position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#1a1035 0%,#0f1f3d 40%,#1a1035 100%);align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
   <div style="background:rgba(20,15,45,0.92);border:1px solid rgba(160,140,220,0.4);box-shadow:0 0 40px rgba(120,100,200,0.15);border-radius:20px;padding:36px 32px;max-width:400px;width:100%;text-align:center;margin:auto;backdrop-filter:blur(10px);">
     <div style="font-family:Georgia,serif;font-size:32px;font-weight:300;color:#e8eaf2;margin-bottom:6px;">Clar<span style="color:#f0a868;font-style:italic;">ity</span></div>
