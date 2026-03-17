@@ -80,7 +80,6 @@ nav {
 
 .page { display: none; padding-top: 68px; min-height: 100vh; position: relative; z-index: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; width: 100%; }
 .page.active { display: block; width: 100%; max-width: 480px; margin: 0 auto; }
-}
 
 /* ===== HOME ===== */
 .home-inner { max-width: 500px; margin: 0 auto; padding: 32px 20px 80px; text-align: center; }
@@ -366,229 +365,7 @@ textarea::placeholder { color: var(--muted); }
 }
 .wb-textarea:focus { border-color:#a890e8; }
 .wb-textarea::placeholder { color:#6b7394; }
-// ===== LEARN TAB =====
-function showLearnTab(name, btn) {
-  document.querySelectorAll('.learn-section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.learn-tab').forEach(t => t.classList.remove('active'));
-  const section = document.getElementById('learn-' + name);
-  if (section) section.classList.add('active');
-  if (btn) btn.classList.add('active');
-  if (name === 'workbook') loadWorkbookHistory();
-}
 
-function filterWorkbook(cat, btn) {
-  document.querySelectorAll('.wb-filter').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  document.querySelectorAll('.wb-card').forEach(card => {
-    if (cat === 'all' || card.dataset.cat === cat) {
-      card.style.display = 'block';
-    } else {
-      card.style.display = 'none';
-    }
-  });
-}
-
-// ===== WORKBOOK EXERCISES =====
-const workbookExercises = {
-  'thought-record': {
-    title: 'Thought Record',
-    category: '🧠 CBT Exercise',
-    questions: [
-      { id: 'situation', label: 'What happened?', placeholder: 'Describe the situation briefly...' },
-      { id: 'emotion', label: 'What emotion did you feel? (0-10 intensity)', placeholder: 'e.g. Anxiety 7/10, Shame 5/10...' },
-      { id: 'thought', label: 'What automatic thought went through your mind?', placeholder: 'e.g. "I always mess everything up"...' },
-      { id: 'evidence-for', label: 'Evidence that supports this thought', placeholder: 'What facts support this thought?' },
-      { id: 'evidence-against', label: 'Evidence that contradicts this thought', placeholder: 'What facts go against this thought?' },
-      { id: 'balanced', label: 'A more balanced thought', placeholder: 'Rewrite the thought more fairly...' },
-      { id: 'emotion-after', label: 'How do you feel now? (0-10 intensity)', placeholder: 'e.g. Anxiety 4/10...' }
-    ]
-  },
-  'dear-man': {
-    title: 'DEAR MAN',
-    category: '💙 DBT Exercise',
-    questions: [
-      { id: 'describe', label: 'Describe — What is the situation?', placeholder: 'Stick to the facts only...' },
-      { id: 'express', label: 'Express — How do you feel about it?', placeholder: 'Use "I feel..." statements...' },
-      { id: 'assert', label: 'Assert — What exactly do you want?', placeholder: 'Be clear and specific...' },
-      { id: 'reinforce', label: 'Reinforce — What\'s in it for them?', placeholder: 'Why should they say yes?...' },
-      { id: 'mindful', label: 'Stay Mindful — What distractions might come up?', placeholder: 'How will you stay on track?...' },
-      { id: 'appear', label: 'Appear Confident — How will you carry yourself?', placeholder: 'Body language, tone, eye contact...' },
-      { id: 'negotiate', label: 'Negotiate — What could you compromise on?', placeholder: 'What are you flexible about?...' }
-    ]
-  },
-  'craving-analysis': {
-    title: 'Craving Analysis',
-    category: '🌊 Cravings Exercise',
-    questions: [
-      { id: 'trigger', label: 'What triggered this craving?', placeholder: 'Person, place, feeling, time of day...' },
-      { id: 'body', label: 'Where do you feel it in your body?', placeholder: 'Chest, stomach, throat...' },
-      { id: 'need', label: 'What need is this craving trying to meet?', placeholder: 'Relief, connection, escape, pleasure...' },
-      { id: 'consequence', label: 'What would happen if you gave in?', placeholder: 'Short term vs long term...' },
-      { id: 'alternative', label: 'What else could meet that need right now?', placeholder: 'A healthier alternative...' },
-      { id: 'commitment', label: 'What do you choose to do instead?', placeholder: 'Your commitment right now...' }
-    ]
-  },
-  'values-clarification': {
-    title: 'Values Clarification',
-    category: '⭐ Values Exercise',
-    questions: [
-      { id: 'values', label: 'List your top 5 values in life', placeholder: 'e.g. Family, honesty, health, freedom...' },
-      { id: 'living', label: 'Which values are you currently living by?', placeholder: 'Which ones show up in your daily life?...' },
-      { id: 'not-living', label: 'Which values are you NOT living by?', placeholder: 'Where is there a gap?...' },
-      { id: 'why', label: 'Why is there a gap?', placeholder: 'What gets in the way?...' },
-      { id: 'one-step', label: 'One small step toward your values this week', placeholder: 'Something concrete and achievable...' }
-    ]
-  },
-  'opposite-action': {
-    title: 'Opposite Action',
-    category: '🔄 DBT Exercise',
-    questions: [
-      { id: 'emotion', label: 'What emotion are you feeling?', placeholder: 'Name it and rate intensity 0-10...' },
-      { id: 'urge', label: 'What does this emotion make you want to do?', placeholder: 'Your automatic urge or impulse...' },
-      { id: 'justified', label: 'Is this emotion justified by the facts?', placeholder: 'Does the situation warrant this reaction?...' },
-      { id: 'opposite', label: 'What is the OPPOSITE action?', placeholder: 'Do the opposite of what the emotion says...' },
-      { id: 'plan', label: 'How will you carry out the opposite action?', placeholder: 'Be specific — when, where, how...' },
-      { id: 'outcome', label: 'How did it go? (fill in after)', placeholder: 'What happened when you tried it?...' }
-    ]
-  },
-  'behavioral-activation': {
-    title: 'Behavioural Activation',
-    category: '⚡ CBT Exercise',
-    questions: [
-      { id: 'avoiding', label: 'What have you been avoiding?', placeholder: 'Activities, people, places...' },
-      { id: 'why', label: 'Why have you been avoiding it?', placeholder: 'What fear or feeling drives the avoidance?...' },
-      { id: 'cost', label: 'What is avoiding costing you?', placeholder: 'How does it affect your mood and life?...' },
-      { id: 'activity', label: 'One activity to schedule this week', placeholder: 'Something small and achievable...' },
-      { id: 'when', label: 'When exactly will you do it?', placeholder: 'Day, time, duration...' },
-      { id: 'mood-before', label: 'Mood before (0-10)', placeholder: 'Rate your mood right now...' },
-      { id: 'mood-after', label: 'Mood after (fill in later, 0-10)', placeholder: 'How did you feel after doing it?...' }
-    ]
-  },
-  'relationship-inventory': {
-    title: 'Relationship Inventory',
-    category: '❤️ Relationships Exercise',
-    questions: [
-      { id: 'supportive', label: 'Who in your life is genuinely supportive?', placeholder: 'Name them and how they support you...' },
-      { id: 'draining', label: 'Who drains your energy or triggers you?', placeholder: 'Be honest — this is just for you...' },
-      { id: 'missing', label: 'What kind of connection are you missing?', placeholder: 'Intimacy, fun, trust, understanding...' },
-      { id: 'boundaries', label: 'Where do you need better boundaries?', placeholder: 'Who or what needs a boundary?...' },
-      { id: 'reach-out', label: 'One person you could reach out to this week', placeholder: 'Someone safe and positive...' }
-    ]
-  },
-  'future-self': {
-    title: 'Letter to Future Self',
-    category: '🔮 Values Exercise',
-    questions: [
-      { id: 'date', label: 'Who are you writing to? (e.g. "Me in 1 year")', placeholder: 'Me in 6 months / 1 year / 5 years...' },
-      { id: 'proud', label: 'What are you proud of right now?', placeholder: 'Even small things count...' },
-      { id: 'hope', label: 'What do you hope your future self has achieved?', placeholder: 'Recovery, relationships, goals...' },
-      { id: 'advice', label: 'What advice do you want to give your future self?', placeholder: 'What do you need to hear?...' },
-      { id: 'letter', label: 'Write the full letter', placeholder: 'Dear future me...' }
-    ]
-  }
-};
-
-let currentWorkbook = null;
-
-function openWorkbook(id) {
-  const exercise = workbookExercises[id];
-  if (!exercise) return;
-  currentWorkbook = id;
-  document.getElementById('wb-modal-title').textContent = exercise.title;
-  document.getElementById('wb-modal-category').textContent = exercise.category;
-  const content = document.getElementById('wb-modal-content');
-  content.innerHTML = exercise.questions.map(q => `
-    <div class="wb-question">
-      <label>${q.label}</label>
-      <textarea class="wb-textarea" id="wb-${q.id}" placeholder="${q.placeholder}" rows="3"></textarea>
-    </div>
-  `).join('');
-  const modal = document.getElementById('workbook-modal');
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-
-function closeWorkbook() {
-  document.getElementById('workbook-modal').style.display = 'none';
-  document.body.style.overflow = '';
-  currentWorkbook = null;
-}
-
-async function saveWorkbookEntry() {
-  if (!currentWorkbook) return;
-  const exercise = workbookExercises[currentWorkbook];
-  const answers = {};
-  exercise.questions.forEach(q => {
-    const el = document.getElementById('wb-' + q.id);
-    if (el) answers[q.id] = el.value;
-  });
-  const btn = document.getElementById('wb-save-btn');
-  btn.textContent = 'Saving...';
-  btn.style.opacity = '0.7';
-  try {
-    const { data: { user } } = await db.auth.getUser();
-    if (user) {
-      await db.from('workbook_entries').insert({
-        user_id: user.id,
-        exercise_type: currentWorkbook,
-        exercise_title: exercise.title,
-        answers: answers,
-        created_at: new Date().toISOString()
-      });
-    }
-    btn.textContent = '✓ Saved!';
-    btn.style.background = 'linear-gradient(135deg,#7ec8a4,#5aaa88)';
-    setTimeout(() => {
-      closeWorkbook();
-      loadWorkbookHistory();
-      showToast('✍️ Workbook entry saved!');
-    }, 1000);
-  } catch(e) {
-    console.error(e);
-    btn.textContent = 'Save Entry ✓';
-    btn.style.opacity = '1';
-    showToast('Could not save — please try again');
-  }
-}
-
-async function loadWorkbookHistory() {
-  const el = document.getElementById('workbook-history');
-  if (!el) return;
-  try {
-    const { data: { user } } = await db.auth.getUser();
-    if (!user) return;
-    const { data } = await db
-      .from('workbook_entries')
-      .select('exercise_title, created_at')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(10);
-    if (!data || data.length === 0) {
-      el.innerHTML = '<div style="text-align:center;padding:20px;color:#6b7394;font-size:13px;">No entries yet — complete your first exercise above!</div>';
-      return;
-    }
-    el.innerHTML = data.map(entry => {
-      const date = new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      return `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#181c27;border:1px solid #2a3048;border-radius:10px;margin-bottom:8px;">
-          <div>
-            <div style="font-size:13px;font-weight:600;color:#e8eaf2;">${entry.exercise_title}</div>
-            <div style="font-size:11px;color:#6b7394;margin-top:2px;">${date}</div>
-          </div>
-          <div style="font-size:11px;color:#a890e8;font-weight:600;">✓ Done</div>
-        </div>
-      `;
-    }).join('');
-  } catch(e) {
-    el.innerHTML = '<div style="color:#6b7394;font-size:13px;">Could not load history.</div>';
-  }
-}
-
-// Make sure lessons section shows by default on load
-function initLearnTab() {
-  const lessonsSection = document.getElementById('learn-lessons');
-  if (lessonsSection) lessonsSection.classList.add('active');
-}
 /* ===== CRAVING TOOLKIT ===== */
 @keyframes ct-pulse {
   0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
@@ -1637,22 +1414,6 @@ function initLearnTab() {
         <button onclick="submitCommunityPost()" style="padding:10px 20px;background:linear-gradient(135deg,#f0a868,#f0c060);border:none;border-radius:8px;color:#0f1117;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Share</button>
       </div>
     </div>
-    <!-- LEARN SUB TABS -->
-    <div style="display:flex;gap:0.4rem;margin-bottom:20px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;">
-      <button class="learn-tab active" onclick="showLearnTab('lessons',this)">📖 Lessons</button>
-      <button class="learn-tab" onclick="showLearnTab('workbook',this)">📝 Workbook</button>
-      <button class="learn-tab" onclick="showLearnTab('challenges',this)">🏆 Challenges</button>
-      <button class="learn-tab" onclick="showLearnTab('videos',this)">🎬 Videos</button>
-    </div>
-
-    <!-- LESSONS SECTION -->
-    <div id="learn-lessons" class="learn-section">
-    <div style="display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;">
-      <button onclick="filterCommunity('all')" id="filter-all" style="padding:7px 16px;border-radius:99px;border:1px solid #f0a868;background:rgba(240,168,104,0.15);color:#f0a868;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">All Posts</button>
-      <button onclick="filterCommunity('sameday')" id="filter-sameday" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Same Day as Me</button>
-      <button onclick="filterCommunity('wins')" id="filter-wins" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Wins</button>
-      <button onclick="filterCommunity('struggling')" id="filter-struggling" style="padding:7px 16px;border-radius:99px;border:1px solid #2a3048;background:transparent;color:#6b7394;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Need Support</button>
-    </div>
     <div id="community-feed"><div style="text-align:center;padding:40px;color:#3a4060;font-size:14px;">Loading community posts...</div></div>
   </div>
 </div>
@@ -1723,96 +1484,6 @@ function initLearnTab() {
     <div id="learn-videos" class="learn-section">
       <div style="text-align:center;padding:40px 20px;color:#6b7394;">🎬 Videos coming soon...</div>
     </div>
-  </div>
-</div>
-    <!-- WORKBOOK SECTION -->
-    <div id="learn-workbook" class="learn-section" style="display:none;">
-      <div style="margin-bottom:16px;">
-        <h2 style="font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:#e8eaf2;margin-bottom:4px;">Workbook <span style="font-style:italic;color:#a890e8;">Activities</span></h2>
-        <p style="font-size:13px;color:#6b7394;">Evidence-based CBT & DBT exercises for lasting recovery.</p>
-      </div>
-      <div style="display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;">
-        <button class="wb-filter active" onclick="filterWorkbook('all',this)">All</button>
-        <button class="wb-filter" onclick="filterWorkbook('cbt',this)">🧠 CBT</button>
-        <button class="wb-filter" onclick="filterWorkbook('dbt',this)">💙 DBT</button>
-        <button class="wb-filter" onclick="filterWorkbook('values',this)">⭐ Values</button>
-        <button class="wb-filter" onclick="filterWorkbook('cravings',this)">🌊 Cravings</button>
-        <button class="wb-filter" onclick="filterWorkbook('relationships',this)">❤️ Relationships</button>
-      </div>
-      <div id="workbook-cards" style="display:flex;flex-direction:column;gap:10px;">
-        <div class="wb-card" data-cat="cbt" onclick="openWorkbook('thought-record')">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:44px;height:44px;border-radius:12px;background:rgba(168,144,232,0.15);border:1px solid rgba(168,144,232,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🧠</div>
-            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">Thought Record</div><div style="font-size:12px;color:#6b7394;">Challenge negative thinking patterns · CBT</div></div>
-            <div style="font-size:11px;color:#a890e8;font-weight:600;">5 min</div>
-          </div>
-        </div>
-        <div class="wb-card" data-cat="dbt" onclick="openWorkbook('dear-man')">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:44px;height:44px;border-radius:12px;background:rgba(104,180,240,0.15);border:1px solid rgba(104,180,240,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">💙</div>
-            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">DEAR MAN</div><div style="font-size:12px;color:#6b7394;">Ask for what you need assertively · DBT</div></div>
-            <div style="font-size:11px;color:#68b4f0;font-weight:600;">8 min</div>
-          </div>
-        </div>
-        <div class="wb-card" data-cat="cravings" onclick="openWorkbook('craving-analysis')">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:44px;height:44px;border-radius:12px;background:rgba(240,168,104,0.15);border:1px solid rgba(240,168,104,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🌊</div>
-            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">Craving Analysis</div><div style="font-size:12px;color:#6b7394;">Understand what drives your urges</div></div>
-            <div style="font-size:11px;color:#f0a868;font-weight:600;">6 min</div>
-          </div>
-        </div>
-        <div class="wb-card" data-cat="values" onclick="openWorkbook('values-clarification')">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:44px;height:44px;border-radius:12px;background:rgba(240,192,96,0.15);border:1px solid rgba(240,192,96,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">⭐</div>
-            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">Values Clarification</div><div style="font-size:12px;color:#6b7394;">Discover what matters most to you</div></div>
-            <div style="font-size:11px;color:#f0c060;font-weight:600;">10 min</div>
-          </div>
-        </div>
-        <div class="wb-card" data-cat="dbt" onclick="openWorkbook('opposite-action')">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:44px;height:44px;border-radius:12px;background:rgba(126,200,164,0.15);border:1px solid rgba(126,200,164,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🔄</div>
-            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">Opposite Action</div><div style="font-size:12px;color:#6b7394;">Act against the urge to change emotion · DBT</div></div>
-            <div style="font-size:11px;color:#7ec8a4;font-weight:600;">7 min</div>
-          </div>
-        </div>
-        <div class="wb-card" data-cat="cbt" onclick="openWorkbook('behavioral-activation')">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:44px;height:44px;border-radius:12px;background:rgba(232,114,138,0.15);border:1px solid rgba(232,114,138,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">⚡</div>
-            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">Behavioural Activation</div><div style="font-size:12px;color:#6b7394;">Break the avoidance cycle · CBT</div></div>
-            <div style="font-size:11px;color:#e8728a;font-weight:600;">8 min</div>
-          </div>
-        </div>
-        <div class="wb-card" data-cat="relationships" onclick="openWorkbook('relationship-inventory')">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:44px;height:44px;border-radius:12px;background:rgba(245,184,160,0.15);border:1px solid rgba(245,184,160,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">❤️</div>
-            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">Relationship Inventory</div><div style="font-size:12px;color:#6b7394;">Assess your support network honestly</div></div>
-            <div style="font-size:11px;color:#f5b8a0;font-weight:600;">12 min</div>
-          </div>
-        </div>
-        <div class="wb-card" data-cat="values" onclick="openWorkbook('future-self')">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:44px;height:44px;border-radius:12px;background:rgba(104,180,240,0.15);border:1px solid rgba(104,180,240,0.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🔮</div>
-            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#e8eaf2;margin-bottom:2px;">Letter to Future Self</div><div style="font-size:12px;color:#6b7394;">Write to the person you're becoming</div></div>
-            <div style="font-size:11px;color:#68b4f0;font-weight:600;">15 min</div>
-          </div>
-        </div>
-      </div>
-      <div style="margin-top:24px;">
-        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7394;margin-bottom:12px;">My Completed Entries</div>
-        <div id="workbook-history" style="font-size:13px;color:#6b7394;">Loading...</div>
-      </div>
-    </div>
-
-    <!-- CHALLENGES SECTION -->
-    <div id="learn-challenges" class="learn-section" style="display:none;">
-      <div style="text-align:center;padding:40px 20px;color:#6b7394;">🏆 Challenges coming soon...</div>
-    </div>
-
-    <!-- VIDEOS SECTION -->
-    <div id="learn-videos" class="learn-section" style="display:none;">
-      <div style="text-align:center;padding:40px 20px;color:#6b7394;">🎬 Videos coming soon...</div>
-    </div>
-
   </div>
 </div>
     </div><div id="lesson-modal" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px;">
@@ -2055,7 +1726,7 @@ function showPage(id) {
   document.body.scrollTop = 0;
   document.documentElement.scrollTop = 0;
   if (id === 'journal') loadTriggerHistory();
-  if (id === 'lessons') { loadUserPlan(); renderWorkbookCards(); }
+  if (id === 'lessons') { initLearnTab(); loadUserPlan(); renderWorkbookCards(); }
 }
 
 // Village tabs
@@ -3500,7 +3171,7 @@ function showLearnTab(name, btn) {
   const section = document.getElementById('learn-' + name);
   if (section) section.classList.add('active');
   if (btn) btn.classList.add('active');
-  if (name === 'workbook') { loadUserPlan(); loadWorkbookHistory(); }
+  if (name === 'workbook') { loadUserPlan(); loadWorkbookHistory(); renderWorkbookCards(); }
 }
 
 function initLearnTab() {
