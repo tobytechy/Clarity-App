@@ -366,6 +366,37 @@ textarea::placeholder { color: var(--muted); }
 .wb-textarea:focus { border-color:#a890e8; }
 .wb-textarea::placeholder { color:#6b7394; }
 
+/* ===== CHALLENGES ===== */
+.ch-filter {
+  flex-shrink:0; padding:0.4rem 0.85rem; border-radius:999px;
+  border:1px solid #2a3048; background:transparent;
+  color:#6b7394; font-size:0.75rem; font-weight:600;
+  cursor:pointer; transition:all 0.2s; white-space:nowrap;
+  font-family:'DM Sans',sans-serif;
+}
+.ch-filter:hover { border-color:#f0c060; color:#e8eaf2; }
+.ch-filter.active { background:rgba(240,192,96,0.15); border-color:#f0c060; color:#f0c060; }
+.ch-card {
+  background:#181c27; border:1px solid #2a3048;
+  border-radius:14px; padding:16px;
+  transition:all 0.2s;
+}
+.ch-card:hover { border-color:#f0c060; background:rgba(240,192,96,0.04); }
+.ch-active-card {
+  background:linear-gradient(135deg,rgba(240,192,96,0.08),rgba(240,168,104,0.05));
+  border:1px solid rgba(240,192,96,0.25);
+  border-radius:14px; padding:16px; margin-bottom:10px;
+}
+.ch-progress-bar {
+  height:6px; background:#1e2333; border-radius:99px;
+  overflow:hidden; margin:8px 0;
+}
+.ch-progress-fill {
+  height:100%;
+  background:linear-gradient(135deg,#f0a868,#f0c060);
+  border-radius:99px; transition:width 0.5s ease;
+}
+
 /* ===== CRAVING TOOLKIT ===== */
 @keyframes ct-pulse {
   0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
@@ -1476,9 +1507,29 @@ textarea::placeholder { color: var(--muted); }
     </div>
 
     <!-- CHALLENGES SECTION -->
-    <div id="learn-challenges" class="learn-section">
-      <div style="text-align:center;padding:40px 20px;color:#6b7394;">🏆 Challenges coming soon...</div>
-    </div>
+        <div id="learn-challenges" class="learn-section">
+
+          <!-- Active challenges -->
+          <div id="active-challenges-wrap" style="margin-bottom:20px;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7394;margin-bottom:12px;">My Active Challenges</div>
+            <div id="active-challenges-list"><div style="font-size:13px;color:#6b7394;text-align:center;padding:16px;">Loading...</div></div>
+          </div>
+
+          <!-- Duration filter -->
+          <div style="display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;">
+            <button class="ch-filter active" data-days="all" onclick="filterChallenges('all',this)">All</button>
+            <button class="ch-filter" data-days="7" onclick="filterChallenges('7',this)">7 Days</button>
+            <button class="ch-filter" data-days="30" onclick="filterChallenges('30',this)">30 Days</button>
+            <button class="ch-filter" data-days="60" onclick="filterChallenges('60',this)">60 Days</button>
+            <button class="ch-filter" data-days="90" onclick="filterChallenges('90',this)">90 Days</button>
+          </div>
+
+          <!-- Challenge cards -->
+          <div id="challenge-cards" style="display:flex;flex-direction:column;gap:10px;">
+            <div style="text-align:center;padding:40px;color:#6b7394;font-size:13px;">Loading challenges...</div>
+          </div>
+
+        </div>
 
     <!-- VIDEOS SECTION -->
     <div id="learn-videos" class="learn-section">
@@ -3172,6 +3223,7 @@ function showLearnTab(name, btn) {
   if (section) section.classList.add('active');
   if (btn) btn.classList.add('active');
   if (name === 'workbook') { loadUserPlan(); loadWorkbookHistory(); renderWorkbookCards(); }
+  if (name === 'challenges') loadChallenges();
 }
 
 function initLearnTab() {
@@ -3285,6 +3337,132 @@ async function loadWorkbookHistory() {
     }).join('');
   } catch(e) {
     el.innerHTML = '<div style="color:#6b7394;font-size:13px;">Could not load history.</div>';
+  }
+}
+// ===== CHALLENGES =====
+let allChallenges = [];
+let userChallenges = [];
+
+async function loadChallenges() {
+  try {
+    const { data: { user } } = await db.auth.getUser();
+    if (!user) return;
+
+    // Load all challenges from DB
+    const { data: challenges } = await db
+      .from('challenges')
+      .select('*')
+      .order('duration', { ascending: true });
+
+    if (challenges) allChallenges = challenges;
+
+    // Load user's active/completed challenges
+    const { data: uc } = await db
+      .from('user_challenges')
+      .select('*, challenges(*)')
+      .eq('user_id', user.id)
+      .order('started_at', { ascending: false });
+
+    if (uc) userChallenges = uc;
+
+    renderActiveChallenges();
+    renderChallengeCards('all');
+  } catch(e) {
+    console.error('loadChallenges:', e);
+    document.getElementById('challenge-cards').innerHTML =
+      '<div style="text-align:center;padding:40px;color:#6b7394;font-size:13px;">Could not load challenges.</div>';
+  }
+}
+
+function renderActiveChallenges() {
+  const el = document.getElementById('active-challenges-list');
+  if (!el) return;
+  const active = userChallenges.filter(uc => uc.status === 'active');
+  if (active.length === 0) {
+    el.innerHTML = '<div style="font-size:13px;color:#6b7394;text-align:center;padding:12px;background:#181c27;border:1px solid #2a3048;border-radius:10px;">No active challenges yet — start one below!</div>';
+    return;
+  }
+  el.innerHTML = active.map(uc => {
+    const c = uc.challenges || {};
+    const pct = Math.min(100, Math.round((uc.current_day / c.duration) * 100));
+    return '<div class="ch-active-card">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">' +
+      '<div style="font-size:14px;font-weight:600;color:#e8eaf2;">' + (c.title || 'Challenge') + '</div>' +
+      '<div style="font-size:11px;color:#f0a868;font-weight:600;">Day ' + (uc.current_day || 0) + ' / ' + c.duration + '</div>' +
+      '</div>' +
+      '<div class="ch-progress-bar"><div class="ch-progress-fill" style="width:' + pct + '%;"></div></div>' +
+      '<div style="font-size:11px;color:#6b7394;">' + pct + '% complete</div>' +
+      '</div>';
+  }).join('');
+}
+
+function filterChallenges(days, btn) {
+  document.querySelectorAll('.ch-filter').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderChallengeCards(days);
+}
+
+function renderChallengeCards(days) {
+  const container = document.getElementById('challenge-cards');
+  if (!container) return;
+
+  const filtered = days === 'all'
+    ? allChallenges
+    : allChallenges.filter(c => String(c.duration) === String(days));
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:#6b7394;font-size:13px;">No challenges found.</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(c => {
+    const isActive = userChallenges.some(uc => uc.challenge_id === c.id && uc.status === 'active');
+    const isCompleted = userChallenges.some(uc => uc.challenge_id === c.id && uc.status === 'completed');
+    const durationColor = c.duration <= 7 ? '#7ec8a4' : c.duration <= 30 ? '#68b4f0' : c.duration <= 60 ? '#a890e8' : '#f0a868';
+
+    return '<div class="ch-card">' +
+      '<div style="display:flex;align-items:flex-start;gap:12px;">' +
+      '<div style="flex:1;">' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">' +
+      '<div style="font-size:14px;font-weight:600;color:#e8eaf2;">' + c.title + '</div>' +
+      '<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(' +
+        (c.duration <= 7 ? '126,200,164' : c.duration <= 30 ? '104,180,240' : c.duration <= 60 ? '168,144,232' : '240,168,104') +
+        ',0.15);color:' + durationColor + ';">' + c.duration + ' DAYS</span>' +
+      (c.category ? '<span style="font-size:9px;font-weight:600;padding:2px 6px;border-radius:4px;background:#1e2333;color:#6b7394;">' + c.category + '</span>' : '') +
+      '</div>' +
+      '<div style="font-size:12px;color:#6b7394;line-height:1.5;margin-bottom:12px;">' + (c.description || '') + '</div>' +
+      '<div style="display:flex;gap:8px;align-items:center;">' +
+      (isCompleted
+        ? '<span style="font-size:12px;color:#7ec8a4;font-weight:600;">✓ Completed</span>'
+        : isActive
+          ? '<span style="font-size:12px;color:#f0a868;font-weight:600;">⚡ In Progress</span>'
+          : '<button onclick="startChallenge(\'' + c.id + '\')" style="padding:8px 16px;background:linear-gradient(135deg,rgba(240,192,96,0.2),rgba(240,168,104,0.12));border:1px solid rgba(240,192,96,0.3);border-radius:8px;color:#f0c060;font-family:\'DM Sans\',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">Start Challenge →</button>'
+      ) +
+      '</div>' +
+      '</div>' +
+      '</div>' +
+      '</div>';
+  }).join('');
+}
+
+async function startChallenge(challengeId) {
+  try {
+    const { data: { user } } = await db.auth.getUser();
+    if (!user) return;
+
+    await db.from('user_challenges').insert({
+      user_id: user.id,
+      challenge_id: challengeId,
+      started_at: new Date().toISOString(),
+      current_day: 1,
+      status: 'active'
+    });
+
+    showToast('🏆 Challenge started! You\'ve got this!');
+    await loadChallenges();
+  } catch(e) {
+    console.error('startChallenge:', e);
+    showToast('Could not start challenge — please try again');
   }
 }
   // ===== CRAVING TOOLKIT =====
