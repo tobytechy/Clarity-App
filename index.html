@@ -3630,7 +3630,11 @@ function renderVideoCards() {
     const locked = !canAccessExercise(v.subscription_tier);
     const tierColor = v.subscription_tier === 'free' ? '#7ec8a4' : v.subscription_tier === 'basic' ? '#68b4f0' : '#a890e8';
     const tierBg = v.subscription_tier === 'free' ? 'rgba(126,200,164,0.15)' : v.subscription_tier === 'basic' ? 'rgba(104,180,240,0.15)' : 'rgba(168,144,232,0.15)';
-    const thumbUrl = v.youtube_id ? 'https://img.youtube.com/vi/' + v.youtube_id + '/mqdefault.jpg' : '';
+    const thumbUrl = v.youtube_id
+      ? 'https://img.youtube.com/vi/' + v.youtube_id + '/mqdefault.jpg'
+      : v.ted_slug
+        ? 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/ted-logo.jpg'
+        : '';
     const onclick = locked
       ? 'showLockedVideo(\'' + v.subscription_tier + '\')'
       : 'openVideoModal(\'' + v.id + '\')';
@@ -3685,10 +3689,13 @@ function openVideoModal(videoId) {
   document.getElementById('video-modal-title').textContent = v.title;
 
   let embedHtml = '';
-  if (v.vimeo_id) {
-    embedHtml = '<iframe id="vid-iframe" style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://player.vimeo.com/video/' + v.vimeo_id + '?autoplay=1" frameborder="0" allow="autoplay;fullscreen;picture-in-picture" allowfullscreen></iframe>';
+  if (v.ted_slug) {
+    // TED.com direct embed - always works, Creative Commons licensed
+    embedHtml = '<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://embed.ted.com/talks/' + v.ted_slug + '" frameborder="0" scrolling="no" allowfullscreen></iframe>';
+  } else if (v.vimeo_id) {
+    embedHtml = '<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://player.vimeo.com/video/' + v.vimeo_id + '?autoplay=1" frameborder="0" allow="autoplay;fullscreen;picture-in-picture" allowfullscreen></iframe>';
   } else if (v.youtube_id) {
-    embedHtml = '<iframe id="vid-iframe" style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/' + v.youtube_id + '?autoplay=1" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>';
+    embedHtml = '<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/' + v.youtube_id + '?autoplay=1" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>';
   } else {
     embedHtml = '<div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#1e2333;flex-direction:column;gap:12px;"><div style="font-size:32px;">🎬</div><div style="font-size:13px;color:#6b7394;">Video not available</div></div>';
   }
@@ -3698,15 +3705,15 @@ function openVideoModal(videoId) {
     '<div style="font-size:13px;color:#9098b8;line-height:1.6;">' +
     (v.instructor ? '<div style="margin-bottom:6px;">👤 <strong style="color:#e8eaf2;">' + v.instructor + '</strong></div>' : '') +
     (v.duration_mins ? '<div style="margin-bottom:6px;">⏱ ' + v.duration_mins + ' minutes</div>' : '') +
+    (v.samhsa ? '<div style="margin-bottom:6px;font-size:11px;color:#7ec8a4;">✓ Public Domain — US Government</div>' : '') +
+    (v.ted_slug ? '<div style="margin-bottom:6px;font-size:11px;color:#68b4f0;">✓ TED.com — Creative Commons Licensed</div>' : '') +
     (v.description ? '<div style="margin-top:10px;">' + v.description + '</div>' : '') +
     '</div>';
   document.getElementById('video-modal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
 
-  // Auto-detect failed embed after 4 seconds
-  setTimeout(function() {
-    checkVideoAvailability(v);
-  }, 4000);
+  // Auto-detect failed embed after 5 seconds and swap to backup
+  setTimeout(function() { checkVideoAvailability(v); }, 5000);
 }
 
 async function checkVideoAvailability(v) {
