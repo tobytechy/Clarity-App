@@ -3686,15 +3686,13 @@ function openVideoModal(videoId) {
 
   let embedHtml = '';
   if (v.vimeo_id) {
-    embedHtml = '<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://player.vimeo.com/video/' + v.vimeo_id + '?autoplay=1" frameborder="0" allow="autoplay;fullscreen;picture-in-picture" allowfullscreen></iframe>';
+    embedHtml = '<iframe id="vid-iframe" style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://player.vimeo.com/video/' + v.vimeo_id + '?autoplay=1" frameborder="0" allow="autoplay;fullscreen;picture-in-picture" allowfullscreen></iframe>';
   } else if (v.youtube_id) {
-    embedHtml = '<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/' + v.youtube_id + '?autoplay=1" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>';
+    embedHtml = '<iframe id="vid-iframe" style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/' + v.youtube_id + '?autoplay=1" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>';
   } else {
-    embedHtml = '<div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#1e2333;flex-direction:column;gap:12px;">' +
-      '<div style="font-size:32px;">🎬</div>' +
-      '<div style="font-size:13px;color:#6b7394;">Video not available</div>' +
-      '</div>';
+    embedHtml = '<div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#1e2333;flex-direction:column;gap:12px;"><div style="font-size:32px;">🎬</div><div style="font-size:13px;color:#6b7394;">Video not available</div></div>';
   }
+
   document.getElementById('video-modal-embed').innerHTML = embedHtml;
   document.getElementById('video-modal-info').innerHTML =
     '<div style="font-size:13px;color:#9098b8;line-height:1.6;">' +
@@ -3704,6 +3702,85 @@ function openVideoModal(videoId) {
     '</div>';
   document.getElementById('video-modal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
+
+  // Auto-detect failed embed after 4 seconds
+  setTimeout(function() {
+    checkVideoAvailability(v);
+  }, 4000);
+}
+
+async function checkVideoAvailability(v) {
+  const iframe = document.getElementById('vid-iframe');
+  if (!iframe) return;
+  try {
+    // Try to detect if video is blocked by checking iframe content
+    const img = new Image();
+    img.onload = function() {
+      // Thumbnail loads = video exists and likely embeds fine
+    };
+    img.onerror = async function() {
+      // Thumbnail failed = mark video as unavailable and swap
+      await markVideoUnavailable(v);
+      await swapToBackupVideo(v);
+    };
+    if (v.youtube_id) {
+      img.src = 'https://img.youtube.com/vi/' + v.youtube_id + '/mqdefault.jpg';
+    }
+  } catch(e) { console.error('checkVideoAvailability:', e); }
+}
+
+async function markVideoUnavailable(v) {
+  try {
+    await db.from('video_courses')
+      .update({ is_available: false, failed_at: new Date().toISOString() })
+      .eq('id', v.id);
+    // Remove from local array
+    allVideos = allVideos.filter(vid => vid.id !== v.id);
+  } catch(e) { console.error('markVideoUnavailable:', e); }
+}
+
+async function swapToBackupVideo(v) {
+  try {
+    // Find a backup in the same category and tier
+    const { data: backup } = await db
+      .from('video_courses')
+      .select('*')
+      .eq('category', v.category)
+      .eq('subscription_tier', v.subscription_tier)
+      .eq('is_backup', true)
+      .eq('is_available', true)
+      .neq('id', v.id)
+      .limit(1)
+      .maybeSingle();
+
+    if (backup) {
+      // Add to local array and re-render
+      allVideos.push(backup);
+      renderVideoCards();
+      // Open the backup video
+      openVideoModal(backup.id);
+      showToast('🎬 Loading alternative video...');
+
+      // Fetch a new backup to replace the one we just used
+      fetchNewBackup(backup);
+    } else {
+      // No backup found — show error in modal
+      document.getElementById('video-modal-embed').innerHTML =
+        '<div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#1e2333;flex-direction:column;gap:12px;">' +
+        '<div style="font-size:32px;">🔄</div>' +
+        '<div style="font-size:13px;color:#6b7394;text-align:center;padding:0 20px;">This video is temporarily unavailable.<br>We\'re finding a replacement.</div>' +
+        '</div>';
+    }
+  } catch(e) { console.error('swapToBackupVideo:', e); }
+}
+
+async function fetchNewBackup(usedBackup) {
+  // Mark the used backup as no longer a backup so it won't be used again as backup
+  try {
+    await db.from('video_courses')
+      .update({ is_backup: false })
+      .eq('id', usedBackup.id);
+  } catch(e) { console.error('fetchNewBackup:', e); }
 }
 
 function closeVideoModal() {
