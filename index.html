@@ -1581,11 +1581,14 @@ textarea::placeholder { color: var(--muted); }
 
               <!-- Category filters -->
               <div style="display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;">
-                <button class="vid-filter active" data-cat="all" onclick="filterVideos('all',this)">All</button>
-                <button class="vid-filter" data-cat="education" onclick="filterVideos('education',this)">🎓 Education</button>
-                <button class="vid-filter" data-cat="meditation" onclick="filterVideos('meditation',this)">🧘 Meditation</button>
-                <button class="vid-filter" data-cat="motivation" onclick="filterVideos('motivation',this)">⚡ Motivation</button>
-                <button class="vid-filter" data-cat="personal_story" onclick="filterVideos('personal_story',this)">💬 Stories</button>
+                  <button class="vid-filter active" data-cat="all" onclick="filterVideos('all',this)">All</button>
+                          <button class="vid-filter" data-cat="mindset" onclick="filterVideos('mindset',this)">🧠 Mindset</button>
+                          <button class="vid-filter" data-cat="science" onclick="filterVideos('science',this)">🔬 Science</button>
+                          <button class="vid-filter" data-cat="cravings" onclick="filterVideos('cravings',this)">🌊 Cravings</button>
+                          <button class="vid-filter" data-cat="health" onclick="filterVideos('health',this)">💚 Health</button>
+                          <button class="vid-filter" data-cat="relationships" onclick="filterVideos('relationships',this)">❤️ Relationships</button>
+                          <button class="vid-filter" data-cat="milestones" onclick="filterVideos('milestones',this)">🎯 Milestones</button>
+                          <button class="vid-filter" data-cat="personal_story" onclick="filterVideos('personal_story',this)">💬 Stories</button>
               </div>
 
               <!-- Tier filters -->
@@ -3611,7 +3614,7 @@ function renderVideoCards() {
   if (activeVideoCat !== 'all') {
     filtered = filtered.filter(v => {
       if (activeVideoCat === 'personal_story') return v.is_personal_story;
-      return v.category === activeVideoCat;
+            return v.category && v.category.toLowerCase() === activeVideoCat.toLowerCase();
     });
   }
   if (activeVideoTier !== 'all') {
@@ -3632,35 +3635,67 @@ function renderVideoCards() {
       ? 'showLockedVideo(\'' + v.subscription_tier + '\')'
       : 'openVideoModal(\'' + v.id + '\')';
 
-    return '<div class="vid-card" onclick="' + onclick + '" style="' + (locked ? 'opacity:0.75;' : '') + '">' +
-      '<div class="vid-thumb">' +
-      (thumbUrl
-        ? '<img src="' + thumbUrl + '" alt="' + v.title + '" loading="lazy"/>'
-        : '<div style="font-size:32px;">🎬</div>') +
-      '<div class="vid-play-btn"><span>' + (locked ? '🔒' : '▶') + '</span></div>' +
-      '</div>' +
-      '<div class="vid-info">' +
-      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">' +
-      '<div class="vid-title" style="color:' + (locked ? '#6b7394' : '#e8eaf2') + ';">' + v.title + '</div>' +
-      '</div>' +
-      '<div class="vid-meta">' +
-      (v.instructor ? '<span>👤 ' + v.instructor + '</span>' : '') +
-      (v.duration_mins ? '<span>⏱ ' + v.duration_mins + ' min</span>' : '') +
-      '<span style="padding:1px 6px;border-radius:4px;background:' + tierBg + ';color:' + tierColor + ';font-weight:700;">' + v.subscription_tier.toUpperCase() + '</span>' +
-      (v.is_personal_story ? '<span style="padding:1px 6px;border-radius:4px;background:rgba(245,184,160,0.15);color:#f5b8a0;font-weight:700;">STORY</span>' : '') +
-      '</div>' +
-      (v.description ? '<div style="font-size:12px;color:#6b7394;margin-top:6px;line-height:1.5;">' + v.description.substring(0,100) + (v.description.length > 100 ? '...' : '') + '</div>' : '') +
-      '</div>' +
-      '</div>';
+    const planName = v.subscription_tier === 'basic' ? 'Basic' : 'Pro';
+        const planColor = v.subscription_tier === 'basic' ? '#68b4f0' : '#a890e8';
+
+        // Locked card — blurred/hidden thumbnail
+        if (locked) {
+          return '<div class="vid-card" onclick="' + onclick + '">' +
+            '<div class="vid-thumb" style="position:relative;overflow:hidden;">' +
+            (thumbUrl ? '<img src="' + thumbUrl + '" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;filter:blur(8px);transform:scale(1.1);"/>' : '<div style="width:100%;height:100%;background:#1e2333;"></div>') +
+            '<div style="position:absolute;inset:0;background:rgba(15,17,23,0.75);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">' +
+            '<div style="font-size:28px;">🔒</div>' +
+            '<div style="font-size:12px;font-weight:700;color:white;">' + planName + ' Only</div>' +
+            '<div style="font-size:10px;color:rgba(255,255,255,0.6);">Upgrade to watch</div>' +
+            '</div>' +
+            '</div>' +
+            '<div class="vid-info">' +
+            '<div class="vid-title" style="color:#6b7394;">' + (v.category ? v.category.charAt(0).toUpperCase() + v.category.slice(1) : 'Video') + ' — ' + (v.duration_mins ? v.duration_mins + ' min' : '') + '</div>' +
+            '<div class="vid-meta" style="margin-top:6px;">' +
+            '<span style="padding:1px 6px;border-radius:4px;background:' + tierBg + ';color:' + tierColor + ';font-weight:700;">' + v.subscription_tier.toUpperCase() + ' 🔒</span>' +
+            '</div>' +
+            '</div></div>';
+        }
+
+        // Unlocked card — full details
+        return '<div class="vid-card" onclick="' + onclick + '">' +
+          '<div class="vid-thumb">' +
+          (thumbUrl
+            ? '<img src="' + thumbUrl + '" alt="' + v.title + '" loading="lazy"/>'
+            : '<div style="font-size:32px;display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#1e2333;">🎬</div>') +
+          '<div class="vid-play-btn"><span>▶</span></div>' +
+          '</div>' +
+          '<div class="vid-info">' +
+          '<div class="vid-title">' + v.title + '</div>' +
+          '<div class="vid-meta">' +
+          (v.instructor ? '<span>👤 ' + v.instructor + '</span>' : '') +
+          (v.duration_mins ? '<span>⏱ ' + v.duration_mins + ' min</span>' : '') +
+          '<span style="padding:1px 6px;border-radius:4px;background:' + tierBg + ';color:' + tierColor + ';font-weight:700;">' + v.subscription_tier.toUpperCase() + '</span>' +
+          (v.is_personal_story ? '<span style="padding:1px 6px;border-radius:4px;background:rgba(245,184,160,0.15);color:#f5b8a0;font-weight:700;">STORY</span>' : '') +
+          '</div>' +
+          (v.description ? '<div style="font-size:12px;color:#6b7394;margin-top:6px;line-height:1.5;">' + v.description.substring(0,100) + (v.description.length > 100 ? '...' : '') + '</div>' : '') +
+          '</div>' +
+          '</div>';
   }).join('');
 }
 
 function openVideoModal(videoId) {
   const v = allVideos.find(v => v.id === videoId);
-  if (!v || !v.youtube_id) return;
+  if (!v) return;
   document.getElementById('video-modal-title').textContent = v.title;
-  document.getElementById('video-modal-embed').innerHTML =
-    '<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/' + v.youtube_id + '?autoplay=1" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>';
+
+  let embedHtml = '';
+  if (v.vimeo_id) {
+    embedHtml = '<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://player.vimeo.com/video/' + v.vimeo_id + '?autoplay=1" frameborder="0" allow="autoplay;fullscreen;picture-in-picture" allowfullscreen></iframe>';
+  } else if (v.youtube_id) {
+    embedHtml = '<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/' + v.youtube_id + '?autoplay=1" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>';
+  } else {
+    embedHtml = '<div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#1e2333;flex-direction:column;gap:12px;">' +
+      '<div style="font-size:32px;">🎬</div>' +
+      '<div style="font-size:13px;color:#6b7394;">Video not available</div>' +
+      '</div>';
+  }
+  document.getElementById('video-modal-embed').innerHTML = embedHtml;
   document.getElementById('video-modal-info').innerHTML =
     '<div style="font-size:13px;color:#9098b8;line-height:1.6;">' +
     (v.instructor ? '<div style="margin-bottom:6px;">👤 <strong style="color:#e8eaf2;">' + v.instructor + '</strong></div>' : '') +
