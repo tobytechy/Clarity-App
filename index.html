@@ -3633,7 +3633,7 @@ function renderVideoCards() {
     const thumbUrl = v.youtube_id
       ? 'https://img.youtube.com/vi/' + v.youtube_id + '/mqdefault.jpg'
       : v.ted_slug
-        ? 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/ted-logo.jpg'
+              ? 'https://embed.ted.com/talks/' + v.ted_slug + '/thumbnail'
         : '';
     const onclick = locked
       ? 'showLockedVideo(\'' + v.subscription_tier + '\')'
