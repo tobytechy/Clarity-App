@@ -3416,8 +3416,24 @@ function renderChallengeCards(days) {
   }
 
   container.innerHTML = filtered.map(c => {
+    const requiredPlan = c.duration_days <= 7 ? 'free' : c.duration_days <= 30 ? 'basic' : 'pro';
+        const locked = !canAccessExercise(requiredPlan);
     const isActive = userChallenges.some(uc => uc.challenge_id === c.id && uc.status === 'active');
     const isCompleted = userChallenges.some(uc => uc.challenge_id === c.id && uc.status === 'completed');
+    if (locked) {
+          return '<div class="ch-card" onclick="showLockedChallenge(' + "'" + requiredPlan + "'" + ')" style="opacity:0.7;cursor:pointer;">' +
+            '<div style="display:flex;align-items:flex-start;gap:12px;">' +
+            '<div style="width:44px;height:44px;border-radius:12px;background:#1e2333;border:1px solid #2a3048;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🔒</div>' +
+            '<div style="flex:1;">' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">' +
+            '<div style="font-size:14px;font-weight:600;color:#6b7394;">' + c.title + '</div>' +
+            '<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:' + (requiredPlan === 'basic' ? 'rgba(104,180,240,0.15);color:#68b4f0;' : 'rgba(168,144,232,0.15);color:#a890e8;') + '">' + requiredPlan.toUpperCase() + '</span>' +
+            '</div>' +
+            '<div style="font-size:12px;color:#6b7394;line-height:1.5;">' + (c.description || '') + '</div>' +
+            '</div>' +
+            '<div style="font-size:18px;">🔒</div>' +
+            '</div></div>';
+        }
     const durationColor = c.duration_days <= 7 ? '#7ec8a4' : c.duration_days <= 30 ? '#68b4f0' : c.duration_days <= 60 ? '#a890e8' : '#f0a868';
         return '<div class="ch-card">' +
           '<div style="display:flex;align-items:flex-start;gap:12px;">' +
@@ -3444,6 +3460,11 @@ function renderChallengeCards(days) {
   }).join('');
 }
 
+function showLockedChallenge(plan) {
+  const planName = plan === 'basic' ? 'Basic' : 'Pro';
+  const planColor = plan === 'basic' ? '#68b4f0' : '#a890e8';
+  showToast('🔒 Upgrade to ' + planName + ' to unlock this challenge');
+}
 async function startChallenge(challengeId) {
   try {
     const { data: { user } } = await db.auth.getUser();
