@@ -3357,11 +3357,11 @@ async function loadChallenges() {
     if (challenges) allChallenges = challenges;
 
     // Load user's active/completed challenges
-    const { data: uc } = await db
-      .from('user_challenges')
-      .select('*, challenges(*)')
-      .eq('user_id', user.id)
-      .order('started_at', { ascending: false });
+        const { data: uc } = await db
+          .from('user_challenges')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('started_at', { ascending: false });
 
     if (uc) userChallenges = uc;
 
@@ -3383,7 +3383,7 @@ function renderActiveChallenges() {
     return;
   }
   el.innerHTML = active.map(uc => {
-    const c = uc.challenges || {};
+    const c = allChallenges.find(ch => ch.id === uc.challenge_id) || {};
     const pct = Math.min(100, Math.round((uc.current_day / c.duration) * 100));
     return '<div class="ch-active-card">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">' +
