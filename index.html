@@ -5,6 +5,53 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Clarity — Your Sobriety Companion</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    /* ===== LISTEN TAB ===== */
+    .listen-tab {
+      padding: 8px 18px;
+      border-radius: 99px;
+      border: 1px solid #2a3048;
+      background: transparent;
+      color: #6b7394;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .listen-tab.active {
+      background: rgba(168,144,232,0.15);
+      border-color: #a890e8;
+      color: #a890e8;
+    }
+    .listen-section { display: block; }
+    .med-filter, .med-tier-filter, .sc-filter {
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1px solid #2a3048;
+      background: transparent;
+      color: #6b7394;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .med-filter.active, .med-tier-filter.active, .sc-filter.active {
+      background: rgba(168,144,232,0.15);
+      border-color: #a890e8;
+      color: #a890e8;
+    }
+    .listen-card {
+      background: #13162a;
+      border: 1px solid #2a3048;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .listen-card:active { transform: scale(0.98); }
 <style>
 :root {
   --bg: #0f1117;
@@ -1945,6 +1992,7 @@ function showPage(id) {
   document.documentElement.scrollTop = 0;
   if (id === 'journal') loadTriggerHistory();
   if (id === 'lessons') { initLearnTab(); loadUserPlan(); renderWorkbookCards(); }
+  if (name === 'listen') initListenTab();
 }
 
 // Village tabs
@@ -4052,6 +4100,278 @@ async function alertVillage() {
     });
   } catch(e) { console.error(e); }
   document.getElementById('village-alerted').style.display = 'block';
+}
+// ===== LISTEN TAB =====
+let allMeditations = [];
+let allSoundscapes = [];
+let currentAudio = null;
+let currentTrack = null;
+let playerInterval = null;
+let playerStartTime = null;
+let playerDuration = 0;
+
+function showListenTab(name, btn) {
+  document.querySelectorAll('.listen-section').forEach(s => { s.style.display = 'none'; });
+  document.querySelectorAll('.listen-tab').forEach(t => t.classList.remove('active'));
+  const section = document.getElementById('listen-' + name);
+  if (section) section.style.display = 'block';
+  if (btn) btn.classList.add('active');
+  if (name === 'meditations') loadMeditations();
+  if (name === 'soundscapes') loadSoundscapes();
+}
+
+async function initListenTab() {
+  await loadMeditations();
+  await loadListenStreak();
+}
+
+async function loadListenStreak() {
+  try {
+    const { data: { user } } = await db.auth.getUser();
+    if (!user) return;
+    const { data } = await db.from('meditation_streaks').select('*').eq('user_id', user.id).single();
+    if (data) {
+      document.getElementById('listen-streak-count').textContent = (data.current_streak || 0) + ' day streak';
+    }
+  } catch(e) {}
+}
+
+async function loadMeditations() {
+  try {
+    const { data, error } = await db.from('meditations').select('*').eq('is_backup', false).eq('is_available', true).order('created_at');
+    if (error) throw error;
+    allMeditations = data || [];
+    renderMeditationCards(allMeditations);
+  } catch(e) {
+    document.getElementById('meditation-cards').innerHTML = '<div style="text-align:center;padding:40px;color:#6b7394;">Could not load meditations</div>';
+  }
+}
+
+async function loadSoundscapes() {
+  try {
+    const { data, error } = await db.from('soundscapes').select('*').eq('is_backup', false).eq('is_available', true).order('created_at');
+    if (error) throw error;
+    allSoundscapes = data || [];
+    renderSoundscapeCards(allSoundscapes);
+  } catch(e) {
+    document.getElementById('soundscape-cards').innerHTML = '<div style="text-align:center;padding:40px;color:#6b7394;">Could not load soundscapes</div>';
+  }
+}
+
+function filterMeditations(cat, btn) {
+  document.querySelectorAll('.med-filter').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const filtered = cat === 'all' ? allMeditations : allMeditations.filter(m => m.category === cat);
+  renderMeditationCards(filtered);
+}
+
+function filterMeditationTier(tier, btn) {
+  document.querySelectorAll('.med-tier-filter').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const filtered = tier === 'all' ? allMeditations : allMeditations.filter(m => m.subscription_tier === tier);
+  renderMeditationCards(filtered);
+}
+
+function filterSoundscapes(type, btn) {
+  document.querySelectorAll('.sc-filter').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const filtered = type === 'all' ? allSoundscapes : allSoundscapes.filter(s => s.type === type);
+  renderSoundscapeCards(filtered);
+}
+
+function renderMeditationCards(items) {
+  const container = document.getElementById('meditation-cards');
+  if (!items.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:#6b7394;font-size:13px;">No meditations found</div>';
+    return;
+  }
+  const categoryEmoji = { morning:'🌅', cravings:'🌊', sleep:'😴', anxiety:'💨', relapse:'🛡️', self_compassion:'💛' };
+  const tierColor = { free:'#7ec8a4', basic:'#68b4f0', pro:'#a890e8' };
+  const tierBg = { free:'rgba(126,200,164,0.15)', basic:'rgba(104,180,240,0.15)', pro:'rgba(168,144,232,0.15)' };
+
+  container.innerHTML = items.map(m => {
+    const locked = !canAccessExercise(m.subscription_tier);
+    const emoji = categoryEmoji[m.category] || '🧘';
+    const thumbUrl = m.youtube_id ? 'https://img.youtube.com/vi/' + m.youtube_id + '/mqdefault.jpg' : '';
+    if (locked) {
+      return '<div class="listen-card" onclick="showLockedVideo(\'' + m.subscription_tier + '\')">' +
+        '<div style="position:relative;height:140px;overflow:hidden;">' +
+        (thumbUrl ? '<img src="' + thumbUrl + '" style="width:100%;height:100%;object-fit:cover;filter:blur(8px);transform:scale(1.1);" loading="lazy"/>' : '<div style="width:100%;height:100%;background:linear-gradient(135deg,#1e2333,#2a1f3d);display:flex;align-items:center;justify-content:center;font-size:40px;">🧘</div>') +
+        '<div style="position:absolute;inset:0;background:rgba(15,17,23,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">' +
+        '<div style="font-size:24px;">🔒</div>' +
+        '<div style="font-size:11px;font-weight:700;color:white;">' + m.subscription_tier.toUpperCase() + ' Only</div>' +
+        '</div></div>' +
+        '<div style="padding:12px;">' +
+        '<div style="font-size:11px;color:#6b7394;margin-bottom:4px;">' + emoji + ' ' + (m.category || '').replace('_',' ').toUpperCase() + ' · ' + (m.duration_mins || '') + ' min</div>' +
+        '<div style="font-size:14px;font-weight:700;color:#6b7394;">' + m.title + '</div>' +
+        '</div></div>';
+    }
+    return '<div class="listen-card" onclick="openAudioPlayer(' + JSON.stringify(m).replace(/"/g,'&quot;') + ',\'meditation\')">' +
+      '<div style="position:relative;height:140px;overflow:hidden;">' +
+      (thumbUrl ? '<img src="' + thumbUrl + '" style="width:100%;height:100%;object-fit:cover;" loading="lazy"/>' : '<div style="width:100%;height:100%;background:linear-gradient(135deg,#1e2333,#2a1f3d);display:flex;align-items:center;justify-content:center;font-size:48px;">🧘</div>') +
+      '<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(15,17,23,0.8),transparent);"></div>' +
+      '<div style="position:absolute;bottom:10px;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;">' +
+      '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:' + tierBg[m.subscription_tier] + ';color:' + tierColor[m.subscription_tier] + ';">' + m.subscription_tier.toUpperCase() + '</span>' +
+      '<div style="width:36px;height:36px;border-radius:50%;background:rgba(168,144,232,0.9);display:flex;align-items:center;justify-content:center;font-size:14px;">▶</div>' +
+      '</div></div>' +
+      '<div style="padding:12px;">' +
+      '<div style="font-size:11px;color:#6b7394;margin-bottom:4px;">' + emoji + ' ' + (m.category || '').replace('_',' ').toUpperCase() + ' · ' + (m.duration_mins || '') + ' min</div>' +
+      '<div style="font-size:14px;font-weight:700;color:#e8eaf2;margin-bottom:4px;">' + m.title + '</div>' +
+      '<div style="font-size:12px;color:#6b7394;line-height:1.4;">' + (m.description || '').substring(0,80) + '...</div>' +
+      '</div></div>';
+  }).join('');
+}
+
+function renderSoundscapeCards(items) {
+  const container = document.getElementById('soundscape-cards');
+  if (!items.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:#6b7394;font-size:13px;">No soundscapes found</div>';
+    return;
+  }
+  const typeEmoji = { sleep:'😴', meditation:'🧘', ambient:'🌿', focus:'🎯', bowls:'🎵', nature:'🌧️', frequency:'✨' };
+  const tierColor = { free:'#7ec8a4', basic:'#68b4f0', pro:'#a890e8' };
+  const tierBg = { free:'rgba(126,200,164,0.15)', basic:'rgba(104,180,240,0.15)', pro:'rgba(168,144,232,0.15)' };
+
+  container.innerHTML = items.map(s => {
+    const locked = !canAccessExercise(s.subscription_tier);
+    const emoji = typeEmoji[s.type] || '🌊';
+    const thumbUrl = s.youtube_id ? 'https://img.youtube.com/vi/' + s.youtube_id + '/mqdefault.jpg' : '';
+    if (locked) {
+      return '<div class="listen-card" onclick="showLockedVideo(\'' + s.subscription_tier + '\')">' +
+        '<div style="position:relative;height:120px;overflow:hidden;">' +
+        (thumbUrl ? '<img src="' + thumbUrl + '" style="width:100%;height:100%;object-fit:cover;filter:blur(8px);transform:scale(1.1);" loading="lazy"/>' : '<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a2535,#1e2333);display:flex;align-items:center;justify-content:center;font-size:40px;">' + emoji + '</div>') +
+        '<div style="position:absolute;inset:0;background:rgba(15,17,23,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">' +
+        '<div style="font-size:24px;">🔒</div>' +
+        '<div style="font-size:11px;font-weight:700;color:white;">' + s.subscription_tier.toUpperCase() + ' Only</div>' +
+        '</div></div>' +
+        '<div style="padding:12px;">' +
+        '<div style="font-size:11px;color:#6b7394;margin-bottom:4px;">' + emoji + ' ' + (s.type || '').toUpperCase() + ' · ' + (s.duration_mins || '') + ' min</div>' +
+        '<div style="font-size:14px;font-weight:700;color:#6b7394;">' + s.title + '</div>' +
+        '</div></div>';
+    }
+    return '<div class="listen-card" onclick="openAudioPlayer(' + JSON.stringify(s).replace(/"/g,'&quot;') + ',\'soundscape\')">' +
+      '<div style="position:relative;height:120px;overflow:hidden;">' +
+      (thumbUrl ? '<img src="' + thumbUrl + '" style="width:100%;height:100%;object-fit:cover;" loading="lazy"/>' : '<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a2535,#1e2333);display:flex;align-items:center;justify-content:center;font-size:48px;">' + emoji + '</div>') +
+      '<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(15,17,23,0.8),transparent);"></div>' +
+      '<div style="position:absolute;bottom:10px;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;">' +
+      '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:' + tierBg[s.subscription_tier] + ';color:' + tierColor[s.subscription_tier] + ';">' + s.subscription_tier.toUpperCase() + '</span>' +
+      '<div style="width:36px;height:36px;border-radius:50%;background:rgba(104,180,240,0.9);display:flex;align-items:center;justify-content:center;font-size:14px;">▶</div>' +
+      '</div></div>' +
+      '<div style="padding:12px;">' +
+      '<div style="font-size:11px;color:#6b7394;margin-bottom:4px;">' + emoji + ' ' + (s.type || '').toUpperCase() + ' · ' + (s.duration_mins || '') + ' min</div>' +
+      '<div style="font-size:14px;font-weight:700;color:#e8eaf2;margin-bottom:4px;">' + s.title + '</div>' +
+      '<div style="font-size:12px;color:#6b7394;line-height:1.4;">' + (s.description || '').substring(0,80) + '...</div>' +
+      '</div></div>';
+  }).join('');
+}
+
+function openAudioPlayer(track, type) {
+  currentTrack = track;
+  const typeEmoji = { morning:'🌅', cravings:'🌊', sleep:'😴', anxiety:'💨', relapse:'🛡️', self_compassion:'💛', sleep:'😴', meditation:'🧘', ambient:'🌿', focus:'🎯', bowls:'🎵', nature:'🌧️', frequency:'✨' };
+  const emoji = typeEmoji[track.category || track.type] || (type === 'soundscape' ? '🌊' : '🧘');
+  document.getElementById('player-emoji').textContent = emoji;
+  document.getElementById('player-title').textContent = track.title;
+  document.getElementById('player-play-btn').textContent = '⏸';
+  document.getElementById('player-progress').style.width = '0%';
+  document.getElementById('mini-player').style.display = 'block';
+
+  // Open YouTube in modal to play audio
+  openYouTubeAudio(track.youtube_id);
+
+  // Start progress simulation
+  playerStartTime = Date.now();
+  playerDuration = (track.duration_mins || 30) * 60 * 1000;
+  clearInterval(playerInterval);
+  playerInterval = setInterval(() => {
+    const elapsed = Date.now() - playerStartTime;
+    const pct = Math.min((elapsed / playerDuration) * 100, 100);
+    document.getElementById('player-progress').style.width = pct + '%';
+    if (pct >= 80 && type === 'meditation') {
+      markMeditationComplete(track.id);
+    }
+    if (pct >= 100) clearInterval(playerInterval);
+  }, 5000);
+}
+
+function openYouTubeAudio(youtubeId) {
+  // Open video modal with audio focus
+  const embedDiv = document.getElementById('video-modal-embed');
+  const titleDiv = document.getElementById('video-modal-title');
+  if (!embedDiv) return;
+  titleDiv.textContent = currentTrack ? currentTrack.title : '';
+  embedDiv.innerHTML = '<iframe width="100%" height="100%" style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/' + youtubeId + '?autoplay=1&rel=0" frameborder="0" allow="autoplay;encrypted-media" allowfullscreen></iframe>';
+  document.getElementById('video-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function toggleAudioPlay() {
+  const btn = document.getElementById('player-play-btn');
+  if (btn.textContent === '⏸') {
+    btn.textContent = '▶';
+    clearInterval(playerInterval);
+    // Pause by closing modal
+    closeVideoModal();
+  } else {
+    btn.textContent = '⏸';
+    if (currentTrack) openYouTubeAudio(currentTrack.youtube_id);
+    // Resume progress
+    playerInterval = setInterval(() => {
+      const elapsed = Date.now() - playerStartTime;
+      const pct = Math.min((elapsed / playerDuration) * 100, 100);
+      document.getElementById('player-progress').style.width = pct + '%';
+      if (pct >= 100) clearInterval(playerInterval);
+    }, 5000);
+  }
+}
+
+function closeAudioPlayer() {
+  document.getElementById('mini-player').style.display = 'none';
+  clearInterval(playerInterval);
+  closeVideoModal();
+  currentTrack = null;
+}
+
+async function markMeditationComplete(meditationId) {
+  try {
+    const { data: { user } } = await db.auth.getUser();
+    if (!user || !meditationId) return;
+    await db.from('meditation_progress').upsert({
+      user_id: user.id,
+      meditation_id: meditationId,
+      completed: true,
+      completed_at: new Date().toISOString(),
+      listen_count: 1
+    }, { onConflict: 'user_id,meditation_id', ignoreDuplicates: false });
+    await updateMeditationStreak(user.id);
+  } catch(e) { console.error(e); }
+}
+
+async function updateMeditationStreak(userId) {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const { data } = await db.from('meditation_streaks').select('*').eq('user_id', userId).single();
+    if (data) {
+      const last = data.last_meditation_date;
+      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      let newStreak = 1;
+      if (last === today) return; // already counted today
+      if (last === yesterday) newStreak = (data.current_streak || 0) + 1;
+      await db.from('meditation_streaks').update({
+        current_streak: newStreak,
+        longest_streak: Math.max(newStreak, data.longest_streak || 0),
+        last_meditation_date: today,
+        updated_at: new Date().toISOString()
+      }).eq('user_id', userId);
+    } else {
+      await db.from('meditation_streaks').insert({
+        user_id: userId,
+        current_streak: 1,
+        longest_streak: 1,
+        last_meditation_date: today
+      });
+    }
+    await loadListenStreak();
+  } catch(e) { console.error(e); }
 }
     </script>
   </body>
