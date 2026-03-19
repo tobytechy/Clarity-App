@@ -5,53 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Clarity — Your Sobriety Companion</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    /* ===== LISTEN TAB ===== */
-    .listen-tab {
-      padding: 8px 18px;
-      border-radius: 99px;
-      border: 1px solid #2a3048;
-      background: transparent;
-      color: #6b7394;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.2s;
-    }
-    .listen-tab.active {
-      background: rgba(168,144,232,0.15);
-      border-color: #a890e8;
-      color: #a890e8;
-    }
-    .listen-section { display: block; }
-    .med-filter, .med-tier-filter, .sc-filter {
-      padding: 6px 14px;
-      border-radius: 99px;
-      border: 1px solid #2a3048;
-      background: transparent;
-      color: #6b7394;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.2s;
-    }
-    .med-filter.active, .med-tier-filter.active, .sc-filter.active {
-      background: rgba(168,144,232,0.15);
-      border-color: #a890e8;
-      color: #a890e8;
-    }
-    .listen-card {
-      background: #13162a;
-      border: 1px solid #2a3048;
-      border-radius: 16px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .listen-card:active { transform: scale(0.98); }
 <style>
 :root {
   --bg: #0f1117;
@@ -572,6 +525,54 @@ textarea::placeholder { color: var(--muted); }
 }
 .wb-textarea:focus { border-color:#a890e8; }
 .wb-textarea::placeholder { color:#6b7394; }@media(max-width:640px){ .c-grid{grid-template-columns:1fr;} .nav-tabs{display:none;} .meeting-card{grid-template-columns:auto 1fr;} }
+/* ===== LISTEN TAB ===== */
+.listen-tab {
+  padding: 8px 18px;
+  border-radius: 99px;
+  border: 1px solid #2a3048;
+  background: transparent;
+  color: #6b7394;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.listen-tab.active {
+  background: rgba(168,144,232,0.15);
+  border-color: #a890e8;
+  color: #a890e8;
+}
+.listen-section { display: none; }
+.listen-section.listen-active { display: block; }
+.med-filter, .med-tier-filter, .sc-filter {
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1px solid #2a3048;
+  background: transparent;
+  color: #6b7394;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.med-filter.active, .med-tier-filter.active, .sc-filter.active {
+  background: rgba(168,144,232,0.15);
+  border-color: #a890e8;
+  color: #a890e8;
+}
+.listen-card {
+  background: #13162a;
+  border: 1px solid #2a3048;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.listen-card:active { transform: scale(0.98); }
 </style>
 </head>
 <body><!-- AUTH SCREEN -->
@@ -1695,7 +1696,7 @@ textarea::placeholder { color: var(--muted); }
     </div>
 
     <!-- MEDITATIONS SECTION -->
-    <div id="listen-meditations" class="listen-section">
+    <div id="listen-meditations" class="listen-section listen-active">
       <div style="display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;">
         <button class="med-filter active" onclick="filterMeditations('all',this)">All</button>
         <button class="med-filter" onclick="filterMeditations('morning',this)">🌅 Morning</button>
@@ -1717,7 +1718,7 @@ textarea::placeholder { color: var(--muted); }
     </div>
 
     <!-- SOUNDSCAPES SECTION -->
-    <div id="listen-soundscapes" class="listen-section" style="display:none;">
+    <div id="listen-soundscapes" class="listen-section">
       <div style="display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;">
         <button class="sc-filter active" onclick="filterSoundscapes('all',this)">All</button>
         <button class="sc-filter" onclick="filterSoundscapes('sleep',this)">😴 Sleep</button>
@@ -4104,17 +4105,22 @@ async function alertVillage() {
 // ===== LISTEN TAB =====
 let allMeditations = [];
 let allSoundscapes = [];
-let currentAudio = null;
 let currentTrack = null;
+let currentTrackType = null;
 let playerInterval = null;
 let playerStartTime = null;
 let playerDuration = 0;
+let completionMarked = false; // prevent firing markMeditationComplete multiple times
+
+// Store tracks in a lookup map for fast access by id
+const listenTrackMap = {};
 
 function showListenTab(name, btn) {
-  document.querySelectorAll('.listen-section').forEach(s => { s.style.display = 'none'; });
+  // Use visibility toggling via class, not inline style (avoids CSS override issues)
+  document.querySelectorAll('.listen-section').forEach(s => s.classList.remove('listen-active'));
   document.querySelectorAll('.listen-tab').forEach(t => t.classList.remove('active'));
   const section = document.getElementById('listen-' + name);
-  if (section) section.style.display = 'block';
+  if (section) section.classList.add('listen-active');
   if (btn) btn.classList.add('active');
   if (name === 'meditations') loadMeditations();
   if (name === 'soundscapes') loadSoundscapes();
@@ -4131,30 +4137,56 @@ async function loadListenStreak() {
     if (!user) return;
     const { data } = await db.from('meditation_streaks').select('*').eq('user_id', user.id).single();
     if (data) {
-      document.getElementById('listen-streak-count').textContent = (data.current_streak || 0) + ' day streak';
+      const streak = data.current_streak || 0;
+      document.getElementById('listen-streak-count').textContent = streak + ' day streak';
     }
-  } catch(e) {}
+  } catch(e) {} // silence — user may not have a streak row yet
 }
 
 async function loadMeditations() {
   try {
-    const { data, error } = await db.from('meditations').select('*').eq('is_backup', false).eq('is_available', true).order('created_at');
+    const { data, error } = await db.from('meditations')
+      .select('*')
+      .eq('is_available', true)
+      .order('created_at');
     if (error) throw error;
-    allMeditations = data || [];
+    // Separate primary and backups
+    const primaries = (data || []).filter(m => !m.is_backup);
+    const backups = (data || []).filter(m => m.is_backup);
+    allMeditations = primaries;
+    // Store all in map
+    (data || []).forEach(m => { listenTrackMap[m.id] = m; });
+    // Store backups indexed by backup_for id
+    window._meditationBackups = {};
+    backups.forEach(b => {
+      if (b.backup_for) window._meditationBackups[b.backup_for] = b;
+    });
     renderMeditationCards(allMeditations);
   } catch(e) {
-    document.getElementById('meditation-cards').innerHTML = '<div style="text-align:center;padding:40px;color:#6b7394;">Could not load meditations</div>';
+    const el = document.getElementById('meditation-cards');
+    if (el) el.innerHTML = '<div style="text-align:center;padding:40px;color:#6b7394;">Could not load meditations</div>';
   }
 }
 
 async function loadSoundscapes() {
   try {
-    const { data, error } = await db.from('soundscapes').select('*').eq('is_backup', false).eq('is_available', true).order('created_at');
+    const { data, error } = await db.from('soundscapes')
+      .select('*')
+      .eq('is_available', true)
+      .order('created_at');
     if (error) throw error;
-    allSoundscapes = data || [];
+    const primaries = (data || []).filter(s => !s.is_backup);
+    const backups = (data || []).filter(s => s.is_backup);
+    allSoundscapes = primaries;
+    (data || []).forEach(s => { listenTrackMap[s.id] = s; });
+    window._soundscapeBackups = {};
+    backups.forEach(b => {
+      if (b.backup_for) window._soundscapeBackups[b.backup_for] = b;
+    });
     renderSoundscapeCards(allSoundscapes);
   } catch(e) {
-    document.getElementById('soundscape-cards').innerHTML = '<div style="text-align:center;padding:40px;color:#6b7394;">Could not load soundscapes</div>';
+    const el = document.getElementById('soundscape-cards');
+    if (el) el.innerHTML = '<div style="text-align:center;padding:40px;color:#6b7394;">Could not load soundscapes</div>';
   }
 }
 
@@ -4179,106 +4211,125 @@ function filterSoundscapes(type, btn) {
   renderSoundscapeCards(filtered);
 }
 
+function getListenEmoji(track) {
+  const map = { morning:'🌅', cravings:'🌊', sleep:'😴', anxiety:'💨', relapse:'🛡️', self_compassion:'💛', meditation:'🧘', ambient:'🌿', focus:'🎯', bowls:'🎵', nature:'🌧️', frequency:'✨' };
+  return map[track.category] || map[track.type] || '🎵';
+}
+
 function renderMeditationCards(items) {
   const container = document.getElementById('meditation-cards');
+  if (!container) return;
   if (!items.length) {
     container.innerHTML = '<div style="text-align:center;padding:40px;color:#6b7394;font-size:13px;">No meditations found</div>';
     return;
   }
-  const categoryEmoji = { morning:'🌅', cravings:'🌊', sleep:'😴', anxiety:'💨', relapse:'🛡️', self_compassion:'💛' };
   const tierColor = { free:'#7ec8a4', basic:'#68b4f0', pro:'#a890e8' };
   const tierBg = { free:'rgba(126,200,164,0.15)', basic:'rgba(104,180,240,0.15)', pro:'rgba(168,144,232,0.15)' };
 
   container.innerHTML = items.map(m => {
     const locked = !canAccessExercise(m.subscription_tier);
-    const emoji = categoryEmoji[m.category] || '🧘';
+    const emoji = getListenEmoji(m);
     const thumbUrl = m.youtube_id ? 'https://img.youtube.com/vi/' + m.youtube_id + '/mqdefault.jpg' : '';
+    const cat = (m.category || '').replace(/_/g,' ').toUpperCase();
+    const dur = m.duration_mins ? m.duration_mins + ' min' : '';
+
     if (locked) {
       return '<div class="listen-card" onclick="showLockedVideo(\'' + m.subscription_tier + '\')">' +
         '<div style="position:relative;height:140px;overflow:hidden;">' +
         (thumbUrl ? '<img src="' + thumbUrl + '" style="width:100%;height:100%;object-fit:cover;filter:blur(8px);transform:scale(1.1);" loading="lazy"/>' : '<div style="width:100%;height:100%;background:linear-gradient(135deg,#1e2333,#2a1f3d);display:flex;align-items:center;justify-content:center;font-size:40px;">🧘</div>') +
-        '<div style="position:absolute;inset:0;background:rgba(15,17,23,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">' +
+        '<div style="position:absolute;inset:0;background:rgba(15,17,23,0.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">' +
         '<div style="font-size:24px;">🔒</div>' +
         '<div style="font-size:11px;font-weight:700;color:white;">' + m.subscription_tier.toUpperCase() + ' Only</div>' +
+        '<div style="font-size:10px;color:rgba(255,255,255,0.6);">Upgrade to listen</div>' +
         '</div></div>' +
         '<div style="padding:12px;">' +
-        '<div style="font-size:11px;color:#6b7394;margin-bottom:4px;">' + emoji + ' ' + (m.category || '').replace('_',' ').toUpperCase() + ' · ' + (m.duration_mins || '') + ' min</div>' +
+        '<div style="font-size:11px;color:#6b7394;margin-bottom:4px;">' + emoji + ' ' + cat + (dur ? ' · ' + dur : '') + '</div>' +
         '<div style="font-size:14px;font-weight:700;color:#6b7394;">' + m.title + '</div>' +
         '</div></div>';
     }
-    return '<div class="listen-card" onclick="openAudioPlayer(' + JSON.stringify(m).replace(/"/g,'&quot;') + ',\'meditation\')">' +
+
+    return '<div class="listen-card" onclick="openAudioPlayer(\'' + m.id + '\',\'meditation\')">' +
       '<div style="position:relative;height:140px;overflow:hidden;">' +
       (thumbUrl ? '<img src="' + thumbUrl + '" style="width:100%;height:100%;object-fit:cover;" loading="lazy"/>' : '<div style="width:100%;height:100%;background:linear-gradient(135deg,#1e2333,#2a1f3d);display:flex;align-items:center;justify-content:center;font-size:48px;">🧘</div>') +
-      '<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(15,17,23,0.8),transparent);"></div>' +
+      '<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(15,17,23,0.85),transparent 60%);"></div>' +
       '<div style="position:absolute;bottom:10px;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;">' +
       '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:' + tierBg[m.subscription_tier] + ';color:' + tierColor[m.subscription_tier] + ';">' + m.subscription_tier.toUpperCase() + '</span>' +
       '<div style="width:36px;height:36px;border-radius:50%;background:rgba(168,144,232,0.9);display:flex;align-items:center;justify-content:center;font-size:14px;">▶</div>' +
       '</div></div>' +
       '<div style="padding:12px;">' +
-      '<div style="font-size:11px;color:#6b7394;margin-bottom:4px;">' + emoji + ' ' + (m.category || '').replace('_',' ').toUpperCase() + ' · ' + (m.duration_mins || '') + ' min</div>' +
+      '<div style="font-size:11px;color:#6b7394;margin-bottom:4px;">' + emoji + ' ' + cat + (dur ? ' · ' + dur : '') + '</div>' +
       '<div style="font-size:14px;font-weight:700;color:#e8eaf2;margin-bottom:4px;">' + m.title + '</div>' +
-      '<div style="font-size:12px;color:#6b7394;line-height:1.4;">' + (m.description || '').substring(0,80) + '...</div>' +
+      '<div style="font-size:12px;color:#6b7394;line-height:1.4;">' + (m.description || '').substring(0,90) + (m.description && m.description.length > 90 ? '...' : '') + '</div>' +
       '</div></div>';
   }).join('');
 }
 
 function renderSoundscapeCards(items) {
   const container = document.getElementById('soundscape-cards');
+  if (!container) return;
   if (!items.length) {
     container.innerHTML = '<div style="text-align:center;padding:40px;color:#6b7394;font-size:13px;">No soundscapes found</div>';
     return;
   }
-  const typeEmoji = { sleep:'😴', meditation:'🧘', ambient:'🌿', focus:'🎯', bowls:'🎵', nature:'🌧️', frequency:'✨' };
   const tierColor = { free:'#7ec8a4', basic:'#68b4f0', pro:'#a890e8' };
   const tierBg = { free:'rgba(126,200,164,0.15)', basic:'rgba(104,180,240,0.15)', pro:'rgba(168,144,232,0.15)' };
 
   container.innerHTML = items.map(s => {
     const locked = !canAccessExercise(s.subscription_tier);
-    const emoji = typeEmoji[s.type] || '🌊';
+    const emoji = getListenEmoji(s);
     const thumbUrl = s.youtube_id ? 'https://img.youtube.com/vi/' + s.youtube_id + '/mqdefault.jpg' : '';
+    const type = (s.type || '').toUpperCase();
+    const dur = s.duration_mins ? s.duration_mins + ' min' : '';
+
     if (locked) {
       return '<div class="listen-card" onclick="showLockedVideo(\'' + s.subscription_tier + '\')">' +
         '<div style="position:relative;height:120px;overflow:hidden;">' +
         (thumbUrl ? '<img src="' + thumbUrl + '" style="width:100%;height:100%;object-fit:cover;filter:blur(8px);transform:scale(1.1);" loading="lazy"/>' : '<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a2535,#1e2333);display:flex;align-items:center;justify-content:center;font-size:40px;">' + emoji + '</div>') +
-        '<div style="position:absolute;inset:0;background:rgba(15,17,23,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">' +
+        '<div style="position:absolute;inset:0;background:rgba(15,17,23,0.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">' +
         '<div style="font-size:24px;">🔒</div>' +
         '<div style="font-size:11px;font-weight:700;color:white;">' + s.subscription_tier.toUpperCase() + ' Only</div>' +
+        '<div style="font-size:10px;color:rgba(255,255,255,0.6);">Upgrade to listen</div>' +
         '</div></div>' +
         '<div style="padding:12px;">' +
-        '<div style="font-size:11px;color:#6b7394;margin-bottom:4px;">' + emoji + ' ' + (s.type || '').toUpperCase() + ' · ' + (s.duration_mins || '') + ' min</div>' +
+        '<div style="font-size:11px;color:#6b7394;margin-bottom:4px;">' + emoji + ' ' + type + (dur ? ' · ' + dur : '') + '</div>' +
         '<div style="font-size:14px;font-weight:700;color:#6b7394;">' + s.title + '</div>' +
         '</div></div>';
     }
-    return '<div class="listen-card" onclick="openAudioPlayer(' + JSON.stringify(s).replace(/"/g,'&quot;') + ',\'soundscape\')">' +
+
+    return '<div class="listen-card" onclick="openAudioPlayer(\'' + s.id + '\',\'soundscape\')">' +
       '<div style="position:relative;height:120px;overflow:hidden;">' +
       (thumbUrl ? '<img src="' + thumbUrl + '" style="width:100%;height:100%;object-fit:cover;" loading="lazy"/>' : '<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a2535,#1e2333);display:flex;align-items:center;justify-content:center;font-size:48px;">' + emoji + '</div>') +
-      '<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(15,17,23,0.8),transparent);"></div>' +
+      '<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(15,17,23,0.85),transparent 60%);"></div>' +
       '<div style="position:absolute;bottom:10px;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;">' +
       '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:' + tierBg[s.subscription_tier] + ';color:' + tierColor[s.subscription_tier] + ';">' + s.subscription_tier.toUpperCase() + '</span>' +
       '<div style="width:36px;height:36px;border-radius:50%;background:rgba(104,180,240,0.9);display:flex;align-items:center;justify-content:center;font-size:14px;">▶</div>' +
       '</div></div>' +
       '<div style="padding:12px;">' +
-      '<div style="font-size:11px;color:#6b7394;margin-bottom:4px;">' + emoji + ' ' + (s.type || '').toUpperCase() + ' · ' + (s.duration_mins || '') + ' min</div>' +
+      '<div style="font-size:11px;color:#6b7394;margin-bottom:4px;">' + emoji + ' ' + type + (dur ? ' · ' + dur : '') + '</div>' +
       '<div style="font-size:14px;font-weight:700;color:#e8eaf2;margin-bottom:4px;">' + s.title + '</div>' +
-      '<div style="font-size:12px;color:#6b7394;line-height:1.4;">' + (s.description || '').substring(0,80) + '...</div>' +
+      '<div style="font-size:12px;color:#6b7394;line-height:1.4;">' + (s.description || '').substring(0,90) + (s.description && s.description.length > 90 ? '...' : '') + '</div>' +
       '</div></div>';
   }).join('');
 }
 
-function openAudioPlayer(track, type) {
+function openAudioPlayer(trackId, type) {
+  // Lookup track from map using ID (safe — no JSON in onclick)
+  const track = listenTrackMap[trackId];
+  if (!track) return;
   currentTrack = track;
-  const typeEmoji = { morning:'🌅', cravings:'🌊', sleep:'😴', anxiety:'💨', relapse:'🛡️', self_compassion:'💛', sleep:'😴', meditation:'🧘', ambient:'🌿', focus:'🎯', bowls:'🎵', nature:'🌧️', frequency:'✨' };
-  const emoji = typeEmoji[track.category || track.type] || (type === 'soundscape' ? '🌊' : '🧘');
+  currentTrackType = type;
+  completionMarked = false;
+
+  const emoji = getListenEmoji(track);
   document.getElementById('player-emoji').textContent = emoji;
   document.getElementById('player-title').textContent = track.title;
   document.getElementById('player-play-btn').textContent = '⏸';
   document.getElementById('player-progress').style.width = '0%';
   document.getElementById('mini-player').style.display = 'block';
 
-  // Open YouTube in modal to play audio
-  openYouTubeAudio(track.youtube_id);
+  openYouTubeAudio(track.youtube_id, trackId, type);
 
-  // Start progress simulation
+  // Progress simulation
   playerStartTime = Date.now();
   playerDuration = (track.duration_mins || 30) * 60 * 1000;
   clearInterval(playerInterval);
@@ -4286,22 +4337,43 @@ function openAudioPlayer(track, type) {
     const elapsed = Date.now() - playerStartTime;
     const pct = Math.min((elapsed / playerDuration) * 100, 100);
     document.getElementById('player-progress').style.width = pct + '%';
-    if (pct >= 80 && type === 'meditation') {
+    // Mark complete once at 80% for meditations only
+    if (pct >= 80 && type === 'meditation' && !completionMarked) {
+      completionMarked = true;
       markMeditationComplete(track.id);
     }
     if (pct >= 100) clearInterval(playerInterval);
   }, 5000);
 }
 
-function openYouTubeAudio(youtubeId) {
-  // Open video modal with audio focus
+function openYouTubeAudio(youtubeId, trackId, type) {
   const embedDiv = document.getElementById('video-modal-embed');
   const titleDiv = document.getElementById('video-modal-title');
   if (!embedDiv) return;
   titleDiv.textContent = currentTrack ? currentTrack.title : '';
-  embedDiv.innerHTML = '<iframe width="100%" height="100%" style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/' + youtubeId + '?autoplay=1&rel=0" frameborder="0" allow="autoplay;encrypted-media" allowfullscreen></iframe>';
+
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0;';
+  iframe.src = 'https://www.youtube.com/embed/' + youtubeId + '?autoplay=1&rel=0';
+  iframe.allow = 'autoplay; encrypted-media';
+  iframe.allowFullscreen = true;
+
+  // Detect embed failure and swap to backup
+  iframe.onerror = function() { swapToBackupAudio(trackId, type); };
+
+  embedDiv.innerHTML = '';
+  embedDiv.appendChild(iframe);
   document.getElementById('video-modal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
+}
+
+function swapToBackupAudio(trackId, type) {
+  const backups = type === 'meditation' ? window._meditationBackups : window._soundscapeBackups;
+  const backup = backups && backups[trackId];
+  if (backup && backup.youtube_id) {
+    showToast('Switching to backup track...');
+    openYouTubeAudio(backup.youtube_id, backup.id, type);
+  }
 }
 
 function toggleAudioPlay() {
@@ -4309,16 +4381,18 @@ function toggleAudioPlay() {
   if (btn.textContent === '⏸') {
     btn.textContent = '▶';
     clearInterval(playerInterval);
-    // Pause by closing modal
     closeVideoModal();
   } else {
     btn.textContent = '⏸';
-    if (currentTrack) openYouTubeAudio(currentTrack.youtube_id);
-    // Resume progress
+    if (currentTrack) openYouTubeAudio(currentTrack.youtube_id, currentTrack.id, currentTrackType);
     playerInterval = setInterval(() => {
       const elapsed = Date.now() - playerStartTime;
       const pct = Math.min((elapsed / playerDuration) * 100, 100);
       document.getElementById('player-progress').style.width = pct + '%';
+      if (pct >= 80 && currentTrackType === 'meditation' && !completionMarked) {
+        completionMarked = true;
+        markMeditationComplete(currentTrack.id);
+      }
       if (pct >= 100) clearInterval(playerInterval);
     }, 5000);
   }
@@ -4329,20 +4403,29 @@ function closeAudioPlayer() {
   clearInterval(playerInterval);
   closeVideoModal();
   currentTrack = null;
+  currentTrackType = null;
+  completionMarked = false;
 }
 
 async function markMeditationComplete(meditationId) {
   try {
     const { data: { user } } = await db.auth.getUser();
     if (!user || !meditationId) return;
+    const { data: existing } = await db.from('meditation_progress')
+      .select('listen_count')
+      .eq('user_id', user.id)
+      .eq('meditation_id', meditationId)
+      .single();
+    const newCount = existing ? (existing.listen_count || 0) + 1 : 1;
     await db.from('meditation_progress').upsert({
       user_id: user.id,
       meditation_id: meditationId,
       completed: true,
       completed_at: new Date().toISOString(),
-      listen_count: 1
-    }, { onConflict: 'user_id,meditation_id', ignoreDuplicates: false });
+      listen_count: newCount
+    }, { onConflict: 'user_id,meditation_id' });
     await updateMeditationStreak(user.id);
+    showToast('✅ Meditation complete! Streak updated.');
   } catch(e) { console.error(e); }
 }
 
@@ -4351,11 +4434,9 @@ async function updateMeditationStreak(userId) {
     const today = new Date().toISOString().split('T')[0];
     const { data } = await db.from('meditation_streaks').select('*').eq('user_id', userId).single();
     if (data) {
-      const last = data.last_meditation_date;
+      if (data.last_meditation_date === today) return; // already counted today
       const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-      let newStreak = 1;
-      if (last === today) return; // already counted today
-      if (last === yesterday) newStreak = (data.current_streak || 0) + 1;
+      const newStreak = data.last_meditation_date === yesterday ? (data.current_streak || 0) + 1 : 1;
       await db.from('meditation_streaks').update({
         current_streak: newStreak,
         longest_streak: Math.max(newStreak, data.longest_streak || 0),
