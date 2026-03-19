@@ -1673,7 +1673,7 @@ textarea::placeholder { color: var(--muted); }
 </div>
 
 <!-- LISTEN PAGE -->
-<div class="page" id="page-listen" style="display:none;">
+<div class="page" id="page-listen">
   <div style="max-width:600px;margin:0 auto;padding:24px 20px 100px;">
     <div style="margin-bottom:16px;">
       <h1 style="font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:#e8eaf2;margin-bottom:6px;">Listen 🎧</h1>
@@ -1986,14 +1986,14 @@ function showPage(id) {
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   const pg = document.getElementById('page-' + id);
   if (pg) pg.classList.add('active');
-  const map = {home:0,wins:1,village:2,messages:3,meetings:4,counsellors:5,journal:6,pricing:7,community:8,lessons:9};
+  const map = {home:0,wins:1,village:2,messages:3,meetings:4,counsellors:5,journal:6,pricing:7,community:8,lessons:9,listen:10};
   const tabs = document.querySelectorAll('.nav-tab');
   if (map[id] !== undefined) tabs[map[id]].classList.add('active');
   document.body.scrollTop = 0;
   document.documentElement.scrollTop = 0;
   if (id === 'journal') loadTriggerHistory();
   if (id === 'lessons') { initLearnTab(); loadUserPlan(); renderWorkbookCards(); }
-  if (name === 'listen') initListenTab();
+  if (id === 'listen') initListenTab();
 }
 
 // Village tabs
@@ -4127,7 +4127,11 @@ function showListenTab(name, btn) {
 }
 
 async function initListenTab() {
-  await loadMeditations();
+  if (allMeditations.length === 0) {
+    await loadMeditations();
+  } else {
+    renderMeditationCards(allMeditations);
+  }
   await loadListenStreak();
 }
 
