@@ -3632,9 +3632,7 @@ function renderVideoCards() {
     const tierBg = v.subscription_tier === 'free' ? 'rgba(126,200,164,0.15)' : v.subscription_tier === 'basic' ? 'rgba(104,180,240,0.15)' : 'rgba(168,144,232,0.15)';
     const thumbUrl = v.youtube_id
       ? 'https://img.youtube.com/vi/' + v.youtube_id + '/mqdefault.jpg'
-      : v.ted_slug
-              ? 'https://embed.ted.com/talks/' + v.ted_slug + '/thumbnail'
-        : '';
+      : '';
     const onclick = locked
       ? 'showLockedVideo(\'' + v.subscription_tier + '\')'
       : 'openVideoModal(\'' + v.id + '\')';
