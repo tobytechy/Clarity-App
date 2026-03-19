@@ -573,6 +573,37 @@ textarea::placeholder { color: var(--muted); }
   transition: all 0.2s;
 }
 .listen-card:active { transform: scale(0.98); }
+.pod-filter {
+  padding: 6px 14px;
+  border-radius: 99px;
+  border: 1px solid #2a3048;
+  background: transparent;
+  color: #6b7394;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.pod-filter.active {
+  background: rgba(168,144,232,0.15);
+  border-color: #a890e8;
+  color: #a890e8;
+}
+.podcast-card {
+  background: #13162a;
+  border: 1px solid #2a3048;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.podcast-card:active { transform: scale(0.98); }
+.podcast-card:hover { border-color: #3a4060; }
 </style>
 </head>
 <body><!-- AUTH SCREEN -->
@@ -1480,47 +1511,7 @@ textarea::placeholder { color: var(--muted); }
     </div>
   </div>
 </div>
-  <!-- ===== WORKBOOK MODAL ===== -->
-<div id="workbook-modal" style="display:none;position:fixed;inset:0;background:rgba(10,10,20,0.95);backdrop-filter:blur(8px);z-index:9999;align-items:flex-start;justify-content:center;overflow-y:auto;padding:1rem;">
-  <div style="width:100%;max-width:480px;background:#0f1117;border-radius:20px;border:1px solid #2a3048;overflow:hidden;margin:auto;box-shadow:0 24px 80px rgba(0,0,0,0.6);">
 
-    <!-- Header -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem;background:linear-gradient(135deg,rgba(168,144,232,0.2),rgba(104,180,240,0.1));border-bottom:1px solid #2a3048;">
-      <div>
-        <div id="wb-modal-title" style="font-size:1.1rem;font-weight:700;color:#e8eaf2;">Workbook</div>
-        <div id="wb-modal-category" style="font-size:0.75rem;color:#6b7394;margin-top:2px;"></div>
-      </div>
-      <button onclick="closeWorkbook()" style="background:rgba(255,255,255,0.05);border:1px solid #2a3048;color:#6b7394;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:0.85rem;">✕</button>
-    </div>
-
-    <!-- Content -->
-    <div id="wb-modal-content" style="padding:1.25rem;">
-      <!-- Filled dynamically by JS -->
-    </div>
-
-    <!-- Footer -->
-    <div style="padding:1rem 1.25rem;border-top:1px solid #2a3048;display:flex;gap:0.75rem;">
-      <button id="wb-save-btn" onclick="saveWorkbookEntry()" style="flex:1;padding:0.85rem;border-radius:12px;border:none;background:linear-gradient(135deg,#a890e8,#68b4f0);color:white;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Save Entry ✓</button>
-    </div>
- </div>
-</div>
-
-<!-- WORKBOOK MODAL -->
-<div id="workbook-modal" style="display:none;position:fixed;inset:0;background:rgba(10,10,20,0.95);backdrop-filter:blur(8px);z-index:9999;align-items:flex-start;justify-content:center;overflow-y:auto;padding:1rem;">
-  <div style="width:100%;max-width:480px;background:#0f1117;border-radius:20px;border:1px solid #2a3048;overflow:hidden;margin:auto;box-shadow:0 24px 80px rgba(0,0,0,0.6);">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem;background:linear-gradient(135deg,rgba(168,144,232,0.2),rgba(104,180,240,0.1));border-bottom:1px solid #2a3048;">
-      <div>
-        <div id="wb-modal-title" style="font-size:1.1rem;font-weight:700;color:#e8eaf2;">Workbook</div>
-        <div id="wb-modal-category" style="font-size:0.75rem;color:#6b7394;margin-top:2px;"></div>
-      </div>
-      <button onclick="closeWorkbook()" style="background:rgba(255,255,255,0.05);border:1px solid #2a3048;color:#6b7394;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:0.85rem;">✕</button>
-    </div>
-    <div id="wb-modal-content" style="padding:1.25rem;"></div>
-    <div style="padding:1rem 1.25rem;border-top:1px solid #2a3048;">
-      <button id="wb-save-btn" onclick="saveWorkbookEntry()" style="width:100%;padding:0.85rem;border-radius:12px;border:none;background:linear-gradient(135deg,#a890e8,#68b4f0);color:white;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Save Entry ✓</button>
-    </div>
-  </div>
-</div>
 
 <div class="page" id="page-community">
   <div style="max-width:600px;margin:0 auto;padding:24px 20px 80px;">
@@ -1643,7 +1634,6 @@ textarea::placeholder { color: var(--muted); }
               <!-- Tier filters -->
               <div style="display:flex;gap:6px;margin-bottom:20px;">
                 <button class="vid-tier-filter active" data-tier="all" onclick="filterVideoTier('all',this)">All</button>
-                <button class="vid-tier-filter" data-tier="free" onclick="filterVideoTier('free',this)">Free</button>
                 <button class="vid-tier-filter" data-tier="basic" onclick="filterVideoTier('basic',this)">Basic</button>
                 <button class="vid-tier-filter" data-tier="pro" onclick="filterVideoTier('pro',this)">Pro</button>
               </div>
@@ -1693,6 +1683,7 @@ textarea::placeholder { color: var(--muted); }
     <div style="display:flex;gap:0.4rem;margin-bottom:20px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;">
       <button class="listen-tab active" onclick="showListenTab('meditations',this)">🧘 Meditations</button>
       <button class="listen-tab" onclick="showListenTab('soundscapes',this)">🌊 Soundscapes</button>
+      <button class="listen-tab" onclick="showListenTab('podcasts',this)">🎙️ Podcasts</button>
     </div>
 
     <!-- MEDITATIONS SECTION -->
@@ -1708,7 +1699,6 @@ textarea::placeholder { color: var(--muted); }
       </div>
       <div style="display:flex;gap:6px;margin-bottom:20px;">
         <button class="med-tier-filter active" onclick="filterMeditationTier('all',this)">All</button>
-        <button class="med-tier-filter" onclick="filterMeditationTier('free',this)">Free</button>
         <button class="med-tier-filter" onclick="filterMeditationTier('basic',this)">Basic</button>
         <button class="med-tier-filter" onclick="filterMeditationTier('pro',this)">Pro</button>
       </div>
@@ -1732,6 +1722,19 @@ textarea::placeholder { color: var(--muted); }
       <div id="soundscape-cards" style="display:flex;flex-direction:column;gap:12px;">
         <div style="text-align:center;padding:40px;color:#6b7394;font-size:13px;">Loading soundscapes...</div>
       </div>
+    </div>
+
+    <!-- PODCASTS SECTION -->
+    <div id="listen-podcasts" class="listen-section">
+      <!-- Category filters -->
+      <div style="display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;">
+        <button class="pod-filter active" onclick="filterPodcasts('all',this)">All</button>
+        <button class="pod-filter" onclick="filterPodcasts('recovery',this)">🌙 Recovery</button>
+        <button class="pod-filter" onclick="filterPodcasts('mental_health',this)">🧠 Mental Health</button>
+        <button class="pod-filter" onclick="filterPodcasts('wellness',this)">💚 Wellness</button>
+      </div>
+      <!-- Podcast cards rendered here -->
+      <div id="podcast-cards" style="display:flex;flex-direction:column;gap:12px;"></div>
     </div>
 
   </div>
@@ -1942,7 +1945,7 @@ textarea::placeholder { color: var(--muted); }
     </div>
 
     <div style="text-align:center;margin-bottom:28px;">
-      <div style="font-size:13px;color:#3a4060;">Already on free? You keep 2 Village members, 10 wins, and 30 days of journal forever.</div>
+      <div style="font-size:13px;color:#3a4060;">Already on free? You get a 2-item preview of Basic content in every section — videos, meditations, soundscapes, podcasts, and workbook.</div>
     </div>
     <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:28px;">
       <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#4a5070;"><span>🔒</span> Secure payments via Stripe</div>
@@ -2131,13 +2134,7 @@ function saveComfort(btn, text) {
 }
 
 // Meetings
-function filterMeetings(btn, type) {
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.meeting-card').forEach(c => {
-    c.style.display = (type === 'all' || c.dataset.type === type) ? 'grid' : 'none';
-  });
-}
+
 
 // Journal
 function usePrompt(btn) {
@@ -2157,7 +2154,6 @@ function saveEntry() {
 }
 
 // SOS
-function showSOS() { document.getElementById('sos-modal').classList.add('show'); }
 function closeSOS() { document.getElementById('sos-modal').classList.remove('show'); }
 
 // Confetti
@@ -2263,7 +2259,7 @@ async function initApp() {
         if (el) el.textContent = realDays;
       }
       loadDailyPledge();
-      console.log('✅ Clarity loaded for user:', session.user.id);
+
     } else {
       document.getElementById('auth-screen').style.display = 'flex';
     }
@@ -2417,15 +2413,6 @@ async function submitComment(postId) {
   await db.from('community_comments').insert({ post_id: postId, user_id: user.id, content: text, is_anonymous: true });
   document.getElementById('comment-text-' + postId).value = '';
   showToast('💙 Reply sent!');
-}
-
-function filterCommunity(filter) {
-  communityFilter = filter;
-  ['all','sameday','wins','struggling'].forEach(f => {
-    const btn = document.getElementById('filter-' + f);
-    if (btn) { btn.style.background = f === filter ? 'rgba(240,168,104,0.15)' : 'transparent'; btn.style.borderColor = f === filter ? '#f0a868' : '#2a3048'; btn.style.color = f === filter ? '#f0a868' : '#6b7394'; }
-  });
-  loadCommunityFeed();
 }
 
 let allLessons = [];
@@ -3313,8 +3300,10 @@ async function loadUserPlan() {
       .maybeSingle();
     if (data && data.plan) {
       userPlan = data.plan;
+      window.userSubscriptionTier = data.plan;
     } else {
       userPlan = 'free';
+      window.userSubscriptionTier = 'free';
     }
     renderWorkbookCards();
   } catch(e) {
@@ -3325,9 +3314,36 @@ async function loadUserPlan() {
 function getPlanLevel(plan) {
   if (plan === 'pro' || plan === 'team') return 3;
   if (plan === 'basic') return 2;
-  return 1;
+  return 1; // free
 }
 
+// Free users get a 2-item preview of basic content per section.
+// Track how many basic items have been shown as free previews per section.
+const _freePreviewCount = {};
+
+function canAccessItem(requiredTier, section, itemIndex) {
+  const level = getPlanLevel(userPlan);
+  // Pro/team can access everything
+  if (level >= 3) return true;
+  // Basic can access basic and below
+  if (level >= 2 && (requiredTier === 'basic' || requiredTier === 'free')) return true;
+  // Pro content always locked for basic
+  if (requiredTier === 'pro') return level >= 3;
+  // Free tier: always access free content
+  if (requiredTier === 'free') return true;
+  // Free tier: allow first 2 basic items per section as preview
+  if (requiredTier === 'basic' && level < 2) {
+    if (!_freePreviewCount[section]) _freePreviewCount[section] = 0;
+    if (_freePreviewCount[section] < 2) {
+      _freePreviewCount[section]++;
+      return true;
+    }
+    return false;
+  }
+  return false;
+}
+
+// Legacy wrapper — used by workbook/challenges which pass requiredPlan directly
 function canAccessExercise(requiredPlan) {
   const level = getPlanLevel(userPlan);
   if (requiredPlan === 'free') return true;
@@ -3678,9 +3694,11 @@ function renderChallengeCards(days) {
 }
 
 function showLockedChallenge(plan) {
-  const planName = plan === 'basic' ? 'Basic' : 'Pro';
-  const planColor = plan === 'basic' ? '#68b4f0' : '#a890e8';
-  showToast('🔒 Upgrade to ' + planName + ' to unlock this challenge');
+  const msg = plan === 'basic'
+    ? '🔒 Upgrade to Basic to unlock this challenge — from $7.99/mo'
+    : '🔒 Pro plan required — from $14.99/mo';
+  showToast(msg);
+  setTimeout(() => showPage('pricing'), 1800);
 }
 async function startChallenge(challengeId) {
   try {
@@ -3758,8 +3776,11 @@ function renderVideoCards() {
     return;
   }
 
-  container.innerHTML = filtered.map(v => {
-    const locked = !canAccessExercise(v.subscription_tier);
+  // Reset free preview counter for this render pass
+  _freePreviewCount['videos'] = 0;
+
+  container.innerHTML = filtered.map((v, idx) => {
+    const locked = !canAccessItem(v.subscription_tier, 'videos', idx);
     const tierColor = v.subscription_tier === 'free' ? '#7ec8a4' : v.subscription_tier === 'basic' ? '#68b4f0' : '#a890e8';
     const tierBg = v.subscription_tier === 'free' ? 'rgba(126,200,164,0.15)' : v.subscription_tier === 'basic' ? 'rgba(104,180,240,0.15)' : 'rgba(168,144,232,0.15)';
     const thumbUrl = v.youtube_id
@@ -3928,7 +3949,12 @@ function closeVideoModal() {
 
 function showLockedVideo(plan) {
   const planName = plan === 'basic' ? 'Basic' : 'Pro';
-  showToast('🔒 Upgrade to ' + planName + ' to watch this video');
+  const planColor = plan === 'basic' ? '#68b4f0' : '#a890e8';
+  const msg = plan === 'basic'
+    ? '🔒 Upgrade to Basic to unlock this — from $7.99/mo'
+    : '🔒 Pro plan required — from $14.99/mo';
+  showToast(msg);
+  setTimeout(() => showPage('pricing'), 1800);
 }
 // ===== CRAVING TOOLKIT =====
 function openCravingToolkit() {
@@ -4124,6 +4150,7 @@ function showListenTab(name, btn) {
   if (btn) btn.classList.add('active');
   if (name === 'meditations') loadMeditations();
   if (name === 'soundscapes') loadSoundscapes();
+  if (name === 'podcasts') initPodcasts();
 }
 
 async function initListenTab() {
@@ -4230,8 +4257,9 @@ function renderMeditationCards(items) {
   const tierColor = { free:'#7ec8a4', basic:'#68b4f0', pro:'#a890e8' };
   const tierBg = { free:'rgba(126,200,164,0.15)', basic:'rgba(104,180,240,0.15)', pro:'rgba(168,144,232,0.15)' };
 
-  container.innerHTML = items.map(m => {
-    const locked = !canAccessExercise(m.subscription_tier);
+  _freePreviewCount['meditations'] = 0;
+  container.innerHTML = items.map((m, idx) => {
+    const locked = !canAccessItem(m.subscription_tier, 'meditations', idx);
     const emoji = getListenEmoji(m);
     const thumbUrl = m.youtube_id ? 'https://img.youtube.com/vi/' + m.youtube_id + '/mqdefault.jpg' : '';
     const cat = (m.category || '').replace(/_/g,' ').toUpperCase();
@@ -4278,8 +4306,9 @@ function renderSoundscapeCards(items) {
   const tierColor = { free:'#7ec8a4', basic:'#68b4f0', pro:'#a890e8' };
   const tierBg = { free:'rgba(126,200,164,0.15)', basic:'rgba(104,180,240,0.15)', pro:'rgba(168,144,232,0.15)' };
 
-  container.innerHTML = items.map(s => {
-    const locked = !canAccessExercise(s.subscription_tier);
+  _freePreviewCount['soundscapes'] = 0;
+  container.innerHTML = items.map((s, idx) => {
+    const locked = !canAccessItem(s.subscription_tier, 'soundscapes', idx);
     const emoji = getListenEmoji(s);
     const thumbUrl = s.youtube_id ? 'https://img.youtube.com/vi/' + s.youtube_id + '/mqdefault.jpg' : '';
     const type = (s.type || '').toUpperCase();
@@ -4350,33 +4379,76 @@ function openAudioPlayer(trackId, type) {
   }, 5000);
 }
 
+let _backupCheckTimer = null;
+let _backupAttempted = false;
+
 function openYouTubeAudio(youtubeId, trackId, type) {
   const embedDiv = document.getElementById('video-modal-embed');
   const titleDiv = document.getElementById('video-modal-title');
   if (!embedDiv) return;
   titleDiv.textContent = currentTrack ? currentTrack.title : '';
 
+  // Clear any previous backup check
+  clearTimeout(_backupCheckTimer);
+
   const iframe = document.createElement('iframe');
+  iframe.id = 'listen-iframe';
   iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0;';
-  iframe.src = 'https://www.youtube.com/embed/' + youtubeId + '?autoplay=1&rel=0';
+  iframe.src = 'https://www.youtube.com/embed/' + youtubeId + '?autoplay=1&rel=0&origin=' + encodeURIComponent(window.location.origin);
   iframe.allow = 'autoplay; encrypted-media';
   iframe.allowFullscreen = true;
 
-  // Detect embed failure and swap to backup
-  iframe.onerror = function() { swapToBackupAudio(trackId, type); };
+  // onerror for direct load failures
+  iframe.onerror = function() {
+    if (!_backupAttempted) {
+      _backupAttempted = true;
+      swapToBackupAudio(trackId, type);
+    }
+  };
 
   embedDiv.innerHTML = '';
   embedDiv.appendChild(iframe);
   document.getElementById('video-modal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
+
+  // YouTube embeds that are blocked/unavailable don't fire onerror —
+  // they load but show an error screen. Check after 8s if the modal
+  // is still open and no progress has started, then swap to backup.
+  _backupAttempted = false;
+  _backupCheckTimer = setTimeout(() => {
+    const modal = document.getElementById('video-modal');
+    const isOpen = modal && modal.style.display === 'flex';
+    // If modal still open but progress bar hasn't moved, embed likely failed
+    const progress = parseFloat(document.getElementById('player-progress').style.width) || 0;
+    if (isOpen && progress === 0 && !_backupAttempted) {
+      _backupAttempted = true;
+      swapToBackupAudio(trackId, type);
+    }
+  }, 8000);
 }
 
 function swapToBackupAudio(trackId, type) {
   const backups = type === 'meditation' ? window._meditationBackups : window._soundscapeBackups;
   const backup = backups && backups[trackId];
   if (backup && backup.youtube_id) {
-    showToast('Switching to backup track...');
-    openYouTubeAudio(backup.youtube_id, backup.id, type);
+    showToast('⚠️ Switching to backup track...');
+    clearTimeout(_backupCheckTimer);
+    // Update player title to backup
+    document.getElementById('player-title').textContent = backup.title || (currentTrack ? currentTrack.title : '');
+    // Load backup — pass backup's own id so it doesn't loop back
+    _backupAttempted = true; // prevent infinite loop
+    const embedDiv = document.getElementById('video-modal-embed');
+    if (!embedDiv) return;
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0;';
+    iframe.src = 'https://www.youtube.com/embed/' + backup.youtube_id + '?autoplay=1&rel=0';
+    iframe.allow = 'autoplay; encrypted-media';
+    iframe.allowFullscreen = true;
+    embedDiv.innerHTML = '';
+    embedDiv.appendChild(iframe);
+  } else {
+    // No backup available — show message
+    showToast('⚠️ Track unavailable. Try another.');
   }
 }
 
@@ -4405,10 +4477,12 @@ function toggleAudioPlay() {
 function closeAudioPlayer() {
   document.getElementById('mini-player').style.display = 'none';
   clearInterval(playerInterval);
+  clearTimeout(_backupCheckTimer);
   closeVideoModal();
   currentTrack = null;
   currentTrackType = null;
   completionMarked = false;
+  _backupAttempted = false;
 }
 
 async function markMeditationComplete(meditationId) {
@@ -4457,6 +4531,263 @@ async function updateMeditationStreak(userId) {
     }
     await loadListenStreak();
   } catch(e) { console.error(e); }
+}
+// ===== PODCASTS =====
+const PODCASTS = [
+  // Recovery
+  {
+    id: 'recovery-elevator',
+    title: 'Recovery Elevator',
+    host: 'Paul Churchill',
+    description: 'Honest conversations about sobriety, alcohol-free living and building a life you love in recovery.',
+    category: 'recovery',
+    tier: 'free',
+    emoji: '🌙',
+    color: 'rgba(168,144,232,0.15)',
+    border: 'rgba(168,144,232,0.3)',
+    links: {
+      spotify: 'https://open.spotify.com/show/1Y3pBiMxCON1I8WoYGl0Oc',
+      apple: 'https://podcasts.apple.com/us/podcast/recovery-elevator/id1003070147',
+      web: 'https://www.recoveryelevator.com/podcast'
+    }
+  },
+  {
+    id: 'sober-powered',
+    title: 'Sober Powered',
+    host: 'Gill Tietz',
+    description: 'Science-backed insights on alcohol use, brain chemistry and the recovery process. Practical and compassionate.',
+    category: 'recovery',
+    tier: 'free',
+    emoji: '⚡',
+    color: 'rgba(104,180,240,0.15)',
+    border: 'rgba(104,180,240,0.3)',
+    links: {
+      spotify: 'https://open.spotify.com/show/5NJHkJMKA4evPRxLSHWxOQ',
+      apple: 'https://podcasts.apple.com/us/podcast/sober-powered/id1493925757',
+      web: 'https://www.soberpowered.com'
+    }
+  },
+  {
+    id: 'home-podcast',
+    title: 'Home Podcast',
+    host: 'Laura McKowen & Holly Whitaker',
+    description: 'Raw, real conversations about sobriety, spirituality and what it means to come home to yourself.',
+    category: 'recovery',
+    tier: 'basic',
+    emoji: '🏡',
+    color: 'rgba(240,168,104,0.15)',
+    border: 'rgba(240,168,104,0.3)',
+    links: {
+      spotify: 'https://open.spotify.com/show/4tBGPfONbbJFk8X7F7VGCL',
+      apple: 'https://podcasts.apple.com/us/podcast/home-with-laura-mckowen-and-holly-whitaker/id1244483678',
+      web: 'https://www.lauramckowen.com'
+    }
+  },
+  {
+    id: 'addiction-unlimited',
+    title: 'Addiction Unlimited',
+    host: 'Angela Pugh',
+    description: 'Expert strategies for breaking addiction, rebuilding your life and staying sober for the long haul.',
+    category: 'recovery',
+    tier: 'basic',
+    emoji: '🔓',
+    color: 'rgba(126,200,164,0.15)',
+    border: 'rgba(126,200,164,0.3)',
+    links: {
+      spotify: 'https://open.spotify.com/show/5P0h8MoaZ6QVMbrFPERAL4',
+      apple: 'https://podcasts.apple.com/us/podcast/addiction-unlimited/id931583151',
+      web: 'https://addictionunlimited.com'
+    }
+  },
+  // Mental Health
+  {
+    id: 'therapy-chat',
+    title: 'Therapy Chat',
+    host: 'Laura Reagan, LCSW-C',
+    description: 'Trauma-informed therapy insights, self-care tools and mental health education from a licensed therapist.',
+    category: 'mental_health',
+    tier: 'free',
+    emoji: '💬',
+    color: 'rgba(232,114,138,0.15)',
+    border: 'rgba(232,114,138,0.3)',
+    links: {
+      spotify: 'https://open.spotify.com/show/3m4FuDg9i0pRlzECJ0KQGW',
+      apple: 'https://podcasts.apple.com/us/podcast/therapy-chat/id996840005',
+      web: 'https://therapychatpodcast.com'
+    }
+  },
+  {
+    id: 'anxiety-slayer',
+    title: 'Anxiety Slayer',
+    host: 'Shann Vander Leek',
+    description: 'Practical tools for taming anxiety, panic and overwhelm using mindfulness, EFT and breathwork.',
+    category: 'mental_health',
+    tier: 'free',
+    emoji: '🛡️',
+    color: 'rgba(168,144,232,0.15)',
+    border: 'rgba(168,144,232,0.3)',
+    links: {
+      spotify: 'https://open.spotify.com/show/0GcWbqB1JHFY2XxSfW1LoL',
+      apple: 'https://podcasts.apple.com/us/podcast/anxiety-slayer-with-shann-and-ananga/id310900021',
+      web: 'https://www.anxietyslayer.com'
+    }
+  },
+  {
+    id: 'hilarious-depression',
+    title: 'The Hilarious World of Depression',
+    host: 'John Moe',
+    description: 'Comedians and artists open up about depression in funny, honest and deeply human conversations.',
+    category: 'mental_health',
+    tier: 'basic',
+    emoji: '😄',
+    color: 'rgba(240,192,96,0.15)',
+    border: 'rgba(240,192,96,0.3)',
+    links: {
+      spotify: 'https://open.spotify.com/show/5l6bH0fbMrBBfkRBNPSqbJ',
+      apple: 'https://podcasts.apple.com/us/podcast/the-hilarious-world-of-depression/id1181315554',
+      web: 'https://www.hilariousworld.org'
+    }
+  },
+  {
+    id: 'mindfulness-meditation',
+    title: 'Mindfulness Meditation Podcast',
+    host: 'Meditation Oasis',
+    description: 'Guided meditations and mindfulness practices to reduce stress, anxiety and cultivate inner calm.',
+    category: 'mental_health',
+    tier: 'free',
+    emoji: '🧘',
+    color: 'rgba(104,180,240,0.15)',
+    border: 'rgba(104,180,240,0.3)',
+    links: {
+      spotify: 'https://open.spotify.com/show/0CsGFJMzFvtHXfVRCiuZiY',
+      apple: 'https://podcasts.apple.com/us/podcast/mindfulness-meditation-podcast/id280453535',
+      web: 'https://www.meditationoasis.com'
+    }
+  },
+  // Wellness
+  {
+    id: 'on-being',
+    title: 'On Being',
+    host: 'Krista Tippett',
+    description: 'Deep conversations about meaning, healing, spiritual depth and the human experience at its fullest.',
+    category: 'wellness',
+    tier: 'free',
+    emoji: '✨',
+    color: 'rgba(126,200,164,0.15)',
+    border: 'rgba(126,200,164,0.3)',
+    links: {
+      spotify: 'https://open.spotify.com/show/3VFe1MTAf8vRsS14dPKbkG',
+      apple: 'https://podcasts.apple.com/us/podcast/on-being-with-krista-tippett/id150892556',
+      web: 'https://onbeing.org/series/podcast'
+    }
+  },
+  {
+    id: 'feel-better-live-more',
+    title: 'Feel Better, Live More',
+    host: 'Dr Rangan Chatterjee',
+    description: 'Evidence-based health advice on sleep, stress, nutrition and mindset to help you feel your best every day.',
+    category: 'wellness',
+    tier: 'basic',
+    emoji: '💚',
+    color: 'rgba(126,200,164,0.15)',
+    border: 'rgba(126,200,164,0.3)',
+    links: {
+      spotify: 'https://open.spotify.com/show/5bSj0OFvY7mVoEIIJAMfKC',
+      apple: 'https://podcasts.apple.com/gb/podcast/feel-better-live-more-with-dr-rangan-chatterjee/id1333552422',
+      web: 'https://drchatterjee.com/podcast'
+    }
+  },
+  {
+    id: 'school-of-greatness',
+    title: 'The School of Greatness',
+    host: 'Lewis Howes',
+    description: 'Inspiring interviews with world-class performers on resilience, purpose, mental toughness and healing.',
+    category: 'wellness',
+    tier: 'basic',
+    emoji: '🏆',
+    color: 'rgba(240,168,104,0.15)',
+    border: 'rgba(240,168,104,0.3)',
+    links: {
+      spotify: 'https://open.spotify.com/show/3aPwHs0gF1YHWFXJ0XYYyv',
+      apple: 'https://podcasts.apple.com/us/podcast/the-school-of-greatness/id596047499',
+      web: 'https://lewishowes.com/sogpodcast'
+    }
+  },
+  {
+    id: 'tim-ferriss',
+    title: 'The Tim Ferriss Show',
+    host: 'Tim Ferriss',
+    description: 'World-class performers share tools for mental health, addiction recovery, trauma healing and peak performance.',
+    category: 'wellness',
+    tier: 'pro',
+    emoji: '🎯',
+    color: 'rgba(168,144,232,0.15)',
+    border: 'rgba(168,144,232,0.3)',
+    links: {
+      spotify: 'https://open.spotify.com/show/5qSUyCrk9KR69AfRKymu4g',
+      apple: 'https://podcasts.apple.com/us/podcast/the-tim-ferriss-show/id863897795',
+      web: 'https://tim.blog/podcast'
+    }
+  }
+];
+
+let filteredPodcasts = [...PODCASTS];
+
+function filterPodcasts(cat, btn) {
+  document.querySelectorAll('.pod-filter').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  filteredPodcasts = cat === 'all' ? [...PODCASTS] : PODCASTS.filter(p => p.category === cat);
+  renderPodcastCards(filteredPodcasts);
+}
+
+function renderPodcastCards(items) {
+  const container = document.getElementById('podcast-cards');
+  if (!container) return;
+  if (!items.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:#6b7394;font-size:13px;">No podcasts found</div>';
+    return;
+  }
+  const tierColor = { free:'#7ec8a4', basic:'#68b4f0', pro:'#a890e8' };
+  const tierBg = { free:'rgba(126,200,164,0.15)', basic:'rgba(104,180,240,0.15)', pro:'rgba(168,144,232,0.15)' };
+  const catLabel = { recovery:'🌙 Recovery', mental_health:'🧠 Mental Health', wellness:'💚 Wellness' };
+
+  _freePreviewCount['podcasts'] = 0;
+  container.innerHTML = items.map((p, idx) => {
+    const locked = !canAccessItem(p.tier, 'podcasts', idx);
+
+    if (locked) {
+      return '<div class="podcast-card" onclick="showLockedVideo(\'' + p.tier + '\')" style="opacity:0.7;">' +
+        '<div style="width:52px;height:52px;border-radius:14px;background:' + p.color + ';border:1px solid ' + p.border + ';display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🔒</div>' +
+        '<div style="flex:1;min-width:0;">' +
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">' +
+        '<div style="font-size:14px;font-weight:700;color:#6b7394;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + p.title + '</div>' +
+        '<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:' + tierBg[p.tier] + ';color:' + tierColor[p.tier] + ';flex-shrink:0;">' + p.tier.toUpperCase() + '</span>' +
+        '</div>' +
+        '<div style="font-size:11px;color:#4a5270;margin-bottom:4px;">' + p.host + '</div>' +
+        '<div style="font-size:11px;color:#3a4060;">' + catLabel[p.category] + '</div>' +
+        '</div></div>';
+    }
+
+    return '<div class="podcast-card">' +
+      '<div style="width:52px;height:52px;border-radius:14px;background:' + p.color + ';border:1px solid ' + p.border + ';display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">' + p.emoji + '</div>' +
+      '<div style="flex:1;min-width:0;">' +
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">' +
+      '<div style="font-size:14px;font-weight:700;color:#e8eaf2;">' + p.title + '</div>' +
+      (p.tier !== 'free' ? '<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:' + tierBg[p.tier] + ';color:' + tierColor[p.tier] + ';">' + p.tier.toUpperCase() + '</span>' : '') +
+      '</div>' +
+      '<div style="font-size:11px;color:#6b7394;margin-bottom:6px;">🎙️ ' + p.host + ' · ' + catLabel[p.category] + '</div>' +
+      '<div style="font-size:12px;color:#9098b8;line-height:1.5;margin-bottom:10px;">' + p.description + '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+      '<a href="' + p.links.spotify + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:rgba(30,215,96,0.12);border:1px solid rgba(30,215,96,0.25);border-radius:8px;color:#1ed760;font-size:11px;font-weight:700;text-decoration:none;" onclick="event.stopPropagation()">🎵 Spotify</a>' +
+      '<a href="' + p.links.apple + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:rgba(252,60,68,0.12);border:1px solid rgba(252,60,68,0.25);border-radius:8px;color:#fc3c44;font-size:11px;font-weight:700;text-decoration:none;" onclick="event.stopPropagation()">🎧 Apple</a>' +
+      '<a href="' + p.links.web + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:rgba(104,180,240,0.12);border:1px solid rgba(104,180,240,0.25);border-radius:8px;color:#68b4f0;font-size:11px;font-weight:700;text-decoration:none;" onclick="event.stopPropagation()">🌐 Website</a>' +
+      '</div>' +
+      '</div></div>';
+  }).join('');
+}
+
+function initPodcasts() {
+  renderPodcastCards(PODCASTS);
 }
     </script>
   </body>
